@@ -14,7 +14,7 @@ Aplicación web para la gestión y consulta de reservas del salón de eventos de
 * Jhonatan Calle – [@Jhonatan-calle](https://github.com/Jhonatan-calle)
 * Trinidad Aguirre – [@TrinidadSA](https://github.com/TrinidadSA)
 * Agostina Rodriguez – [@agosrodriguez2](https://github.com/agosrodriguez2)
-* Virginia Soledada Gamba
+* Virginia Soledada Gamba - [@Virginia-Gamba](https://github.com/Virginia-Gamba)
 
 
 ## 📉 Funcionalidades a desarrollar
