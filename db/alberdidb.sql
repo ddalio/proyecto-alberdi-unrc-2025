@@ -1,6 +1,14 @@
 create database
 if not exists alberdidb;
 use alberdidb;
+drop table if exists Auditoria_Pago;
+drop table if exists Auditoria_Evento;
+drop table if exists Administrador;
+drop table if exists Pago;
+drop table if exists Evento;
+drop table if exists Responsable_Llave;
+drop table if exists Cuenta;
+drop table if exists Cliente;
 
 drop table if exists Cliente;
 create table Cliente(
@@ -23,7 +31,6 @@ create table Responsable_Llave(
     primary key(id_responsable)
 );
 
-drop table if exists Evento;
 create table Evento(
 	id_evento integer AUTO_INCREMENT not null, 
     descripcion varchar(100) default null,
@@ -44,15 +51,14 @@ create table Evento(
     
     constraint fk_resp_a foreign key
     (id_responsable_apertura) references 
-    Responsable_llave(id_responsable_apertura),
+    Responsable_Llave(id_responsable),
     
     constraint fk_resp_c foreign key
     (id_responsable_cierre) references 
-    Responsable_llave(id_responsable_cierre)
+    Responsable_Llave(id_responsable)
     
 );
 
-drop table if exists Pago;
 create table Pago(
 	id_pago integer AUTO_INCREMENT not null,
     id_evento integer not null,
@@ -65,7 +71,6 @@ create table Pago(
     (id_evento) references Evento(id_evento)
 );
 
-drop table if exists Cuenta;
 create table Cuenta(
 	nombre_usuario varchar(10) not null,
     email varchar(20) not null, 
@@ -77,40 +82,34 @@ create table Cuenta(
     constraint uq_email unique (email)
 );
 
-drop table if exists Administrador;
 create table Administrador(
 	nombre_usuario varchar(10) not null,
-    nombre varchar(20) not null,
     
     primary key(nombre_usuario),
-    constraint fk_nombre_usuario foreign key
-    (nombre_usuario) references Cuenta(nombre_usuario),
-    constraint fk_nombre foreign key
-    (nombre) references Cuenta(nombre)
+    constraint fk_nombre_usuario_admi foreign key
+    (nombre_usuario) references Cuenta(nombre_usuario)
 );
 
-drop table if exists Auditoria_Evento;
 create table Auditoria_Evento(
 	id_evento integer not null,
     nombre_usuario varchar(20) not null,
     
     primary key(id_evento, nombre_usuario),
     
-    constraint fk_nombre_usuario foreign key
+    constraint fk_nombre_usuario_aud_evento foreign key
     (nombre_usuario) references Cuenta(nombre_usuario),
     constraint fk_id_evento foreign key
     (id_evento) references Evento(id_evento)
     
 );
 
-drop table if exists Auditoria_Pago;
 create table Auditoria_Pago(
 	id_pago integer not null,
     nombre_usuario varchar(20) not null,
     
     primary key(id_pago, nombre_usuario),
     
-    constraint fk_nombre_usuario foreign key
+    constraint fk_nombre_usuario_aud_pago foreign key
     (nombre_usuario) references Cuenta(nombre_usuario),
     constraint fk_id_pago foreign key
     (id_pago) references Pago(id_pago)
