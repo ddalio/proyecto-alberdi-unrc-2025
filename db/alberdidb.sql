@@ -10,7 +10,6 @@ drop table if exists Responsable_Llave;
 drop table if exists Cuenta;
 drop table if exists Cliente;
 
-drop table if exists Cliente;
 create table Cliente(
 	dni varchar(20) not null,
     nombre varchar(20) not null,
