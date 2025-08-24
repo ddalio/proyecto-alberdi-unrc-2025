@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Club Alberdi - {% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href=" {{ url_for('static', filename ='css/style.css') }}">
+    </head>
+    <body>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('inicio') }} ">Inicio</a></li>
+                <li><a href="{{ url_for('eventos') }} ">Eventos</a></li>
+                <li><a href="{{ url_for('ingresos') }} ">Ingresos</a></li>
+                <li><a href="{{ url_for('cuentas') }} ">Cuentas</a></li>
+            </ul>
+        </nav>
+
+        {% block content %}
+        
+        {% endblock %}
+
+        <script src= " {{ url_for('static', filename ='js/main.js') }}"></script>
+    </body>
+</html>
