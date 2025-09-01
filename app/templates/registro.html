@@ -1,18 +1,46 @@
-{% extends 'base.html' %}
-
-{% block title  %} Página de Registro {% endblock %}
-
-{% block content %}
-    <h1>Registro</h1>
-
-    <form action="">
-        <label for="username">Nombre de usuario</label>
-        <input type="text" name="username" id="username">
-        <br>
-        <label for="username">Contraseña</label>
-        <input type="text" name="password" id="password">
-        <br>
-        <input type="submit" value="Registrar">
-
-    </form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href=" {{ url_for('static', filename ='css/style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inicio de Sesión</title>
+  </head>
+  <body>
+    <div
+      class="container d-flex flex-column justify-content-center align-items-center min-vh-100"
+    >
+      <div class="p-4" style="max-width: 800px; width: 100%">
+        <h2 class="text-center mb-5 pb-5">Club Juan Bautista Alberdi</h2>
+        <h4 class="text-center  mb-5 mt-5  pb-4">Inicia Sesión</h4>
+        <form>
+          <div class="mb-3">
+            <label for="Email" class="form-label">Correo electrónico</label>
+            <input
+              type="email"
+              id="Email"
+              class="form-control"
+              placeholder="Ingresa tu dirección de correo electrónico"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="Password" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              id="Password"
+              class="form-control"
+              placeholder="Ingresa tu contraseña"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-custom w-100 rounded-4 p-2">Ingresar</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
