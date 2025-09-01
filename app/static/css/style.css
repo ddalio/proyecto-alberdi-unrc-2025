@@ -1,7 +1,23 @@
-body{
-    background-color: FFE4E4;
+:root {
+  --color-primario: #b90603;
+  --color-secundario: #FFE4E4;
 }
 
-h1{
-    color: crimson;
+
+h1 {
+  color: var(--color-primario);
+}
+
+
+.btn-custom {
+  background-color: var(--color-primario);
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+
+.btn-custom:hover,
+.btn-custom:focus {
+  background-color: #a00502; /* tono más oscuro al hacer hover */
+  color: #fff;
 }
