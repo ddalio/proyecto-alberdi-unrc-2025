@@ -5,7 +5,9 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./app:/app/app
+      - .:/app
     environment:
       - FLASK_ENV=development
+      - FLASK_DEBUG=1 #hot relouder en desarrollo
+
 
