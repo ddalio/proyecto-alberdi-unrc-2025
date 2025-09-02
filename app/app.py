@@ -5,7 +5,8 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/inicio")
 def inicio():
-    return render_template('inicio.html')
+    #el active_page sirve para los estilos en el nav
+    return render_template('inicio.html', active_page='inicio')
 
 @app.route("/registro")
 def registrar():
@@ -17,11 +18,13 @@ def eventos():
 
 @app.route("/ingresos")
 def ingresos():
-    return render_template('ingresos.html')
+    #el active_page sirve para los estilos en el nav
+    return render_template('ingresos.html', active_page='ingresos')
 
 @app.route("/cuentas")
 def cuentas():
-    return render_template('cuentas.html')
+    #el active_page sirve para los estilos en el nav
+    return render_template('cuentas.html', active_page='cuentas')
 
 # esta es una función que ya tiene flask para los errores
 @app.errorhandler(404)
