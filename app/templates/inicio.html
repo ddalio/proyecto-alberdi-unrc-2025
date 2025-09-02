@@ -1,14 +1,70 @@
-{% extends 'base.html' %}
-{% block title%} Pagina de inicio {% endblock %}
+{% extends 'base.html' %} {% block title%} Pagina de inicio {% endblock %} {%
+block extra_head %}
+
+<!-- posible opcion de claenadrio -->
+
+<!-- <script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler/index.global.min.js'></script>    
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar')
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth'
+        })
+        calendar.render()
+      })
+
+    </script> -->
+
+{% endblock %} 
 
 {% block content %}
 
-    <h1> Inicio </h1>
-    <p> Acá iría el calendario </p>
-    
+<!-- <div id='calendar'></div> -->
+
+<div
+  class="container-fluid h-100 d-flex flex-column justify-content-between p-5"
+  style="min-height: 80vh"
+>
+  <!-- Row superior -->
+  <div class="row">
+    <div class="col-12 d-flex justify-content-end align-items-start">
+      <div class="d-flex flex-row gap-2 mt-3">
+        <button class="btn btn-custom d-flex align-items-center">
+          <i class="bi bi-image me-2"></i> Descargar como imagen
+        </button>
+        <button class="btn btn-outline-primary d-flex align-items-center">
+          <i class="bi bi-calendar-week me-2"></i> Semana
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Row central (placeholder) -->
+  <div
+    class="row flex-grow-1 justify-content-center align-items-center"
+    style="min-height: 400px"
+  >
+    <div
+      class="col-12 d-flex justify-content-center align-items-center"
+      style="height: 80%"
+    >
+      <div
+        class="border rounded bg-light w-100 h-100 d-flex justify-content-center align-items-center"
+        style="min-height: 300px"
+      >
+        <span class="text-muted">[Aquí irá el calendario]</span>
+      </div>
+    </div>
+  </div>
+  <!-- Row inferior -->
+  <div class="row">
+    <div class="col-12 d-flex justify-content-center align-items-center">
+      <div class="d-flex flex-row gap-5 my-4">
+        <button class="btn btn-custom px-5 py-2 mx-5">Ingresar</button>
+        <button class="btn btn-custom px-5 py-2 mx-5">Consultar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
-
-        
-
-    
