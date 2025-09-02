@@ -1,13 +1,17 @@
 :root {
   --color-primario: #b90603;
-  --color-secundario: #FFE4E4;
+  --color-secundario: #ffe4e4;
 }
-
 
 h1 {
   color: var(--color-primario);
 }
 
+body {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
 
 .btn-custom {
   background-color: var(--color-primario);
