@@ -33,7 +33,7 @@ create table cuenta(
     email varchar(50) not null,
     nombre varchar(20) not null,
     apellido varchar(20) not null,
-    contraseña varchar(255) not null,
+    contrasenia varchar(255) not null,
     primary key(nombre_usuario),
     constraint uq_email unique (email)
 );

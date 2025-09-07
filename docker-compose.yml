@@ -1,16 +1,21 @@
-version: "3.9"
 services:
   db:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: alberdi_club
+      MYSQL_DATABASE: alberdidb
       MYSQL_USER: alberdi_user
       MYSQL_PASSWORD: alberdi_pass
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./db/alberdidb.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "alberdi_user", "-palberdi_pass"]
+      timeout: 20s
+      retries: 10
     restart: unless-stopped
 
   flask_app:
@@ -18,12 +23,12 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./app:/app/app
-      - ./run.py:/app/run.py
+      - .:/app
     environment:
       - FLASK_ENV=development
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

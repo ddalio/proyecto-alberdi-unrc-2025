@@ -1,26 +1,31 @@
 from flask import Blueprint, render_template
-#from main.models import Socio, Evento, Ingreso, Cuenta
+from app.models import Cliente
 
 main = Blueprint('main', __name__)
 
 @main.route("/")
-@main.route("/inicio ")
+@main.route("/inicio")
 def inicio():
     return render_template('inicio.html')
 
-@main.route("/registro ")
-def registrar():
+@main.route("/registro")
+def registro():
     return render_template('registro.html')
 
-@main.route("/eventos ")
+@main.route("/eventos")
 def eventos():
-    return render_template('eventos.html')
+    return render_template('eventos.html'   )
 
-@main.route("/ingresos ")
+@main.route("/clientes")
+def clientes():
+    clientes = Cliente.query.all()
+    return render_template('clientes.html', clientes=clientes)
+
+@main.route("/ingresos")
 def ingresos():
     return render_template('ingresos.html')
 
-@main.route("/cuentas ")
+@main.route("/cuentas")
 def cuentas():
     return render_template('cuentas.html')
 

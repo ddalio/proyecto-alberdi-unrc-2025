@@ -5,7 +5,12 @@
 
     <h1> Eventos </h1>
     <p> Acá iría el listado de eventos </p>
-    
+    <ul>
+        {% for evento in eventos_list | reverse %}
+        <li>{{evento}}</li>
+        {% endfor %}
+    </ul>
+
 
 {% endblock %}
 

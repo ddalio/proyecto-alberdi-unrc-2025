@@ -9,7 +9,7 @@ db = SQLAlchemy()
 def create_app():
     app = Flask(__name__)
     
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:password@db:3306/alberdi_club'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:password@db:3306/alberdidb'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'your-secret-key-here'
     
