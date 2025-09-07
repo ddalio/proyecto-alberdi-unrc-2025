@@ -65,22 +65,3 @@ INSERT INTO pago (id_evento, monto_pago, fecha, usuario_creacion) VALUES
 -- NOTA: nombre_usuario debe existir en cuenta
 INSERT INTO administrador (nombre_usuario) VALUES
 ('admin01');
-
-
-SELECT * FROM cliente;
-SELECT * FROM responsable_llave;
-SELECT * FROM cuenta;
-SELECT * FROM evento;
-SELECT * FROM pago;
-SELECT * FROM administrador;
-
--- ==============================
--- 7. PRUEBAS DE AUDITORÍA
--- ==============================
--- Estos datos se generan automáticamente gracias a los triggers
--- cuando se insertan eventos y pagos.
--- Verificarlos:
-SELECT * FROM auditoria_evento;
-SELECT * FROM auditoria_pago;
-
--- SHOW WARNINGS;
