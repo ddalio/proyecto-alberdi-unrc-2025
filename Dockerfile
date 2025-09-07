@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copiar dependencias
 COPY requirements.txt .
+COPY run.py .
 
 # Instalar dependencias
 RUN pip install --no-cache-dir -r requirements.txt
@@ -16,6 +17,4 @@ COPY app/ ./app
 # Exponer puerto
 EXPOSE 5000
 
-# Comando de inicio
-CMD ["python", "app/app.py"]
-
+CMD ["python", "run.py"]

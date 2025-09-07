@@ -1,11 +1,30 @@
 version: "3.9"
 services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: alberdi_club
+      MYSQL_USER: alberdi_user
+      MYSQL_PASSWORD: alberdi_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
   flask_app:
     build: .
     ports:
       - "5000:5000"
     volumes:
       - ./app:/app/app
+      - ./run.py:/app/run.py
     environment:
       - FLASK_ENV=development
+    depends_on:
+      - db
+    restart: unless-stopped
 
+volumes:
+  mysql_data:
