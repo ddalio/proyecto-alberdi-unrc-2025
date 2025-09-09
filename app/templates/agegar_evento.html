@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title%} Eventos {% endblock %}
+
+{% block content %}
+
+    <h1>Agregar usuario</h1>
+    <h2>Detalles de usuario</h2>
+      <form action="/nuevo-usuario" method="POST">
+        <div class="datosEvento">
+            <h2>Datos del Evento</h2>
+
+            <input type="text" placeholder="¿Qué tipo de evento es?">
+            <input type="text" placeholder="Monto de Colaboración">
+            
+            <div >
+                <div>
+                    <label>Fecha*</label>
+                    <input type="date" required>
+                </div>
+                <div>
+                    <label>Hora Inicio</label>
+                    <input type="time">
+                </div>
+                <div>
+                    <label>Hora Final</label>
+                    <input type="time">
+                </div>
+            </div>
+
+            <input type="text" placeholder="Número de Recibo">
+            <input type="text" placeholder="Monto Pagado">
+            <textarea placeholder="Observaciones"></textarea>
+
+        </div>
+
+        <div class="responsableAlquiler">
+            <h2>Responsable del Alquiler</h2>
+
+
+            <input type="text" placeholder="Nombre*" required>
+            <input type="text" placeholder="Apellido*"required>
+            <input type="text" placeholder="DNI*" required>
+            <input type="text" placeholder="Teléfono*" required>
+            <input type="text" placeholder="Institución a la que pertenece">
+
+        </div>
+
+        <div class="responsableLlave">
+            <h2>Responsable de la Llave</h2>
+
+            <input type="text" placeholder="Nombre (Apertura)">
+            <input type="text" placeholder="Apellido (Apertura)">
+            <input type="text" placeholder="Nombre (Cierre)">
+            <input type="text" placeholder="Apellido (Cierre)">
+
+        </div>
+
+
+        <div class="acciones">
+          <button type="submit" class="btn btn-add">Aceptar</button>
+          <button type="button" class="btn btn-cancel" >Cancelar</button>
+        </div>
+      </form>
+    
+
+{% endblock %}
+
+        

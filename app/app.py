@@ -23,6 +23,16 @@ def ingresos():
 def cuentas():
     return render_template('cuentas.html')
 
+@app.route("/agregar_usuario ")
+def agregar_usuario():
+    return render_template('agregar_usuario.html')
+
+@app.route("/agregar_evento ")
+def agregar_evento():
+    return render_template('agregar_evento.html')
+
+
+
 # esta es una función que ya tiene flask para los errores
 @app.errorhandler(404)
 def not_found(e):

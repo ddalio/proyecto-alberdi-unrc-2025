@@ -5,6 +5,15 @@
 
     <h1> Inicio </h1>
     <p> Acá iría el calendario </p>
+
+    <div>
+        
+        <a href="{{ url_for('agregar_evento') }}" class="btn add">Ingresar</a>
+
+
+        <a href="{{ url_for('eventos') }}" class="btn consulta">Consultar</a>
+
+    </div>
     
 
 {% endblock %}

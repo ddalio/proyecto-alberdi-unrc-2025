@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title%} Eventos {% endblock %}
+
+{% block content %}
+
+    <h1>Agregar usuario</h1>
+    <h2>Detalles de usuario</h2>
+      <form action="/nuevo-usuario" method="POST">
+        <label>Nombre de usuario*</label>
+        <input type="text" name="usuario" required>
+
+        <label>Rol</label>
+        <input type="text" name="rol">
+
+        <label>Nombre*</label>
+        <input type="text" name="nombre" required>
+
+        <label>Apellido*</label>
+        <input type="text" name="apellido" required>
+
+        <label>Email*</label>
+        <input type="email" name="email" required>
+
+        <label>Contraseña*</label>
+        <input type="password" name="password" required>
+
+        <label>Repetir contraseña*</label>
+        <input type="password" name="password2" required>
+
+        <div class="acciones">
+          <button type="submit" class="btn btn-add">Añadir Usuario</button>
+          <button type="button" class="btn btn-cancel" >Cancelar</button>
+        </div>
+      </form>
+    
+
+{% endblock %}
+
+        
