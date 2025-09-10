@@ -5,6 +5,14 @@ from app.models import Cuenta, Cliente
 
 main = Blueprint('main', __name__)
 
+# Funcion para actualizar el estado de pago de un evento
+def actualizar_estado_evento(evento):
+    total_pagado = sum([float(p.monto_pago) for p in evento.pagos])
+    
+    if total_pagado >= float(evento.monto_total):
+        evento.adeuda = False
+        flash("Se completo el pago del evento")
+
 @main.route("/")
 @main.route("/inicio")
 def inicio():
@@ -30,21 +38,21 @@ def registro():
     return render_template('registro.html')
 
 
-@main.route("/eventos")
+@main.route("/eventos", methods=["GET"])
 def eventos():
     try:
-        # eventos ordenados por fecha
-        eventos = Evento.query.order_by(Evento.fecha_inicio.des()).all()
-        return render_template('eventos_lista.html', eventos = eventos)
+        # todos los eventos
+        eventos = Evento.query.all()
+        return render_template('eventos.html', lista_eventos = eventos)
     except Exception as e:
         # si no hay eventos disponibles
         flash(f"Error al cargar eventos: {str(e)}")
-        return render_template("eventos_lista.html", eventos = [])
+        return render_template("eventos.html", eventos = [])
+
 
 @main.route("/eventos/crear", methods =["POST"])
 def crear_evento():
     try:
-
         # Validacion para campos obligatorios (HACER)
 
         # Datos responsable del alquiler
@@ -82,9 +90,8 @@ def crear_evento():
                 nombre=nombre_apertura,
                 apellido=apellido_apertura
             )
-        
-        db.session.add(responsable_llave_apertura)
-        db.session.flush() #genera id_responsable para usar en evento
+            db.session.add(responsable_llave_apertura)
+            db.session.flush() #genera id_responsable para usar en evento
 
         if nombre_cierre and apellido_cierre:
             responsable_llave_cierre = ResponsableLlave.query.filter_by(
@@ -97,16 +104,12 @@ def crear_evento():
                 nombre=nombre_cierre,
                 apellido=apellido_cierre
             )
-
             db.session.add(responsable_llave_cierre)
             db.session.flush()
 
         # Usuario logueado
         usuario_nombre = session.get("username")
         usuario = Cuenta.query.get(usuario_nombre)
-        if not usuario:
-            flash("Usuario no encontrado en sesión")
-            return redirect(url_for("main.crear"))
 
         evento = Evento(
             descripcion = request.form.get("descripcion"),
@@ -123,73 +126,83 @@ def crear_evento():
             id_responsable_cierre = responsable_llave_cierre.id_responsable,
             usuario_creacion = usuario.nombre_usuario
         )
+
         db.session.add(evento)
         db.session.commit()
+
+        # Registro de un monto inicial (seña)
+        monto_inicial = request.form.get("monto")
+        if monto_inicial and float(monto_inicial) > 0
+            # Registro de un pago
+            pago = Pago(evento_id = evento.id,
+                        monto_pago = float(monto_inicial),
+                        fecha = datetime.utcnow(),
+                        usuario_creacion = usuario.nombre_usuario)
+            db.session.add(pago)
+            db.session.commit()
+
+        # Actualizar el estado de pago del evento
+        actualizar_estado_evento(evento)
+        db.session.commit()
         flash("Evento creado correctamente")
-        return redirect(url_for("main.lista_eventos"))
+        return redirect(url_for("eventos.html"))
 
     except Exception as e:
         db.session.rollback()
         flash(f"Error al crear evento: {str(e)}")
-        return redirect(url_for("main.crear"))
+        return redirect(url_for("eventos.html"))
 
-    #ver la logica de pago para actualizar adeuda y nro_recibo
+    #ver nro_recibo. (HACER)
 
-@main.route("/ingresos")
+@main.route("/ingresos", methods["GET"])
 def ingresos():
     try:
         # Trae todos los pagos 
-        pagos = Pago.query.order_by(Pago.fecha.desc()).all()
-        return render_template("lista_ingresos.html", pagos = pagos)
+        pagos = Pago.query.all()
+        return render_template("ingresos.html", pagos = pagos)
     except Exception as e:
         flash(f"Error al cargar ingresos: {str(e)}")
-        return render_template('lista_ingresos.html', pagos = [])
+        return render_template('ingresos.html', pagos = [])
 
-
-@main.route("/ingresos/editar/<int:id_pago>", methods=["GET"])
-def editar_ingreso(id_pago):
-    pago = Pago.query.get_or_404(id_pago)
-    return render_template("editar_pago.html", pago=pago)
-
-
-# Funcion para actualizar el estado de pago de un evento
-def actualizar_estado_evento(evento):
-    total_pagado = sum([float(p.monto_pago) for p in evento.pagos])
-    
-    if total_pagado >= float(evento.monto_total):
-        evento.adeuda = False
-        evento.nro_recibo = evento.pagos[-1].id_pago if evento.pagos else None
-    else:
-        evento.adeuda = True
-        evento.nro_recibo = None
-
-    db.session.commit()
 
 @main.route("/ingresos/editar/<int:id_pago>", methods=["POST"])
 def actualizar_pago(id_pago):
+    # Usuario logueado
+    usuario_nombre = session.get("username")
+    usuario = Cuenta.query.get(usuario_nombre)
+
+    #verificar si el usuario tiene permisos(HACER)
+
     try:
         pago = Pago.query.get_or_404(id_pago)
         pago.monto_pago = float(request.form.get("monto_pago"))
-        pago.fecha = datetime.strptime(request.form.get("fecha"), "%Y-%m-%d")
+        pago.fecha = datetime.utcnow()
+        pago.usuario_creacion = usuario.nombre_usuario
+
+        # Actualizar estado del evento al que pertenece el pago
+        actualizar_estado_evento(pago.evento)
+        flash("Se actualizo correctamente")
         db.session.commit()
 
-        # Actualizar estado del evento relacionado
-        actualizar_estado_evento(pago.evento)
 
         flash("Pago actualizado correctamente")
-        return redirect(url_for("main.ingresos"))
+        return redirect(url_for("ingresos"))
     except Exception as e:
         db.session.rollback()
         flash(f"Error al actualizar pago: {str(e)}")
-        return redirect(url_for("main.editar_pago", id_pago=id_pago))
+        return redirect(url_for("INGRESOS", id_pago=id_pago))
 
 
 
-@main.route("/ingresos/eliminar/<int:id_pago>")
+@main.route("/ingresos/eliminar/<int:id_pago>", methods = ["POST"])
 def eliminar_ingreso(id_pago):
     try:
-        pago = Pago.query.get_or_404(id_pago)
-        evento = pago.evento
+        pago = Pago.query.get(id_pago)
+        if not pago:
+            flash("No se encontro el pago")
+            return redirect(url_for("ingresos.html"))
+        
+        evento = Evento.query.get(pago.evento_id)
         db.session.delete(pago)
         db.session.commit()
 
@@ -202,15 +215,13 @@ def eliminar_ingreso(id_pago):
     except Exception as e:
         db.session.rollback()
         flash(f"Error al eliminar pago: {str(e)}")
-        return redirect(url_for("main.ingresos"))
+        return redirect(url_for("ingresos.html"))
 
 
 # esta es una función que ya tiene flask para los errores
 @main.errorhandler(404)
 def not_found(e):
   return render_template("404.html")
-
-
 
 @main.route("/cuentas")
 def cuentas():
