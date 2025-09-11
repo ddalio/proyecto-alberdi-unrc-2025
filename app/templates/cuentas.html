@@ -3,8 +3,48 @@
 
 {% block content %}
 
-    <h1> Cuentas </h1>
-    <p> Acá iría el listado de todas las cuentas, y para cerrar sesión </p>
+    <form action="/buscar" method="get" class="search-container">
+        <input type="search" name="q" placeholder="Ingrese un usuario..." />
+        <button type="submit">🔍</button>
+    </form>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Nombre Usuario</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Rol</th>
+        </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td>pepito123</td>
+                <td>Pepe</td>
+                <td>Rodriguez</td>
+                <td>prodriguez@gmail.com</td>
+                <td>Admin</td>
+                <td class="acciones">
+                    <a href="#" class="ver">📄</a>
+                    <a href="#" class="editar">✏️</a>
+                    <a href="#" class="borrar">🗑️</a>
+                </td>
+            </tr>
+
+            <!--si no hay datos: <tr><td colspan="6">No hay usuarios cargados</td></tr>  -->
+        </tbody>
+    </table>
+
+    <div>
+        
+        <a href="{{ url_for('agregar_usuario') }}" class="btn add">Añadir Usuario</a>
+
+
+        <a href="{{ request.referrer or url_for('inicio') }}" class="btn back">Volver</a>
+
+    </div>
     
 
 {% endblock %}
