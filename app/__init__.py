@@ -13,11 +13,10 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'your-secret-key-here'
     
-    # Initialize database
+    # Inicializamos base de datos
     db.init_app(app)
     
-    # Import and register routes
-    from app.routes import main
-    app.register_blueprint(main)
+    # Importa y registra las rutas
+    app.register_blueprints(app)
     
     return app

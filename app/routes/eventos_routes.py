@@ -1,65 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import Cuenta, Cliente, Evento, Pago, ResponsableLlave
+from app.models import db, Evento, Cliente, ResponsableLlave, Pago, Cuenta
 
-main = Blueprint('main', __name__)
-
-# Aca estaria el calendario, y los botones para Ingresar y Consultar un evento
-@main.route("/") # DUDA!!! Capaz seria mejor poner esto en iniciar sesion, asi primero ingresas
-@main.route("/inicio")
-def inicio():
-    if 'username' not in session:
-        return redirect(url_for('main.ingresar'))
-    return render_template('inicio.html')
-
-# Login
-@main.route("/ingresar", methods = ["GET", "POST"])
-def ingresar():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-
-        # Buscar usuario en la base de datos
-        user = Cuenta.query.filter_by(nombre_usuario=username).first()
-
-        # Si el usuario existe y la contraseña es correcta, iniciar sesión
-        if user and check_password_hash(user.contrasenia, password):
-            session['username'] = user.nombre_usuario
-            return redirect(url_for('main.inicio'))
-        else:
-            flash("Usuario o contraseña incorrectos"), 401
-            return redirect(url_for('main.ingresar'))
-
-    return render_template('login.html')
-
-# NOTA!!! Toda esta seccion la verias si sos admin
-# Listado de cuentas
-@main.route("/cuentas")
-def cuentas():
-    return render_template('cuentas.html')
-
-
-# NOTA!!! Se usaria en el metodo donde este el listado de las cuentas
-def buscar_cuenta():
-    return 0
-
-@main.route("/cuentas/crear")
-def crear_cuenta():
-    return render_template('agregar_usuario.html')
-
-#se pondria el id de la cuenta a editar
-@main.route("/cuentas/editar")
-def editar_cuenta():
-    return render_template('editar-cuenta.html')
-
-# DUDA!!! No se si se necesita una ruta aparte para esto, creo q no
-#@main.route("/cuentas/eliminar")
-def eliminar_cuenta():
-    return render_template('cuentas.html')
+eventos_bp = Blueprint('eventos', __name__, url_prefix='/eventos')
 
 # Listado de eventos
-@main.route("/eventos", methods=["GET"])
+@eventos_bp.route("/eventos", methods=["GET"])
 def eventos():
     try:
         # todos los eventos
@@ -74,11 +20,11 @@ def eventos():
 # Crear un nuevo evento
 # 
 #
-@main.route("/agregar_evento ")
+@eventos_bp.route("/agregar_evento ")
 def agregar_evento():
     return render_template('agregar_evento.html')
 
-@main.route("/eventos/crear", methods =["POST"])
+@eventos_bp.route("/eventos/crear", methods =["POST"])
 def crear_evento():
     try:
         # Validacion para campos obligatorios (HACER)
@@ -170,15 +116,15 @@ def crear_evento():
             db.session.commit()
 
         # Actualizar el estado de pago del evento
-        actualizar_estado_evento(evento)
+        actualizar_pago_evento(evento)
         db.session.commit()
         flash("Evento creado correctamente")
-        return redirect(url_for("eventos.html"))
+        return redirect(url_for('eventos_bp.eventos'))
 
     except Exception as e:
         db.session.rollback()
         flash(f"Error al crear evento: {str(e)}")
-        return redirect(url_for("eventos.html"))
+        return redirect(url_for('eventos_bp.eventos'))
 
     #ver nro_recibo. (HACER)
 
@@ -186,7 +132,7 @@ def crear_evento():
 def buscar_evento():
     return 0
 
-@main.route("/eventos/editar", methods =["POST"])
+@eventos_bp.route("/eventos/editar", methods =["POST"])
 def editar_evento():
     return render_template("editar-evento.html")
 
@@ -199,83 +145,18 @@ def actualizar_pago_evento(evento):
         flash("Se completo el pago del evento")
 
 # DUDA!!! No se si se necesita una ruta aparte para esto
-#@main.route("/eventos/eliminar/<int:id_evento>", methods =["POST"])
+#@eventos_bp.route("/eventos/eliminar/<int:id_evento>", methods =["POST"])
 def eliminar_evento():
     return render_template("eliminar-evento.html")
-
-
-# Listado de ingresos de TODOS los eventos, SOLO CONSULTA
-# id evento | total a pagar | total pagado (sum pagos)
-@main.route("/ingresos", methods = ["GET"])
-def ingresos():
-    return render_template('ingresos.html')
-
-# Funcion que ya tiene flask para los errores
-
-@main.errorhandler(404)
-def not_found(e):
-  return render_template("404.html")
-
 
 
 # ---------------------Metodos que no sabemos si agregar todavia-----------------------------------
 
 # Esto es para debug nomas, en realidad no tenemos pensado poner una pagina solo para clientes/responsables de eventos
 # Lo podriamos agregar si nos hace falta
-@main.route("/clientes")
+@eventos_bp.route("/clientes")
 def clientes():
     clientes = Cliente.query.all()
     return render_template('clientes.html', clientes=clientes)
 
 
-# CHEQUEAR!!! Logica de agregar un pago, desde que ruta hacerlo NO editarlo
-# @main.route("/ingresos/editar/<int:id_pago>", methods=["POST"])
-# def actualizar_pago(id_pago):
-#     # Usuario logueado
-#     usuario_nombre = session.get("username")
-#     usuario = Cuenta.query.get(usuario_nombre)
-
-#     #verificar si el usuario tiene permisos(HACER)
-
-#     try:
-#         pago = Pago.query.get_or_404(id_pago)
-#         pago.monto_pago = float(request.form.get("monto_pago"))
-#         pago.fecha = datetime.utcnow()
-#         pago.usuario_creacion = usuario.nombre_usuario
-
-#         # Actualizar estado del evento al que pertenece el pago
-#         actualizar_estado_evento(pago.evento)
-#         flash("Se actualizo correctamente")
-#         db.session.commit()
-
-
-#         flash("Pago actualizado correctamente")
-#         return redirect(url_for("ingresos"))
-#     except Exception as e:
-#         db.session.rollback()
-#         flash(f"Error al actualizar pago: {str(e)}")
-#         return redirect(url_for("INGRESOS", id_pago=id_pago))
-
-
-# @main.route("/ingresos/eliminar/<int:id_pago>", methods = ["POST"])
-# def eliminar_ingreso(id_pago):
-#     try:
-#         pago = Pago.query.get(id_pago)
-#         if not pago:
-#             flash("No se encontro el pago")
-#             return redirect(url_for("ingresos.html"))
-
-#         evento = Evento.query.get(pago.evento_id)
-#         db.session.delete(pago)
-#         db.session.commit()
-
-#         # Actualizar estado del evento
-#         actualizar_estado_evento(evento)
-
-#         flash("Pago eliminado correctamente")
-#         return redirect(url_for("main.ingresos"))
-
-#     except Exception as e:
-#         db.session.rollback()
-#         flash(f"Error al eliminar pago: {str(e)}")
-#         return redirect(url_for("ingresos.html"))
