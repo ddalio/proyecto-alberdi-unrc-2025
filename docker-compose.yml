@@ -26,10 +26,13 @@ services:
       - .:/app
     environment:
       - FLASK_ENV=development
+      - FLASK_DEBUG=1 #hot relouder en desarrollo
+
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+
 
 volumes:
   mysql_data:

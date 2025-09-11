@@ -1,7 +1,38 @@
-body{
-    background-color: FFE4E4;
+:root {
+  --color-primario: #b90603;
+  --color-hover: #ffe4e4;
+  --color-btn: #EC221F;
 }
 
-h1{
-    color: crimson;
+h1 {
+  color: var(--color-primario);
+}
+
+body {
+  font-family: "Poppins", sans-serif ;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.btn-custom {
+  background-color: var(--color-btn) ;
+  color: var(--color-hover) ;
+  border: none;
+  transition: background 0.2s;
+}
+
+.btn-custom:hover,
+.btn-custom:focus {
+  background-color: #a00502; /* tono más oscuro al hacer hover */
+  color: var(--color-hover) ;
+}
+
+.bg-pry{
+    background-color: var(--color-primario);
+}
+
+.active-nav {
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 8px;
 }
