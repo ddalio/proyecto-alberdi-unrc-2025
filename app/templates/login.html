@@ -7,9 +7,9 @@
     <body>
         <h1>Iniciar Sesión</h1>
 
-        <form action="">
+        <form method="POST" action="{{ url_for('main.ingresar') }}">
             <label for="username">Correo electrónico</label>
-            <input type="mail" name="mail" id="mail">
+            <input type="text" name="username" id="username">
             <br>
             <label for="username">Contraseña</label>
             <input type="text" name="password" id="password">

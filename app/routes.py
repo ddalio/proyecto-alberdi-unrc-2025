@@ -9,6 +9,8 @@ main = Blueprint('main', __name__)
 @main.route("/") # DUDA!!! Capaz seria mejor poner esto en iniciar sesion, asi primero ingresas
 @main.route("/inicio")
 def inicio():
+    if 'username' not in session:
+        return redirect(url_for('main.ingresar'))
     return render_template('inicio.html')
 
 # Login
@@ -29,7 +31,7 @@ def ingresar():
             flash("Usuario o contraseña incorrectos"), 401
             return redirect(url_for('main.ingresar'))
 
-    return render_template('ingresar.html')
+    return render_template('login.html')
 
 # NOTA!!! Toda esta seccion la verias si sos admin
 # Listado de cuentas
