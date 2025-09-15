@@ -5,6 +5,15 @@
         <link rel="stylesheet" href=" {{ url_for('static', filename ='css/style.css') }}">
     </head>
     <body>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         <nav>
             <ul>
                 <li><a href="{{ url_for('inicio') }} ">Inicio</a></li>
@@ -21,3 +30,4 @@
         <script src= " {{ url_for('static', filename ='js/main.js') }}"></script>
     </body>
 </html>
+

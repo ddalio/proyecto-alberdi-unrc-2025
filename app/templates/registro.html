@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %} Página de Registro {% endblock %}
+
+{% block content %}
+    <h1>Registro</h1>
+
+    <form action="{{ url_for('registrar') }}" method="POST">
+        <label for="nombre_usuario">Nombre de usuario</label>
+        <input type="text" name="nombre_usuario" id="nombre_usuario" required>
+        <br>
+
+        <label for="email">Correo electrónico</label>
+        <input type="email" name="email" id="email" required>
+        <br>
+
+        <label for="nombre">Nombre</label>
+        <input type="text" name="nombre" id="nombre" required>
+        <br>
+
+        <label for="apellido">Apellido</label>
+        <input type="text" name="apellido" id="apellido" required>
+        <br>
+
+        <label for="contraseña">Contraseña</label>
+        <input type="password" name="contraseña" id="contraseña" required>
+        <br>
+
+        <input type="submit" value="Registrar">
+    </form>
+{% endblock %}
