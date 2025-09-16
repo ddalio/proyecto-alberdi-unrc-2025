@@ -5,33 +5,37 @@ from app.models import Evento, Cliente, ResponsableLlave, Pago, Cuenta, db
 
 auth_bp = Blueprint('auth', __name__)
 
-# Aca estaria el calendario, y los botones para Ingresar y Consultar un evento
-@auth_bp.route("/") # DUDA!!! Capaz seria mejor poner esto en iniciar sesion, asi primero ingresas
-@auth_bp.route("/inicio")
+   
+
+@app.route("/")
+@app.route("/inicio ")
 def inicio():
     if 'username' not in session:
         return redirect(url_for('main.ingresar'))
-    return render_template('inicio.html')
+    return render_template('inicio.html')   
+
 
 # Login
-@auth_bp.route("/ingresar", methods = ["GET", "POST"])
-def ingresar():
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        email = request.form.get("email")
+        contraseña = request.form.get("contraseña")
 
-        # Buscar usuario en la base de datos
-        user = Cuenta.query.filter_by(nombre_usuario=username).first()
+        # Buscar cuenta por nombre de usuario
+        cuenta = Cuenta.query.filter_by(email=email).first()
 
-        # Si el usuario existe y la contraseña es correcta, iniciar sesión
-        if user and check_password_hash(user.contrasenia, password):
-            session['username'] = user.nombre_usuario
-            return redirect(url_for('main.inicio'))
+        if cuenta:
+            if cuenta.contraseña == contraseña:
+                flash(f"Bienvenido {cuenta.nombre_usuario} ✅", "success")
+                return redirect(url_for("inicio"))
+            else:
+                error = "Contraseña incorrecta ❌"
         else:
-            flash("Usuario o contraseña incorrectos"), 401
-            return redirect(url_for('main.ingresar'))
+            error = "Email no encontrado ❌"
 
-    return render_template('login.html')
+    return render_template("login.html", error=error)
 
 #cerrar sesion
 def salir():

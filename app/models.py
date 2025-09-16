@@ -50,7 +50,7 @@ class Cuenta(db.Model):
     email = db.Column(db.String(50), unique=True, nullable=False)
     nombre = db.Column(db.String(20), nullable=False)
     apellido = db.Column(db.String(20), nullable=False)
-    contrasenia = db.Column(db.String(255), nullable=False) # ENCRIPTAR ESTO!!!
+    password = db.Column(db.String(255), nullable=False) # ENCRIPTAR ESTO!!!
 
     # Relación con eventos y pagos creados por el usuario
     eventos = db.relationship('Evento', back_populates='usuario', cascade="all, delete-orphan")
