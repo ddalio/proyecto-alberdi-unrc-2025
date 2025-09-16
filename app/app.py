@@ -34,7 +34,7 @@ def login():
         cuenta = Cuenta.query.filter_by(email=email).first()
 
         if cuenta:
-            if cuenta.contraseña == contraseña:
+            if cuenta.password == contraseña:
                 flash(f"Bienvenido {cuenta.nombre_usuario} ✅", "success")
                 return redirect(url_for("inicio"))
             else:
@@ -45,15 +45,15 @@ def login():
     return render_template("login.html", error=error)
 
 
-@app.route("/eventos ")
+@app.route("/eventos")
 def eventos():
     return render_template('eventos.html')
 
-@app.route("/ingresos ")
+@app.route("/ingresos")
 def ingresos():
     return render_template('ingresos.html')
 
-@app.route("/cuentas ")
+@app.route("/cuentas")
 def cuentas():
     return render_template('cuentas.html')
 
