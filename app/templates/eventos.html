@@ -3,9 +3,73 @@
 
 {% block content %}
 
-    <h1> Eventos </h1>
-    <p> Acá iría el listado de eventos </p>
+
+    <form action="/buscar" method="get" class="search-container">
+        <input type="search" name="q" placeholder="Ingrese un dato..." />
+        <button type="submit">🔍</button>
+
+        <div class="rango-fecha">
+            <div class="campo-fecha">
+                <label for="desde">Desde:</label>
+                <input type="date" id="desde" name="desde">
+                <label>📅</label>
+            </div>
+
+            <div class="campo-fecha">
+                <label for="hasta">Hasta:</label>
+                <input type="date" id="hasta" name="hasta">
+                <label>📅</label>
+            </div>
+        </div> 
+
+    </form>
+
+   
+
+    <table>
+        <thead>
+            <tr>
+                <th>DNI</th>
+                <th>Fecha</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>Pago</th>
+                <th>Nombre responsable</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for evento in eventos_list | reverse %}
+            <tr>
+                <td>{{ evento.dni }}</td>
+                <td>{{ evento.fecha }}</td>
+                <td>{{ evento.hora_inicio }}</td>
+                <td>{{ evento.hora_fin }}</td>
+                <td>{{ evento.pago }}</td>
+                <td>{{ evento.nombre_responsable }}</td>
+                <td class="acciones">
+                    <a href="{{ url_for('ver_evento', id=evento.id) }}" class="ver">📄</a>
+                    <a href="{{ url_for('pagar_evento', id=evento.id) }}" class="pagar">💳</a>
+                    <a href="{{ url_for('editar_evento', id=evento.id) }}" class="editar">✏️</a>
+                    <a href="{{ url_for('borrar_evento', id=evento.id) }}" class="borrar">🗑️</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7">No hay eventos cargados</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+    <div>
+        
+        <a href="{{ request.referrer or url_for('inicio') }}" class="btn back">Volver</a>
+
+    </div>
     
+
 
 {% endblock %}
 

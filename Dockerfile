@@ -21,4 +21,3 @@ EXPOSE 5000
 
 # Comando de inicio
 CMD ["python", "app/app.py"]
-
