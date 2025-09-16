@@ -20,4 +20,4 @@ COPY app/ ./app
 EXPOSE 5000
 
 # Comando de inicio
-CMD ["python", "app/app.py"]
+CMD ["python", "run.py"]

@@ -1,22 +1,23 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import Evento, Cliente, ResponsableLlave, Pago, Cuenta, db
+from app.models import Evento, Cliente, ResponsableLlave, Pago, Cuenta
 
 auth_bp = Blueprint('auth', __name__)
 
    
 
-@app.route("/")
-@app.route("/inicio ")
+@auth_bp.route("/")
+@auth_bp.route("/inicio ")
 def inicio():
     if 'username' not in session:
-        return redirect(url_for('main.ingresar'))
-    return render_template('inicio.html')   
+        return redirect(url_for('auth.login'))
+    return render_template('inicio.html')
+
 
 
 # Login
-@app.route("/login", methods=["GET", "POST"])
+@auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     error = None
     if request.method == "POST":
@@ -27,9 +28,9 @@ def login():
         cuenta = Cuenta.query.filter_by(email=email).first()
 
         if cuenta:
-            if cuenta.contraseña == contraseña:
-                flash(f"Bienvenido {cuenta.nombre_usuario} ✅", "success")
-                return redirect(url_for("inicio"))
+            if cuenta.password == contraseña:
+                session['username'] = cuenta.nombre_usuario
+                return redirect(url_for("auth.inicio"))
             else:
                 error = "Contraseña incorrecta ❌"
         else:

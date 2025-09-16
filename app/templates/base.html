@@ -41,7 +41,7 @@
           <li class="nav-item mb-4 {% if active_page == 'inicio' %}active-nav{% endif %}">
             <a
               class="nav-link p-0"
-              href="{{ url_for('inicio') }}"
+              href="{{ url_for('auth.inicio') }}"
             >
               <i
                 class="bi bi-house-door
@@ -53,7 +53,7 @@
           <li class="nav-item mb-4  {% if active_page == 'ingresos' %}active-nav{% endif %}">
             <a
               class="nav-link p-0"
-              href="{{ url_for('ingresos') }}"
+              href="{{ url_for('ingresos.ingresos') }}"
             >
               <i
                 class="bi bi-bar-chart
@@ -65,7 +65,7 @@
           <li class="nav-item mb-4 {% if active_page == 'cuentas' %}active-nav{% endif %}">	
             <a
               class="nav-link p-0"
-              href="{{ url_for('cuentas') }}"
+              href="{{ url_for('cuentas.cuentas') }}"
             >
               <i
                 class="bi bi-person-lines-fill

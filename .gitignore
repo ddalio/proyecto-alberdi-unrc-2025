@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-__pycache__
-=======
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 *.so
->>>>>>> bases-de-datos
