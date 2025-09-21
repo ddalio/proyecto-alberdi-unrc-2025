@@ -144,6 +144,12 @@ def buscar_evento():
 def editar_evento():
     return render_template("editar-evento.html")
 
+@eventos_bp.route("/detalles/<int:id_evento>", methods=["GET"])
+def detalles_evento(id_evento):
+    # Buscar evento por ID
+    evento = Evento.query.get_or_404(id_evento)  # 404 si no existe
+
+    return render_template("detalles-evento.html", evento=evento)
 
 # DUDA!!! No se si se necesita una ruta aparte para esto
 #@eventos_bp.route("/eventos/eliminar/<int:id_evento>", methods =["POST"])
