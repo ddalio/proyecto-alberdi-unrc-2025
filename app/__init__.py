@@ -17,6 +17,7 @@ def create_app():
     db.init_app(app)
     
     # Importa y registra las rutas
-    app.register_blueprints(app)
+    from .routes import register_blueprints
+    register_blueprints(app)
     
     return app

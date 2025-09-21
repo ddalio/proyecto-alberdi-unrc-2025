@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Agregar Usuario{% endblock %}
+
+{% block content %}
+<h1>Agregar usuario</h1>
+<h2>Detalles de usuario</h2>
+
+<form action="{{ url_for('cuentas.crear_cuenta') }}" method="POST">
+    <!-- Nombre de usuario -->
+    <label>Nombre de usuario*</label>
+    <input type="text" name="usuario" required>
+
+    <!-- Rol -->
+    <label>Rol*</label>
+    <select name="rol" required>
+        <option value="">Seleccione un rol</option>
+        <option value="administrador">Administrador</option>
+        <option value="consultante">Consultante</option>
+    </select>
+
+    <!-- Nombre y apellido -->
+    <label>Nombre*</label>
+    <input type="text" name="nombre" required>
+
+    <label>Apellido*</label>
+    <input type="text" name="apellido" required>
+
+    <!-- Email -->
+    <label>Email*</label>
+    <input type="email" name="email" required>
+
+    <!-- Contraseña -->
+    <label>Contraseña*</label>
+    <input type="password" name="password" required>
+
+    <label>Repetir contraseña*</label>
+    <input type="password" name="password2" required>
+
+    <!-- Acciones -->
+    <div class="acciones">
+        <button type="submit" class="btn btn-add">Añadir Usuario</button>
+        <a href="{{ url_for('cuentas.cuentas') }}" class="btn btn-cancel">Cancelar</a>
+    </div>
+</form>
+
+{% endblock %}

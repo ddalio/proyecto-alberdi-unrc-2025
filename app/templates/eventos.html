@@ -30,29 +30,22 @@
         <thead>
             <tr>
                 <th>DNI</th>
-                <th>Fecha</th>
-                <th>Hora Inicio</th>
-                <th>Hora Fin</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Descripcion</th>
                 <th>Pago</th>
                 <th>Nombre responsable</th>
             </tr>
         </thead>
         <tbody>
 
-            {% for evento in eventos_list | reverse %}
+            {% for evento in eventos_list %}
             <tr>
                 <td>{{ evento.dni }}</td>
-                <td>{{ evento.fecha }}</td>
-                <td>{{ evento.hora_inicio }}</td>
-                <td>{{ evento.hora_fin }}</td>
-                <td>{{ evento.pago }}</td>
-                <td>{{ evento.nombre_responsable }}</td>
-                <td class="acciones">
-                    <a href="{{ url_for('ver_evento', id=evento.id) }}" class="ver">📄</a>
-                    <a href="{{ url_for('pagar_evento', id=evento.id) }}" class="pagar">💳</a>
-                    <a href="{{ url_for('editar_evento', id=evento.id) }}" class="editar">✏️</a>
-                    <a href="{{ url_for('borrar_evento', id=evento.id) }}" class="borrar">🗑️</a>
-                </td>
+                <td>{{ evento.fecha_inicio }}</td>
+                <td>{{ evento.fecha_fin }}</td>
+                <td>{{ evento.descripcion }}</td>
+                <td>{{ evento.monto_total }}</td>
             </tr>
             {% else %}
             <tr>
@@ -65,7 +58,7 @@
 
     <div>
         
-        <a href="{{ request.referrer or url_for('inicio') }}" class="btn back">Volver</a>
+        <a href="{{ request.referrer or url_for('auth.inicio') }}" class="btn back">Volver</a>
 
     </div>
     

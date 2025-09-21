@@ -42,8 +42,8 @@ create table cuenta(
 create table evento(
     id_evento integer auto_increment not null,
     descripcion varchar(100) default null,
-    fecha_inicio date not null,
-    fecha_fin date not null,
+    fecha_inicio datetime not null,
+    fecha_fin datetime not null,
     observaciones varchar(100) default null,
     monto_total decimal(10,2) not null,
     adeuda boolean default true,
