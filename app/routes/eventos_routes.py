@@ -2,7 +2,18 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from datetime import datetime
 from app.models import db, Evento, Cliente, ResponsableLlave, Pago, Cuenta
 
-eventos_bp = Blueprint('eventos', __name__, url_prefix='/eventos')
+eventos_bp = Blueprint('eventos_bp', __name__, url_prefix='/eventos')
+
+#Listado de eventos
+@eventos_bp.route("/consultar", methods = ["GET"])
+def consultar():
+    try:
+        eventos = Evento.query.all()
+        return render_template("eventos.html", eventos_list = eventos)
+    except Exception as e:
+        # Log del error para debugging
+        print(f"Error al consultar eventos: {str(e)}")
+        return render_template("eventos.html", mensaje="Error al cargar los eventos")
 
 # Listado de eventos
 @eventos_bp.route("/eventos", methods=["GET"])
@@ -10,25 +21,20 @@ def eventos():
     try:
         # todos los eventos
         eventos = Evento.query.all()
-        return render_template('eventos.html', lista_eventos = eventos)
+        return render_template('eventos.html', eventos_list = eventos)
     except Exception as e:
         # si no hay eventos disponibles
-        flash(f"Error al cargar eventos: {str(e)}")
-        return render_template("eventos.html", eventos = [])
+        print(f"Error al cargar eventos: {str(e)}")
+        return render_template("eventos.html", mensaje="Error al cargar eventos")
+
 
 # DESACOPLAR !!!
 # Crear un nuevo evento
 # 
 #
-@eventos_bp.route("/agregar_evento ")
-def agregar_evento():
-    return render_template('agregar_evento.html')
-
-@eventos_bp.route("/eventos/crear", methods =["POST"])
+@eventos_bp.route("/agregar_evento", methods =["POST"])
 def crear_evento():
     try:
-        # Validacion para campos obligatorios (HACER)
-
         # Datos responsable del alquiler
         dni_cliente = request.form.get("dni")
         nombre_cliente = request.form.get("nombre")
@@ -38,10 +44,12 @@ def crear_evento():
 
         # Busca en la base de datos si el cliente ya se encuentra.
         cliente = Cliente.query.get(dni_cliente)
+
         if not cliente:
-                # si el cliente no esta entonces lo guardo
+                # si el cliente no existe entonces lo guardo
                 cliente = Cliente(dni=dni_cliente, nombre=nombre_cliente, apellido = apellido_cliente, telefono= telefono_cliente, institucion=institucion_cliente)
                 db.session.add(cliente)
+                db.session.commit();
 
         # Responsable de la llave
         nombre_apertura = request.form.get("nombre_apertura")
@@ -49,10 +57,10 @@ def crear_evento():
         nombre_cierre = request.form.get("nombre_cierre")
         apellido_cierre = request.form.get("apellido_cierre")
 
-
         responsable_llave_apertura = None
         responsable_llave_cierre = None
 
+        #Verificamos si existe el nombre en la tabla 
         if nombre_apertura and apellido_apertura:
             responsable_llave_apertura = ResponsableLlave.query.filter_by(
                 nombre= nombre_apertura, apellido = apellido_apertura
@@ -65,7 +73,7 @@ def crear_evento():
                 apellido=apellido_apertura
             )
             db.session.add(responsable_llave_apertura)
-            db.session.flush() #genera id_responsable para usar en evento
+            db.session.commit() #genera id_responsable para usar en evento
 
         if nombre_cierre and apellido_cierre:
             responsable_llave_cierre = ResponsableLlave.query.filter_by(
@@ -79,7 +87,7 @@ def crear_evento():
                 apellido=apellido_cierre
             )
             db.session.add(responsable_llave_cierre)
-            db.session.flush()
+            db.session.commit()
 
         # Usuario logueado
         usuario_nombre = session.get("username")
@@ -102,52 +110,84 @@ def crear_evento():
         )
 
         db.session.add(evento)
-        db.session.commit()
+        db.session.flush()
 
         # Registro de un monto inicial (seña)
         monto_inicial = request.form.get("monto")
         if monto_inicial and float(monto_inicial) > 0:
             # Registro de un pago
-            pago = Pago(evento_id = evento.id,
+            pago = Pago(id_evento = evento.id_evento,
                         monto_pago = float(monto_inicial),
                         fecha = datetime.utcnow(),
                         usuario_creacion = usuario.nombre_usuario)
             db.session.add(pago)
-            db.session.commit()
 
         # Actualizar el estado de pago del evento
         actualizar_pago_evento(evento)
         db.session.commit()
+        
         flash("Evento creado correctamente")
         return redirect(url_for('eventos_bp.eventos'))
 
     except Exception as e:
         db.session.rollback()
         flash(f"Error al crear evento: {str(e)}")
-        return redirect(url_for('eventos_bp.eventos'))
+        return redirect(url_for('eventos_bp.nuevo_evento'))
+
 
     #ver nro_recibo. (HACER)
 
-# NOTA!!! Se usaria en el metodo donde este el listado de los eventos
-def buscar_evento():
-    return 0
 
-@eventos_bp.route("/eventos/editar", methods =["POST"])
-def editar_evento():
-    return render_template("editar-evento.html")
+@eventos_bp.route("/nuevo_evento", methods=["GET"])
+def nuevo_evento():
+    return render_template("agegar_evento.html")
+
+
+# NOTA!!! Se usaria en el metodo donde este el listado de los eventos
+#Los criterios de búsqueda pueden ser:
+#i. Por DNI del cliente
+#ii. Por Nombre del cliente
+#iii. Por Descripción del Evento
+#iv. Por ID del evento
+@eventos_bp.route("/buscar", methods =["GET","POST"])
+def buscar_evento_campo():
+    try:
+        #recibimos parametro desde el frontend
+        campo = request.form.get("campo")
+        valor = request.form.get("valor")
+
+        evento = Evento.query
+
+        if campo in ["dni", "nombre", "descripcion"] and valor:
+            columna = getattr(Evento, campo) # equivale a Evento.dni, Evento.nombre, Evento.descripcion.
+            evento = evento.filter(columna.ilike(f"%{valor}%"))
+            resultados = evento.all()
+            return render_template("eventos.html", eventos_list=resultados)
+    except Exception as e:   
+        flash(f"Error al crear evento: {str(e)}")
+        return redirect(url_for('eventos_bp.consultar'))
+        
+@eventos_bp.route("/eliminar/<int:id_evento>", methods=["POST"])
+def eliminar_evento(id_evento):
+    try:
+        evento = Evento.query.get_or_404(id_evento)
+        db.session.delete(evento)
+        db.session.commit()
+        flash("Evento eliminado correctamente ✅")
+        return redirect(url_for("eventos_bp.consultar"))
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error al eliminar el evento: {str(e)}", "error")
+        return redirect(url_for("eventos_bp.consultar"))
 
 # Funcion para actualizar el estado de pago de un evento
-def actualizar_pago_evento(evento):
-    total_pagado = sum([float(p.monto_pago) for p in evento.pagos])
+#def actualizar_pago_evento(evento):
+#    total_pagado = sum([float(p.monto_pago) for p in evento.pagos])
+#
+#    if total_pagado >= float(evento.monto_total):
+#        evento.adeuda = False
+#        flash("Se completo el pago del evento")
 
-    if total_pagado >= float(evento.monto_total):
-        evento.adeuda = False
-        flash("Se completo el pago del evento")
-
-# DUDA!!! No se si se necesita una ruta aparte para esto
-#@eventos_bp.route("/eventos/eliminar/<int:id_evento>", methods =["POST"])
-def eliminar_evento():
-    return render_template("eliminar-evento.html")
 
 
 # ---------------------Metodos que no sabemos si agregar todavia-----------------------------------
