@@ -17,19 +17,20 @@ content %}
     </tr>
   </thead>
   <tbody>
+    {% for cuenta in list_cuentas | reverse %}
     <tr>
-      <td>pepito123</td>
-      <td>Pepe</td>
-      <td>Rodriguez</td>
-      <td>prodriguez@gmail.com</td>
-      <td>Admin</td>
+      <td>{{cuenta.nombre_usuario}}</td>
+      <td>{{cuenta.nombre}}</td>
+      <td>{{cuenta.apellido}}</td>
+      <td>{{cuenta.email}}</td>
+      <td>{{cuenta.rol }}</td>
       <td class="acciones">
         <a href="#" class="ver">📄</a>
         <a href="#" class="editar">✏️</a>
         <a href="#" class="borrar">🗑️</a>
       </td>
     </tr>
-
+    {% endfor %}
     <!--si no hay datos: <tr><td colspan="6">No hay usuarios cargados</td></tr>  -->
   </tbody>
 </table>

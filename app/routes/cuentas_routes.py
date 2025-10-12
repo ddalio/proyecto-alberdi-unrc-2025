@@ -11,7 +11,23 @@ cuentas_bp = Blueprint('cuentas', __name__, url_prefix='/cuentas')
 # Listado de cuentas
 @cuentas_bp.route("/")
 def cuentas():
-    return render_template('cuentas.html')
+    cuentas = Cuenta.query.all()
+
+    # Traemos todos los administradores
+    admins = {admin.nombre_usuario for admin in Administrador.query.all()}
+
+    # Agregamos el rol a cada cuenta
+    cuentas_con_rol = []
+    for cuenta in cuentas:
+        rol = "Administrador" if cuenta.nombre_usuario in admins else "Usuario"
+        cuentas_con_rol.append({
+            "nombre_usuario": cuenta.nombre_usuario,
+            "nombre": cuenta.nombre,
+            "apellido": cuenta.apellido,
+            "email": cuenta.email,
+            "rol": rol
+        })
+    return render_template('cuentas.html', list_cuentas = cuentas_con_rol)
 
 # NOTA!!! Se usaria en el metodo donde este el listado de las cuentas
 def buscar_cuenta():
@@ -51,7 +67,7 @@ def crear_cuenta():
         db.session.add(nueva_cuenta)
         
         #guardo la cuenta en la tabla cuenta y ademas en administrador en caso de que el rol = admin
-        if rol == "administrador":
+        if rol.lower() == "administrador":
             nuevo_admin = Administrador(nombre_usuario = nombre_usuario)
             db.session.add(nuevo_admin)
 
