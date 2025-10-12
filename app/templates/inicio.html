@@ -1,25 +1,5 @@
 {% extends 'base.html' %} {% block title%} Pagina de inicio {% endblock %} {%
-block extra_head %}
-
-<!-- posible opcion de claenadrio -->
-
-<!-- <script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler/index.global.min.js'></script>    
-    <script>
-
-      document.addEventListener('DOMContentLoaded', function() {
-        const calendarEl = document.getElementById('calendar')
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth'
-        })
-        calendar.render()
-      })
-
-    </script> -->
-
-{% endblock %} 
-
-{% block content %}
-
+block content %}
 <!-- <div id='calendar'></div> -->
 
 <div
@@ -60,8 +40,17 @@ block extra_head %}
   <div class="row">
     <div class="col-12 d-flex justify-content-center align-items-center">
       <div class="d-flex flex-row gap-5 my-4">
-        <button class="btn btn-custom px-5 py-2 mx-5">Ingresar</button>
-        <button class="btn btn-custom px-5 py-2 mx-5">Consultar</button>
+        <button class="btn btn-custom px-5 py-2 mx-5">
+          <a href="{{url_for('eventos_bp.nuevo_evento')}}"> Ingresar </a>
+        </button>
+        <button class="btn btn-custom px-5 py-2 mx-5">
+          <a
+            href="{{ url_for('eventos_bp.eventos') }}"
+            style="color: white; text-decoration: none"
+          >
+            Consultar</a
+          >
+        </button>
       </div>
     </div>
   </div>
