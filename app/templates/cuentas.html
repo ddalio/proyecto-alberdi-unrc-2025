@@ -27,7 +27,13 @@ content %}
       <td class="acciones">
         <a href="#" class="ver">📄</a>
         <a href="#" class="editar">✏️</a>
-        <a href="#" class="borrar">🗑️</a>
+        <form
+          action="{{ url_for('cuentas.eliminar_cuenta', nombre_usuario=cuenta.nombre_usuario) }}"
+          method="POST"
+          style="display: inline"
+        >
+          <button type="submit" class="borrar">🗑️</button>
+        </form>
       </td>
     </tr>
     {% endfor %}

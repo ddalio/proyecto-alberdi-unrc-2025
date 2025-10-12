@@ -84,6 +84,19 @@ def editar_cuenta():
     return render_template('editar-cuenta.html')
 
 # DUDA!!! No se si se necesita una ruta aparte para esto, creo q no
-#@main.route("/cuentas/eliminar")
-def eliminar_cuenta():
-    return render_template('cuentas.html')
+@cuentas_bp.route("/eliminar/<nombre_usuario>", methods=['POST'])
+def eliminar_cuenta(nombre_usuario):
+    cuenta = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
+    if not cuenta:
+            flash("La cuenta no existe", "error")
+            return redirect(url_for('cuentas.cuentas'))
+
+    #si existe verificar si es administrador tambien
+    admin = Administrador.query.filter_by(nombre_usuario=nombre_usuario).first()
+    if admin:
+        db.session.delete(admin)
+
+    db.session.delete(cuenta)
+    db.session.commit()
+    flash(f"La cuenta '{nombre_usuario}' fue eliminada correctamente.", "success")
+    return redirect(url_for('cuentas.cuentas'))
