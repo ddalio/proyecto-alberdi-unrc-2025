@@ -70,8 +70,8 @@ class Evento(db.Model):
 
     id_evento = db.Column(db.Integer, primary_key=True, autoincrement=True)
     descripcion = db.Column(db.String(100))
-    fecha_inicio = db.Column(db.Date, nullable=False)
-    fecha_fin = db.Column(db.Date, nullable=False)
+    fecha_inicio = db.Column(db.DateTime, nullable=False)
+    fecha_fin = db.Column(db.DateTime, nullable=False)
     observaciones = db.Column(db.String(100))
     monto_total = db.Column(db.Numeric(10, 2), nullable=False)
     adeuda = db.Column(db.Boolean, default=True) #esto se actualiza cuando todos los pagos == monto total

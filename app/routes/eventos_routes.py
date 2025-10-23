@@ -181,12 +181,12 @@ def eliminar_evento(id_evento):
         return redirect(url_for("eventos_bp.consultar"))
 
 # Funcion para actualizar el estado de pago de un evento
-#def actualizar_pago_evento(evento):
-#    total_pagado = sum([float(p.monto_pago) for p in evento.pagos])
-#
-#    if total_pagado >= float(evento.monto_total):
-#        evento.adeuda = False
-#        flash("Se completo el pago del evento")
+def actualizar_pago_evento(evento):
+    total_pagado = sum([float(p.monto_pago) for p in evento.pagos])
+
+    if total_pagado >= float(evento.monto_total):
+        evento.adeuda = False
+        flash("Se completo el pago del evento")
 
 
 
