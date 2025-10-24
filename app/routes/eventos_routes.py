@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from datetime import datetime
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+from datetime import datetime, timedelta
 from app.models import db, Evento, Cliente, ResponsableLlave, Pago, Cuenta
 
 eventos_bp = Blueprint('eventos_bp', __name__, url_prefix='/eventos')
@@ -187,6 +187,29 @@ def actualizar_pago_evento(evento):
     if total_pagado >= float(evento.monto_total):
         evento.adeuda = False
         flash("Se completo el pago del evento")
+
+
+@eventos_bp.route("/events-json", methods=["GET"])
+def eventos_json():
+    eventos = Evento.query.all()
+
+    return jsonify([
+        {
+            "title": e.descripcion,
+            "start": e.fecha_inicio.strftime("%Y-%m-%d"),
+            "end": (e.fecha_fin + timedelta(days=1)).strftime("%Y-%m-%d"),
+            "allDay": True,
+            "extendedProps": {
+                "observaciones": e.observaciones or "",
+                "monto_total": float(e.monto_total) if e.monto_total else 0.0,
+                "adeuda": e.adeuda,
+                "dni": e.dni,
+                "responsable_apertura": f"{e.responsable_apertura.nombre} {e.responsable_apertura.apellido}" if e.responsable_apertura else "",
+                "responsable_cierre": f"{e.responsable_cierre.nombre} {e.responsable_cierre.apellido}" if e.responsable_cierre else ""
+            }
+        }
+        for e in eventos
+        ])
 
 
 

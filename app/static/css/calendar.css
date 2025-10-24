@@ -1,0 +1,71 @@
+#calendar {
+  background-color: #f8f9fa; /* gris claro */
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+/* Cabecera y toolbar */
+.fc-toolbar {
+  background-color: #b71c1c; /* rojo oscuro */
+  color: white;
+  border-radius: 8px 8px 0 0;
+  padding: 0 15px;
+}
+
+.fc-toolbar-chunk {
+  margin: 0 10px;
+}
+
+.fc-toolbar-title {
+  margin: 0 10px !important;
+  padding: 5px 0;
+}
+
+/* Botones de la cabecera */
+.fc-button {
+  background-color: #eff8f8; /* rojo */
+  color: rgb(224, 0, 0);
+  border: none;
+  border-radius: 5px;
+  margin: 0 2px !important;
+}
+
+/* Hover de los botones */
+.fc-button:hover {
+  background-color: #a71d2a; /* rojo más oscuro */
+}
+
+/* Día actual */
+.fc-day-today {
+  background-color: #ffcdd2 !important; /* rojo claro */
+}
+
+/* Celdas normales */
+.fc-daygrid-day {
+  background-color: #ffffff; /* blanco */
+}
+
+/* Eventos por defecto */
+.fc-event {
+  background-color: #b782cc; /* rojo */
+  color: rgb(70, 64, 64);
+  border-radius: 5px;
+  border: none;
+}
+
+/* Hover de eventos */
+.fc-event:hover {
+  background-color: #a71d2a; /* rojo oscuro */
+}
+
+.fc-event {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.fc-daygrid-event {
+  pointer-events: auto !important;
+}

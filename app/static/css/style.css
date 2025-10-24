@@ -1,7 +1,7 @@
 :root {
   --color-primario: #b90603;
   --color-hover: #ffe4e4;
-  --color-btn: #EC221F;
+  --color-btn: #ec221f;
 }
 
 h1 {
@@ -9,14 +9,14 @@ h1 {
 }
 
 body {
-  font-family: "Poppins", sans-serif ;
+  font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .btn-custom {
-  background-color: var(--color-btn) ;
-  color: var(--color-hover) ;
+  background-color: var(--color-btn);
+  color: var(--color-hover);
   border: none;
   transition: background 0.2s;
 }
@@ -24,11 +24,11 @@ body {
 .btn-custom:hover,
 .btn-custom:focus {
   background-color: #a00502; /* tono más oscuro al hacer hover */
-  color: var(--color-hover) ;
+  color: var(--color-hover);
 }
 
-.bg-pry{
-    background-color: var(--color-primario);
+.bg-pry {
+  background-color: var(--color-primario);
 }
 
 .active-nav {

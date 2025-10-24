@@ -1,15 +1,13 @@
-{% extends 'base.html' %} {% block title%} Pagina de inicio {% endblock %} {%
+{% extends 'base.html' %} {% block title %} Pagina de inicio {% endblock %} {%
 block content %}
-<!-- <div id='calendar'></div> -->
-
 <div
-  class="container-fluid h-100 d-flex flex-column justify-content-between p-5"
+  class="container-fluid h-100 d-flex flex-column justify-content-between p-3"
   style="min-height: 80vh"
 >
   <!-- Row superior -->
   <div class="row">
     <div class="col-12 d-flex justify-content-end align-items-start">
-      <div class="d-flex flex-row gap-2 mt-3">
+      <div class="d-flex flex-row gap-2 mt-2">
         <button class="btn btn-custom d-flex align-items-center">
           <i class="bi bi-image me-2"></i> Descargar como imagen
         </button>
@@ -19,27 +17,24 @@ block content %}
       </div>
     </div>
   </div>
-  <!-- Row central (placeholder) -->
+
+  <!-- Row central: aquí reemplazamos el placeholder por el calendario -->
   <div
     class="row flex-grow-1 justify-content-center align-items-center"
-    style="min-height: 400px"
+    style="min-height: 80vh"
   >
+    <!-- REEMPLAZO: antes era [Aquí irá el calendario] -->
     <div
-      class="col-12 d-flex justify-content-center align-items-center"
-      style="height: 80%"
-    >
-      <div
-        class="border rounded bg-light w-100 h-100 d-flex justify-content-center align-items-center"
-        style="min-height: 300px"
-      >
-        <span class="text-muted">[Aquí irá el calendario]</span>
-      </div>
-    </div>
+      id="calendar"
+      class="h-100"
+      style="width: 80%; max-width: 1000px"
+    ></div>
   </div>
+
   <!-- Row inferior -->
   <div class="row">
     <div class="col-12 d-flex justify-content-center align-items-center">
-      <div class="d-flex flex-row gap-5 my-4">
+      <div class="d-flex flex-row gap-5 my-1">
         <button class="btn btn-custom px-5 py-2 mx-5">
           <a href="{{url_for('eventos_bp.nuevo_evento')}}"> Ingresar </a>
         </button>
@@ -55,5 +50,195 @@ block content %}
     </div>
   </div>
 </div>
+
+<!-- Modal para detalle del evento -->
+<div
+  class="modal fade"
+  id="eventoModal"
+  tabindex="-1"
+  aria-labelledby="eventoModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eventoModalLabel">Detalle del Evento</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Descripción:</strong> <span id="modalDescripcion"></span></p>
+        <p><strong>Fecha inicio:</strong> <span id="modalInicio"></span></p>
+        <p><strong>Fecha fin:</strong> <span id="modalFin"></span></p>
+        <p>
+          <strong>Observaciones:</strong> <span id="modalObservaciones"></span>
+        </p>
+        <p><strong>Monto total:</strong> $<span id="modalMonto"></span></p>
+        <p><strong>Adeuda:</strong> <span id="modalAdeuda"></span></p>
+        <p><strong>DNI:</strong> <span id="modalDni"></span></p>
+        <p>
+          <strong>Responsable apertura:</strong>
+          <span id="modalResponsableApertura"></span>
+        </p>
+        <p>
+          <strong>Responsable cierre:</strong>
+          <span id="modalResponsableCierre"></span>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const calendarEl = document.getElementById("calendar");
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "dayGridMonth",
+      height: "100%",
+      contentHeight: "100%",
+      locale: "es",
+      fixedWeekCount: false,
+      selectable: true,
+      editable: true,
+      events: "{{ url_for('eventos_bp.eventos_json') }}",
+      eventDisplay: "block",
+      displayEventTime: false,
+
+      /*eventClick: function (info) {
+        console.log("✅ eventClick ejecutándose");
+        console.log("Evento:", info.event);
+        console.log("ExtendedProps:", info.event.extendedProps);
+
+        const evento = info.event;
+        const props = evento.extendedProps || {};
+
+        // Verificar que el modal existe
+        const modalElement = document.getElementById("eventoModal");
+        console.log("Modal element:", modalElement);
+
+        if (!modalElement) {
+          console.error("❌ No se encontró el elemento eventoModal");
+          return;
+        }
+
+        // Llenar el modal
+        document.getElementById("modalDescripcion").textContent =
+          evento.title || "Sin descripción";
+        document.getElementById("modalInicio").textContent = evento.start
+          ? evento.start.toLocaleDateString("es-ES")
+          : "No especificada";
+        document.getElementById("modalFin").textContent = evento.end
+          ? new Date(evento.end.getTime() - 86400000).toLocaleDateString(
+              "es-ES"
+            )
+          : "No especificada";
+        document.getElementById("modalObservaciones").textContent =
+          props.observaciones || "Sin observaciones";
+        document.getElementById("modalMonto").textContent =
+          props.monto_total?.toLocaleString("es-ES") || "0";
+        document.getElementById("modalAdeuda").textContent = props.adeuda
+          ? "Sí"
+          : "No";
+        document.getElementById("modalDni").textContent =
+          props.dni || "No especificado";
+        document.getElementById("modalResponsableApertura").textContent =
+          props.responsable_apertura || "No especificado";
+        document.getElementById("modalResponsableCierre").textContent =
+          props.responsable_cierre || "No especificado";
+
+        // Mostrar el modal
+        console.log("Intentando abrir modal...");
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+        console.log("Modal.show() ejecutado");
+
+        info.jsEvent.preventDefault();
+      },*/
+
+      eventClick: function (info) {
+        console.log("🎯 EVENTO CLICKEADO");
+
+        const evento = info.event;
+        const props = evento.extendedProps || {};
+
+        // Llenar el modal con los datos del evento
+        document.getElementById("modalDescripcion").textContent =
+          evento.title || "Sin descripción";
+
+        // Formatear fechas en español
+        document.getElementById("modalInicio").textContent = evento.start
+          ? evento.start.toLocaleDateString("es-ES")
+          : "No especificada";
+
+        document.getElementById("modalFin").textContent = evento.end
+          ? new Date(evento.end.getTime() - 86400000).toLocaleDateString(
+              "es-ES"
+            )
+          : "No especificada";
+
+        document.getElementById("modalObservaciones").textContent =
+          props.observaciones || "Sin observaciones";
+
+        document.getElementById("modalMonto").textContent =
+          props.monto_total?.toLocaleString("es-ES") || "0";
+
+        document.getElementById("modalAdeuda").textContent = props.adeuda
+          ? "Sí"
+          : "No";
+
+        document.getElementById("modalDni").textContent =
+          props.dni || "No especificado";
+        document.getElementById("modalResponsableApertura").textContent =
+          props.responsable_apertura || "No especificado";
+        document.getElementById("modalResponsableCierre").textContent =
+          props.responsable_cierre || "No especificado";
+
+        // Mostrar el modal
+        const modalElement = document.getElementById("eventoModal");
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+
+        console.log("✅ Modal abierto correctamente");
+
+        info.jsEvent.preventDefault();
+        return false;
+      },
+    });
+
+    calendar.render();
+  });
+  /*select: function (info) {
+        const title = prompt("Título del evento:");
+        if (title) {
+          fetch("/events", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: title,
+              start: info.startStr,
+              end: info.endStr,
+            }),
+          }).then(() => calendar.refetchEvents());
+        }
+      },*/
+
+  /*eventClick: function (info) {
+        if (confirm("¿Eliminar este evento?")) {
+          fetch("/delete/" + info.event.id, { method: "DELETE" }).then(() =>
+            calendar.refetchEvents()
+          );
+        }
+      },
+    });*/
+</script>
 
 {% endblock %}
