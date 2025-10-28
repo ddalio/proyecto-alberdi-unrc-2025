@@ -63,9 +63,9 @@ title%} Eventos {% endblock %} {% block content %}
         evento.responsable_apertura.apellido}}
       </td>
       <td class="acciones">
-        <a href="" class="ver">📄</a>
+        <a href="{{ url_for('eventos_bp.detilles_evento', id_evento=evento.id_evento) }}" class="ver">📄</a>
         <a href="" class="pagar">💳</a>
-        <a href="" class="editar">✏️</a>
+        <a href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}" class="editar">✏️</a>
         <form
           action="{{ url_for('eventos_bp.eliminar_evento', id_evento=evento.id_evento) }}"
           method="POST"

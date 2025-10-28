@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %} Detalles del Evento {% endblock %}
+
+{% block content %}
+<h1>Detalles del Evento</h1>
+
+<div class="datosEvento">
+    <h2>Datos del Evento</h2>
+    <p><strong>Descripción:</strong> {{ evento.descripcion }}</p>
+    <p><strong>Monto Total:</strong> ${{ evento.monto_total }}</p>
+    <p><strong>Fecha Inicio:</strong> {{ evento.fecha_inicio.strftime('%d/%m/%Y %H:%M') }}</p>
+    <p><strong>Fecha Fin:</strong> {{ evento.fecha_fin.strftime('%d/%m/%Y %H:%M') }}</p>
+    <p><strong>Número de Recibo:</strong> {{ evento.nro_recibo or 'N/A' }}</p>
+    <p><strong>Observaciones:</strong> {{ evento.observaciones or 'Sin observaciones' }}</p>
+    <p><strong>Adeuda:</strong> {{ 'Sí' if evento.adeuda else 'No' }}</p>
+</div>
+
+<hr>
+
+<div class="responsableAlquiler">
+    <h2>Responsable del Alquiler</h2>
+    <p><strong>Nombre:</strong> {{ evento.cliente.nombre }} {{ evento.cliente.apellido }}</p>
+    <p><strong>DNI:</strong> {{ evento.cliente.dni }}</p>
+    <p><strong>Teléfono:</strong> {{ evento.cliente.telefono }}</p>
+    <p><strong>Institución:</strong> {{ evento.cliente.institucion or 'N/A' }}</p>
+</div>
+
+<hr>
+
+<div class="responsableLlave">
+    <h2>Responsables de la Llave</h2>
+    <p><strong>Apertura:</strong> 
+        {{ evento.responsable_apertura.nombre if evento.responsable_apertura else 'No asignado' }} 
+        {{ evento.responsable_apertura.apellido if evento.responsable_apertura else '' }}
+    </p>
+    <p><strong>Cierre:</strong> 
+        {{ evento.responsable_cierre.nombre if evento.responsable_cierre else 'No asignado' }} 
+        {{ evento.responsable_cierre.apellido if evento.responsable_cierre else '' }}
+    </p>
+</div>
+
+<div class="acciones">
+    <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-cancel">Volver</a>
+</div>
+
+{% endblock %}

@@ -142,6 +142,50 @@ def crear_evento():
 def nuevo_evento():
     return render_template("agegar_evento.html")
 
+# NOTA!!! Se usaria en el metodo donde este el listado de los eventos
+    #Los criterios de búsqueda pueden ser:@eventos_bp.route("/editar/<int:id_evento>", methods=["GET", "POST"])
+@eventos_bp.route("/editar_evento/<int:id_evento>", methods=["GET", "POST"])
+def editar_evento(id_evento):
+    evento = Evento.query.get_or_404(id_evento)
+
+    if request.method == "POST":
+        try:
+             # --- Fechas ---
+            fecha_inicio = combinar_fecha_hora(request, "fecha_inicio", "hora_inicio")
+            fecha_fin = combinar_fecha_hora(request, "fecha_fin", "hora_fin")
+
+            # Actualizar datos del evento
+            evento.descripcion = request.form.get("descripcion")
+            evento.monto_total = request.form.get("monto_total")
+            evento.fecha_inicio = fecha_inicio
+            evento.fecha_fin = fecha_fin
+            evento.nro_recibo = request.form.get("nro_recibo") or None
+            evento.observaciones = request.form.get("observaciones")
+
+            # Datos del cliente asociado
+            evento.cliente.nombre = request.form.get("nombre")
+            evento.cliente.apellido = request.form.get("apellido")
+            evento.cliente.dni = request.form.get("dni")
+            evento.cliente.telefono = request.form.get("telefono")
+            evento.cliente.institucion = request.form.get("institucion") or None
+
+            db.session.commit()
+            flash("Evento actualizado correctamente ✅")
+            return redirect(url_for('eventos.listar_eventos'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error al editar el evento: {str(e)}", "error")
+
+    # Cuando entras por GET → renderiza el formulario
+    return render_template("editar_evento.html", evento=evento)
+
+@eventos_bp.route("/detalles/<int:id_evento>", methods=["GET"])
+def detalles_evento(id_evento):
+    evento = Evento.query.get_or_404(id_evento)  
+
+    return render_template("detalles_evento.html", evento=evento)
+
+
 
 # NOTA!!! Se usaria en el metodo donde este el listado de los eventos
 #Los criterios de búsqueda pueden ser:
