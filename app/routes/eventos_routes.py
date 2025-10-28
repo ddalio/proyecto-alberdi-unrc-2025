@@ -148,6 +148,11 @@ def combinar_fecha_hora(request, campo_fecha: str, campo_hora: str = None) -> da
     hora_str = request.form.get(campo_hora) if campo_hora else None
     hora_str = hora_str or "00:00"
 
+    if not fecha_str:
+        raise ValueError(f"El campo '{campo_fecha}' es obligatorio.")
+
+    return datetime.strptime(f"{fecha_str} {hora_str}", "%Y-%m-%d %H:%M")
+
 
 @eventos_bp.route("/nuevo_evento", methods=["GET"])
 def nuevo_evento():
@@ -180,9 +185,12 @@ def editar_evento(id_evento):
             evento.cliente.telefono = request.form.get("telefono")
             evento.cliente.institucion = request.form.get("institucion") or None
 
+            # Datos de los responsables de la llave
+            # TODO
+
             db.session.commit()
             flash("Evento actualizado correctamente ✅")
-            return redirect(url_for('eventos.listar_eventos'))
+            return redirect(url_for('eventos_bp.eventos'))
         except Exception as e:
             db.session.rollback()
             flash(f"Error al editar el evento: {str(e)}", "error")

@@ -51,19 +51,18 @@ title%} Eventos {% endblock %} {% block content %}
     </tr>
   </thead>
   <tbody>
-    {% for evento in eventos_list | reverse %}
+    {% for evento in eventos_list %}
     <tr>
       <td>{{ evento.dni }}</td>
       <td>{{ evento.fecha_inicio }}</td>
-      <td>{{ evento.hora_inicio }}</td>
-      <td>{{ evento.hora_fin }}</td>
+      <td>{{ evento.fecha_fin }}</td>
       <td>{{ evento.pagos | map(attribute='monto_pago') | sum }}</td>
       <td>
         {{ evento.responsable_apertura.nombre}}{{
         evento.responsable_apertura.apellido}}
       </td>
       <td class="acciones">
-        <a href="{{ url_for('eventos_bp.detilles_evento', id_evento=evento.id_evento) }}" class="ver">📄</a>
+        <a href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}" class="ver">📄</a>
         <a href="" class="pagar">💳</a>
         <a href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}" class="editar">✏️</a>
         <form

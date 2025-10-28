@@ -1,4 +1,7 @@
-{% extends 'base.html' %}
+{% with mensajes = get_flashed_messages(with_categories=true) %} {% if mensajes
+%} {% for categoria, mensaje in mensajes %}
+<div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
+{% endfor %} {% endif %} {% endwith %} {% extends 'base.html' %}
 {% block title %}Editar Evento{% endblock %}
 
 {% block content %}
