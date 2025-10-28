@@ -93,12 +93,17 @@ def crear_evento():
         usuario_nombre = session.get("username")
         usuario = Cuenta.query.get(usuario_nombre)
 
+        # Fechas
+        fecha_inicio = combinar_fecha_hora(request, "fecha_inicio", "hora_inicio")
+        fecha_fin = combinar_fecha_hora(request, "fecha_fin", "hora_fin")
+
+
         evento = Evento(
             descripcion = request.form.get("descripcion"),
             #esto no deberia ser horario? - cambiar en el modelo tipo
-            fecha_inicio = datetime.strptime(request.form["fecha_inicio"], "%Y-%m-%d").date(),
+            fecha_inicio = fecha_inicio,
             # esto no deberia ser horario? - cambiar en el modelo tipo
-            fecha_fin = datetime.strptime(request.form["fecha_fin"], "%Y-%m-%d").date(),
+            fecha_fin = fecha_fin,
             observaciones = request.form.get("observaciones"),
             monto_total = float(request.form.get("monto_total")),
             adeuda = True,
@@ -136,6 +141,12 @@ def crear_evento():
 
 
     #ver nro_recibo. (HACER)
+
+#Combina los valores de fecha y hora obtenidos del formulario en un objeto datetime.
+def combinar_fecha_hora(request, campo_fecha: str, campo_hora: str = None) -> datetime:
+    fecha_str = request.form.get(campo_fecha)
+    hora_str = request.form.get(campo_hora) if campo_hora else None
+    hora_str = hora_str or "00:00"
 
 
 @eventos_bp.route("/nuevo_evento", methods=["GET"])

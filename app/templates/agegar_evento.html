@@ -32,11 +32,20 @@ block content %}
   <label>Descripción:</label>
   <input type="text" name="descripcion" required /><br />
 
-  <label>Fecha Inicio:</label>
-  <input type=datetime-local name="fecha_inicio" step=3600 required></label></p>
-
-  <label>Fecha Fin:</label>
-  <input type=datetime-local name="fecha_fin" step=3600 required></label></p>
+  <div>
+      <div>
+          <label>Fecha Inicio*</label>
+          <input type="date" name="fecha_inicio" required>
+          <label>Hora Inicio</label>
+          <input type="time" name="hora_inicio">
+      </div>
+      <div>
+          <label>Fecha Fin*</label>
+          <input type="date" name="fecha_fin" required>
+          <label>Hora Final</label>
+          <input type="time" name="hora_fin">
+      </div>
+  </div>
 
   <label>Observaciones:</label>
   <input type="text" name="observaciones" /><br />
