@@ -14,8 +14,6 @@ def inicio():
         return redirect(url_for('auth.login'))
     return render_template('inicio.html')
 
-
-
 # Login
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -38,9 +36,12 @@ def login():
 
     return render_template("login.html", error=error)
 
-#cerrar sesion
+# Cerrar sesión
+@auth_bp.route("/logout")
 def salir():
-    return 0
+    session.pop('username', None)  # elimina la sesión si existe
+    flash("Has cerrado sesión correctamente", "success")
+    return redirect(url_for("auth.login"))
 
 # Funcion que ya tiene flask para los errores
 
