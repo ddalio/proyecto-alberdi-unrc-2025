@@ -7,6 +7,7 @@
 <div class="datosEvento">
     <h2>Datos del Evento</h2>
     <p><strong>Descripción:</strong> {{ evento.descripcion }}</p>
+    <p><strong>Número de Identificación:</strong> {{ evento.id_evento }}</p>
     <p><strong>Monto Total:</strong> ${{ evento.monto_total }}</p>
     <p><strong>Fecha Inicio:</strong> {{ evento.fecha_inicio.strftime('%d/%m/%Y %H:%M') }}</p>
     <p><strong>Fecha Fin:</strong> {{ evento.fecha_fin.strftime('%d/%m/%Y %H:%M') }}</p>
