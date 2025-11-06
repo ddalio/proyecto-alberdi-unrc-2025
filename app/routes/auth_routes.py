@@ -1,11 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import Evento, Cliente, ResponsableLlave, Pago, Cuenta
+from app.models import Cuenta
 
 auth_bp = Blueprint('auth', __name__)
-
-   
 
 @auth_bp.route("/")
 @auth_bp.route("/inicio ")

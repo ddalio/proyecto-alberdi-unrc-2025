@@ -10,6 +10,14 @@ ingresos_bp = Blueprint('ingresos', __name__, url_prefix='/ingresos')
 def ingresos():
     return render_template('ingresos.html')
 
+# CHEQUEAR QUE TE DEVUELVA LA PAGINA
+# Funcion para actualizar el estado de pago de un evento
+def actualizar_pago_evento(evento):
+    total_pagado = sum([float(p.monto_pago) for p in evento.pagos])
+
+    if total_pagado >= float(evento.monto_total):
+        evento.adeuda = False
+        flash("Se completo el pago del evento")
 
 
 

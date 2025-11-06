@@ -3,8 +3,6 @@ from app.models import Cuenta, Administrador
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 
-
-
 cuentas_bp = Blueprint('cuentas', __name__, url_prefix='/cuentas')
 
 # NOTA!!! Toda esta seccion la verias si sos admin
@@ -79,7 +77,7 @@ def crear_cuenta():
 
 
 #se pondria el id de la cuenta a editar
-@cuentas_bp.route("/editar")
+@cuentas_bp.route("/editar/")
 def editar_cuenta():
     return render_template('editar-cuenta.html')
 

@@ -23,7 +23,7 @@ title%} Eventos {% endblock %} {% block content %}
   >
 </form>
 <!--Busqueda por rango de fechas-->
-<form action="">
+<form action="{{ url_for('eventos_bp.rango_eventos_por_fecha') }}" method="GET">
   <div class="rango-fecha">
     <div class="campo-fecha">
       <label for="desde">Desde:</label>
@@ -31,13 +31,16 @@ title%} Eventos {% endblock %} {% block content %}
       <label>📅</label>
     </div>
 
-    <div name="hasta" class="campo-fecha">
+    <div class="campo-fecha">
       <label for="hasta">Hasta:</label>
       <input type="date" id="hasta" name="hasta" />
       <label>📅</label>
     </div>
+
+    <button type="submit">🔎 Buscar</button>
   </div>
 </form>
+
 
 <table>
   <thead>

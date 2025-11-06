@@ -29,8 +29,7 @@
                 <input type="time" name="hora_fin" value="{{ evento.fecha_fin.strftime('%H:%M') }}">
             </div>
         </div>
-
-        <input type="text" name="nro_recibo" placeholder="Número de Recibo" value="{{ evento.nro_recibo or '' }}">
+        
         <textarea name="observaciones" placeholder="Observaciones">{{ evento.observaciones or '' }}</textarea>
     </div>
 
