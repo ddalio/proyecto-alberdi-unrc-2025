@@ -31,48 +31,46 @@ def cuentas():
 def buscar_cuenta():
     return 0
 
-@cuentas_bp.route("/crear", methods=['GET', 'POST'])
+@cuentas_bp.route("/crear", methods=['POST'])
 def crear_cuenta():
+
+    nombre_usuario = request.form.get('usuario').strip()
+    contraseña = request.form.get('password').strip()
+    repetir_contraseña = request.form.get('password2').strip()
+    nombre = request.form.get('nombre').strip()
+    apellido = request.form.get('apellido').strip()
+    email = request.form.get('email').strip()
+    rol = request.form.get('rol').strip()
+
+    # validacion para que los campos no sean vacio(hacer con frontend)
+    if not all([nombre_usuario, contraseña, repetir_contraseña, nombre, apellido, email,rol]):
+        flash("Todos los campos son obligatorios", "error")
+        return render_template('agregar_usuario.html', form=request.form)
+
+    # hacer estas validaciones con frontend
+    if(contraseña != repetir_contraseña):
+        flash("Las contraseñas no coinciden", "error")
+        return render_template('agregar_usuario.html', form=request.form)
+
+    if Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first():
+        flash("El nombre de usuario ya existe", "error")
+        return render_template("agregar_usuario.html", form=request.form)
+
+
+    # encriptar la contraseña
+    hash_contraseña = generate_password_hash(contraseña)
+
+    nueva_cuenta = Cuenta(nombre_usuario=nombre_usuario, email=email, nombre=nombre, apellido=apellido, password=hash_contraseña)
+    db.session.add(nueva_cuenta)
     
-    if request.method == "POST":    
-        nombre_usuario = request.form.get('usuario').strip()
-        contraseña = request.form.get('password').strip()
-        repetir_contraseña = request.form.get('password2').strip()
-        nombre = request.form.get('nombre').strip()
-        apellido = request.form.get('apellido').strip()
-        email = request.form.get('email').strip()
-        rol = request.form.get('rol').strip()
+    #guardo la cuenta en la tabla cuenta y ademas en administrador en caso de que el rol = admin
+    if rol.lower() == "administrador":
+        nuevo_admin = Administrador(nombre_usuario = nombre_usuario)
+        db.session.add(nuevo_admin)
 
-        # validacion para que los campos no sean vacio(hacer con frontend)
-        if not all([nombre_usuario, contraseña, repetir_contraseña, nombre, apellido, email,rol]):
-            flash("Todos los campos son obligatorios", "error")
-            return render_template('agregar_usuario.html', form=request.form)
+    db.session.commit()
+    return redirect(url_for("cuentas.cuentas"))
 
-        # hacer estas validaciones con frontend
-        if(contraseña != repetir_contraseña):
-            flash("Las contraseñas no coinciden", "error")
-            return render_template('agregar_usuario.html', form=request.form)
-    
-        if Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first():
-            flash("El nombre de usuario ya existe", "error")
-            return render_template("agregar_usuario.html", form=request.form)
-
-
-        # encriptar la contraseña
-        hash_contraseña = generate_password_hash(contraseña)
-
-        nueva_cuenta = Cuenta(nombre_usuario=nombre_usuario, email=email, nombre=nombre, apellido=apellido, password=hash_contraseña)
-        db.session.add(nueva_cuenta)
-        
-        #guardo la cuenta en la tabla cuenta y ademas en administrador en caso de que el rol = admin
-        if rol.lower() == "administrador":
-            nuevo_admin = Administrador(nombre_usuario = nombre_usuario)
-            db.session.add(nuevo_admin)
-
-        db.session.commit()
-        return redirect(url_for("cuentas.cuentas"))
-
-    return render_template('agregar_usuario.html')
 
 
 

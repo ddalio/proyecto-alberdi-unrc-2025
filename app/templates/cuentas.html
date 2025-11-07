@@ -1,5 +1,64 @@
 {% extends 'base.html' %} {% block title%} Cuentas {% endblock %} {% block content %}
 
+<!-- Modal overlay (inicia oculto) -->
+<div id="modalOverlay" class="d-none" aria-hidden="true" style="position:fixed;inset:0;z-index:1050;display:flex;align-items:flex-start;justify-content:center;padding-top:40px;background:rgba(0,0,0,0.5);">
+  <div class="card shadow p-4" style="width:90vw;max-width:700px;max-height:90vh;overflow:auto;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="m-0">Crear Usuario</h5>
+      <button type="button" id="closeModalBtn" class="btn btn-close" aria-label="Cerrar"></button>
+    </div>
+
+    <form action="{{ url_for('cuentas.crear_cuenta') }}" method="post">
+      <!-- Añade aquí tu token CSRF si aplica -->
+      <div class="mb-2">
+        <label class="form-label">Nombre de usuario*</label>
+        <input name="usuario" class="form-control" required />
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Rol*</label>
+        <select name="rol" class="form-select" required>
+          <option value="">Seleccioná un rol</option>
+          <option value="usuario">Usuario</option>
+          <option value="administrador">Administrador</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col mb-2">
+          <label class="form-label">Nombre*</label>
+          <input name="nombre" class="form-control" required />
+        </div>
+        <div class="col mb-2">
+          <label class="form-label">Apellido*</label>
+          <input name="apellido" class="form-control" required />
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Email*</label>
+        <input name="email" type="email" class="form-control" required />
+      </div>
+
+      <div class="row">
+        <div class="col mb-2">
+          <label class="form-label">Contraseña*</label>
+          <input name="password" type="password" class="form-control" required />
+        </div>
+        <div class="col mb-2">
+          <label class="form-label">Repetir contraseña*</label>
+          <input name="password2" type="password" class="form-control" required />
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="button" id="cancelModalBtn" class="btn btn-outline-secondary">Cancelar</button>
+        <button type="submit" class="btn btn-custom">Crear</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div
   class="d-flex justify-content-center align-items-center"
   style="height: 100vh;"
@@ -71,12 +130,47 @@
     <div class="row">
       <div class="col-12 d-flex justify-content-center align-items-center mt-3">
         <div class="d-flex flex-row gap-4">
-          <a href="{{ url_for('cuentas.crear_cuenta') }}" class="btn btn-custom px-4 py-2">Añadir Usuario</a>
+          <button type="button" id="openModalBtn" class="btn btn-custom px-4 py-2">Añadir Usuario</button>
           <a href="/" class="btn btn-outline-secondary px-4 py-2">Volver</a>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Script para abrir/cerrar modal y evitar scroll de fondo -->
+<script>
+  (function(){
+    const openBtn = document.getElementById('openModalBtn');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelModalBtn');
+    const overlay = document.getElementById('modalOverlay');
+
+    function openModal(){
+      overlay.classList.remove('d-none');
+      overlay.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(){
+      overlay.classList.add('d-none');
+      overlay.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    }
+
+    openBtn && openBtn.addEventListener('click', openModal);
+    closeBtn && closeBtn.addEventListener('click', closeModal);
+    cancelBtn && cancelBtn.addEventListener('click', closeModal);
+
+    // cerrar al hacer click fuera de la card
+    overlay && overlay.addEventListener('click', function(e){
+      if(e.target === overlay) closeModal();
+    });
+
+    // cerrar con Esc
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && overlay && !overlay.classList.contains('d-none')) closeModal();
+    });
+  })();
+</script>
 
 {% endblock %}
