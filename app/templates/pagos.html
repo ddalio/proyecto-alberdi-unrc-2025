@@ -10,10 +10,14 @@
         <ul>
             {% for pago in pagos %}
             <li>
-                <strong>{{ pago.id_pago }} {{ pago.id_evento }} </strong>
+                <strong>ID pago: {{ pago.id_pago }} </strong>
                 {% if pago.fecha %} - Fecha: {{ pago.fecha }}{% endif %}
                 {% if pago.monto_pago %} - Monto: {{  pago.monto_pago }}{% endif %}
                 {% if pago.usuario_creacion %} - {{ pago.usuario_creacion }}{% endif %}
+                <td class="acciones">
+                    <a href="{{ url_for('ingresos.eliminar_pago', id_pago=pago.id_pago ) }}" class="me-2">🚮</a>
+                    </form>
+                </td>
             </li>
             {% endfor %}
         </ul>
@@ -23,6 +27,8 @@
     {% if mensaje %}
         <div class="alert alert-warning">{{ mensaje }}</div>
     {% endif %}
+
+    <a href="{{ url_for('ingresos.ingresos') }}">Volver</a>
 
 
 

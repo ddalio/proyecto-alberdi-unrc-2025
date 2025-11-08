@@ -62,7 +62,8 @@ def agregar_evento():
 
             # Registro de un monto inicial (seña)
             agregar_pago(evento.id_evento, usuario.nombre_usuario, request.form.get("monto"))
-
+            db.session.commit()
+            
             flash("Evento creado correctamente")
             return redirect(url_for('eventos_bp.eventos'))
 

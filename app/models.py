@@ -76,9 +76,14 @@ class Evento(db.Model):
     monto_total = db.Column(db.Numeric(10, 2), nullable=False)
     adeuda = db.Column(db.Boolean, default=True) #esto se actualiza cuando todos los pagos == monto total
     nro_recibo = db.Column(db.Integer) #esto se actualiza cuando todos los pagos == monto total
+
     @property
     def total_pagado(self):
         return sum(float(p.monto_pago) for p in self.pagos)
+    
+    @property
+    def monto_deuda(self):
+        return float(self.monto_total) - sum(float(p.monto_pago) for p in self.pagos)
 
     # FKs
     dni = db.Column(db.String(20), db.ForeignKey('cliente.dni'), nullable=False)

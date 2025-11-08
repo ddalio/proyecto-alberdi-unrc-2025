@@ -18,12 +18,12 @@
   
   <div class="formPago">
     <h2>Nuevo Pago</h2>
-    <label>Monto a Pagar (seña):</label>
+    <label>Monto a Pagar:</label>
     <input type="number" name="monto_pago"><br>
 
     <div>
-      <label>Fecha cuando se realizó el pago Pago</label>
-      <input type="date" name="fecha_inicio" required>
+      <label>Fecha cuando se realizó el pago</label>
+      <input type="date" value="today" name="fecha_inicio" required>
     </div>
     
   </div>
@@ -36,16 +36,13 @@
   <p><strong>Descripción:</strong> {{ evento.descripcion }}</p>
   <p><strong>Número de Identificación:</strong> {{ evento.id_evento }}</p>
   <p><strong>Monto Total:</strong> ${{ evento.monto_total }}</p>
-  <p><strong>Fecha Inicio:</strong> {{ evento.fecha_inicio.strftime('%d/%m/%Y %H:%M') }}</p>
-  <p><strong>Fecha Fin:</strong> {{ evento.fecha_fin.strftime('%d/%m/%Y %H:%M') }}</p>
+  <p><strong>Monto Deuda:</strong> ${{ evento.monto_deuda }}</p>
   <p><strong>Adeuda:</strong> {{ 'Sí' if evento.adeuda else 'No' }}</p>
 </div>
 <div class="responsableAlquiler">
   <h2>Responsable del Alquiler</h2>
   <p><strong>Nombre:</strong> {{ evento.cliente.nombre }} {{ evento.cliente.apellido }}</p>
   <p><strong>DNI:</strong> {{ evento.cliente.dni }}</p>
-  <p><strong>Teléfono:</strong> {{ evento.cliente.telefono }}</p>
-  <p><strong>Institución:</strong> {{ evento.cliente.institucion or 'N/A' }}</p>
 </div>
 
 <br>

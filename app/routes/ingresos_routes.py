@@ -17,9 +17,52 @@ def ingresos():
 
 # Funcion para actualizar el estado de pago de un evento
 def actualizar_pago_evento(evento):
-    if total_pagado >= float(evento.monto_total):
+    if evento.total_pagado >= float(evento.monto_total):
         evento.adeuda = False
         flash("Se completo el pago del evento")
+
+# Listado de eventos Desde: fecha - Hasta: fecha
+@ingresos_bp.route("/filtrar", methods=["GET"])
+def rango_eventos_por_fecha():
+    try:
+        # Obtener los parámetros desde el formulario
+        desde_str = request.args.get("desde")
+        hasta_str = request.args.get("hasta")
+
+        # Si no se ingresó ninguna fecha, mostrar todos
+        if not desde_str and not hasta_str:
+            eventos = Evento.query.all()
+            return render_template("eventos.html", eventos_list=eventos)
+
+        # Parsear las fechas
+        desde = datetime.strptime(desde_str, "%Y-%m-%d") if desde_str else None
+        hasta = datetime.strptime(hasta_str, "%Y-%m-%d") if hasta_str else None
+
+        # Validación de rango
+        if desde and hasta and desde > hasta:
+            flash("⚠️ La fecha 'Desde' no puede ser mayor que 'Hasta'.", "warning")
+            return redirect(url_for("eventos_bp.eventos"))
+
+        # Construir la query dinámicamente
+        query = Evento.query
+        if desde:
+            query = query.filter(Evento.fecha_inicio >= desde)
+        if hasta:
+            query = query.filter(Evento.fecha_fin <= hasta)
+
+        eventos = query.all()
+
+        if not eventos:
+            flash("No se encontraron eventos en ese rango de fechas.", "info")
+
+        return render_template("ingresos.html", eventos=eventos)
+
+    except ValueError:
+        flash("⚠️ Formato de fecha inválido. Usa el formato YYYY-MM-DD.", "danger")
+        return redirect(url_for("ingresos.ingresos"))
+    except Exception as e:
+        flash(f"⚠️ Error al filtrar eventos: {str(e)}", "danger")
+        return redirect(url_for("ingresos.ingresos"))
 
 @ingresos_bp.route("/agregar_pago/<int:id_evento>", methods =["GET","POST"])
 def agregar_pago(id_evento):
@@ -35,18 +78,11 @@ def agregar_pago(id_evento):
                         fecha = datetime.utcnow(),
                         usuario_creacion = usuario_creacion)
             db.session.add(pago)
-    # Actualizar el estado de pago del evento
+            # Actualizar el estado de pago del evento
+            actualizar_pago_evento(evento)
             db.session.commit()
-        
         return redirect(url_for('ingresos.ingresos'))
     return render_template("agregar_pago.html", evento=evento)
-
-def total_pagado(evento) -> float:
-    total_pagado = 0
-    for p in evento.pagos:
-        total_pagado+=float(p.monto_pago)
-
-    return total_pagado
 
 @ingresos_bp.route("pagos/<int:id_evento>")
 def pagos(id_evento):
@@ -62,35 +98,21 @@ def pagos(id_evento):
         return render_template("pagos.html", mensaje=f"Error al cargar eventos {str(e)}")
 
 
+@ingresos_bp.route("/pagos/eliminar/<int:id_pago>", methods = ["GET","POST"])
+def eliminar_pago(id_pago):
+    try:
+        pago = Pago.query.get(id_pago)
+        if not pago:
+            flash("No se encontro el pago")
+            return redirect(url_for("ingresos.html"))
 
+        db.session.delete(pago)
+        db.session.commit()
 
+        flash("Pago eliminado correctamente")
+        return redirect(url_for("ingresos.ingresos"))
 
-
-# ---------------------Metodos que no sabemos si agregar todavia-----------------------------------
-
-
-# CHEQUEAR!!! Logica de agregar un pago, desde que ruta hacerlo NO editarlo
-
-
-# @main.route("/ingresos/eliminar/<int:id_pago>", methods = ["POST"])
-# def eliminar_ingreso(id_pago):
-#     try:
-#         pago = Pago.query.get(id_pago)
-#         if not pago:
-#             flash("No se encontro el pago")
-#             return redirect(url_for("ingresos.html"))
-
-#         evento = Evento.query.get(pago.evento_id)
-#         db.session.delete(pago)
-#         db.session.commit()
-
-#         # Actualizar estado del evento
-#         actualizar_estado_evento(evento)
-
-#         flash("Pago eliminado correctamente")
-#         return redirect(url_for("main.ingresos"))
-
-#     except Exception as e:
-#         db.session.rollback()
-#         flash(f"Error al eliminar pago: {str(e)}")
-#         return redirect(url_for("ingresos.html"))
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error al eliminar pago: {str(e)}")
+        return redirect(url_for("ingresos.html"))
