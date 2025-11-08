@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %} Agregar Nuevo Pago {% endblock %}
+{% block content %}
+
+<h1>Agregar Nuevo Pago</h1>
+
+<!-- Mostrar mensajes de flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+
+<form action="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}" method="POST">
+  
+  <div class="formPago">
+    <h2>Nuevo Pago</h2>
+    <label>Monto a Pagar (seña):</label>
+    <input type="number" name="monto_pago"><br>
+
+    <div>
+      <label>Fecha cuando se realizó el pago Pago</label>
+      <input type="date" name="fecha_inicio" required>
+    </div>
+    
+  </div>
+  
+  <button type="submit">Crear Pago</button>
+</form>
+
+<div class="datosEvento">
+  <h2>Datos del Evento</h2>
+  <p><strong>Descripción:</strong> {{ evento.descripcion }}</p>
+  <p><strong>Número de Identificación:</strong> {{ evento.id_evento }}</p>
+  <p><strong>Monto Total:</strong> ${{ evento.monto_total }}</p>
+  <p><strong>Fecha Inicio:</strong> {{ evento.fecha_inicio.strftime('%d/%m/%Y %H:%M') }}</p>
+  <p><strong>Fecha Fin:</strong> {{ evento.fecha_fin.strftime('%d/%m/%Y %H:%M') }}</p>
+  <p><strong>Adeuda:</strong> {{ 'Sí' if evento.adeuda else 'No' }}</p>
+</div>
+<div class="responsableAlquiler">
+  <h2>Responsable del Alquiler</h2>
+  <p><strong>Nombre:</strong> {{ evento.cliente.nombre }} {{ evento.cliente.apellido }}</p>
+  <p><strong>DNI:</strong> {{ evento.cliente.dni }}</p>
+  <p><strong>Teléfono:</strong> {{ evento.cliente.telefono }}</p>
+  <p><strong>Institución:</strong> {{ evento.cliente.institucion or 'N/A' }}</p>
+</div>
+
+<br>
+<a href="{{ url_for('eventos_bp.eventos') }}">Volver</a>
+
+{% endblock %}

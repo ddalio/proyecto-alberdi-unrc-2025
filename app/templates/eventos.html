@@ -71,7 +71,7 @@
                     <th>Fecha</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
-                    <th>Pago</th>
+                    <th>Descripcion</th>
                     <th>Nombre responsable</th>
                     <th>Acciones</th>
                   </tr>
@@ -82,13 +82,13 @@
                     <td>{{ evento.dni }}</td>
                     <td>{{ evento.fecha_inicio }}</td>
                     <td>{{ evento.fecha_fin }}</td>
-                    <td>{{ evento.pagos | map(attribute='monto_pago') | sum }}</td>
+                    <td>{{ evento.descripcion }}</td>
                     <td>
                       {{ evento.responsable_apertura.nombre }} {{ evento.responsable_apertura.apellido }}
                     </td>
                     <td class="acciones">
                       <a href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}" class="me-2">📄</a>
-                      <a href="" class="me-2">💳</a>
+                      <a href="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}" class="me-2">💳</a>
                       <a href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}" class="me-2">✏️</a>
                       <form
                         action="{{ url_for('eventos_bp.eliminar_evento', id_evento=evento.id_evento) }}"

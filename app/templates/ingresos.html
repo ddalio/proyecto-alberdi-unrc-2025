@@ -5,7 +5,7 @@
 
 <div class="container py-3">
   <div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('ingresos.ingresos') }}" class="text-muted me-3" aria-label="Volver">
+    <a href="{{ url_for('auth.inicio') }}" class="text-muted me-3" aria-label="Volver">
       <i class="bi bi-arrow-left fs-4"></i>
     </a>
     <h2 class="m-0">Ingresos</h2>
@@ -16,7 +16,7 @@
       <div class="card-body d-flex flex-column" style="min-height:60vh;">
         <!-- Row 1: filtros de fecha -->
         <div class="row mb-3">
-          <form class="w-100" method="get" action="">
+          <form class="w-100" method="get" action="{{ url_for('eventos_bp.rango_eventos_por_fecha') }}">
             <div class="row g-2 align-items-end">
               <div class="col-auto">
                 <label class="form-label mb-1">Desde:</label>
@@ -47,12 +47,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for ev in list_ingresos %}
+                  {% for evento in eventos %}
                   <tr>
-                    <td>{{ ev.fecha }}</td>
-                    <td>{{ ev.nombre_evento }}</td>
-                    <td class="text-end">{{ ev.monto_total | float | round(2) }}</td>
-                    <td class="text-end">{{ ev.total_pagado | float | round(2) }}</td>
+                    <td>{{ evento.fecha_inicio }}</td>
+                    <td>{{ evento.descripcion }}</td>
+                    <td class="text-end">{{ evento.monto_total | float | round(2) }}</td>
+                    <td class="text-end">{{ evento.total_pagado | float | round(2) }}</td>
                   </tr>
                   {% else %}
                   <tr>
@@ -72,10 +72,10 @@
               <strong>Resumen:</strong>
               <div class="mt-2">
                 <span class="me-3">Suma montos: <span class="fw-bold">
-                  {{ (list_ingresos | sum(attribute='monto_total')) | default(0) | float | round(2) }}
+                  {{ (eventos | sum(attribute='monto_total')) | default(0) | float | round(2) }}
                 </span></span>
                 <span> Suma pagado: <span class="fw-bold">
-                  {{ (list_ingresos | sum(attribute='total_pagado')) | default(0) | float | round(2) }}
+                  {{ (eventos | sum(attribute='total_pagado')) | default(0) | float | round(2) }}
                 </span></span>
               </div>
             </div>

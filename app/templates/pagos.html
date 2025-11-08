@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title%} Clientes {% endblock %}
+
+{% block content %}
+
+    <h1> Pagos </h1>
+    <p> Acá iría el listado de pagos del evento número {{ id_evento }} </p>
+
+     {% if pagos %}
+        <ul>
+            {% for pago in pagos %}
+            <li>
+                <strong>{{ pago.id_pago }} {{ pago.id_evento }} </strong>
+                {% if pago.fecha %} - Fecha: {{ pago.fecha }}{% endif %}
+                {% if pago.monto_pago %} - Monto: {{  pago.monto_pago }}{% endif %}
+                {% if pago.usuario_creacion %} - {{ pago.usuario_creacion }}{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay pagos registrados.</p>
+    {% endif %}
+    {% if mensaje %}
+        <div class="alert alert-warning">{{ mensaje }}</div>
+    {% endif %}
+
+
+
+{% endblock %}
+
+        
+
+    

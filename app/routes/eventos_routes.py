@@ -61,7 +61,7 @@ def agregar_evento():
             db.session.flush()
 
             # Registro de un monto inicial (seña)
-            agregar_pago(evento.id, usuario.nombre_usuario, request.form.get("monto"))
+            agregar_pago(evento.id_evento, usuario.nombre_usuario, request.form.get("monto"))
 
             flash("Evento creado correctamente")
             return redirect(url_for('eventos_bp.eventos'))
@@ -70,7 +70,7 @@ def agregar_evento():
             db.session.rollback()
             flash(f"Error al crear evento: {str(e)}")
             return redirect(url_for('eventos_bp.agregar_evento'))
-    return render_template("agegar_evento.html")
+    return render_template("agregar_evento.html")
 
     #ver nro_recibo. (HACER)
 
@@ -89,11 +89,11 @@ def agregar_pago(id_evento, nombre_usuario, monto):
 
 
 def agregar_cliente(form) -> Cliente:
-    dni_cliente = form.get("dni_cliente")
-    nombre_cliente = form.get("nombre_cliente")
-    apellido_cliente = form.get("apellido_cliente")
-    telefono_cliente = form.get("telefono_cliente")
-    institucion_cliente = form.get("institucion_cliente")
+    dni_cliente = form.get("dni")
+    nombre_cliente = form.get("nombre")
+    apellido_cliente = form.get("apellido")
+    telefono_cliente = form.get("telefono")
+    institucion_cliente = form.get("institucion")
 
     if not dni_cliente:
         raise ValidationError("El campo DNI del cliente es obligatorio.")
@@ -101,16 +101,18 @@ def agregar_cliente(form) -> Cliente:
         raise ValidationError("El DNI debe tener al menos 8 dígitos y contener solo números.")
     if not nombre_cliente or not apellido_cliente:
         raise ValidationError("El nombre y apellido del cliente son obligatorios.")
+    
+    cliente = Cliente.query.get_or_404(dni_cliente)
+    if not cliente:
+        cliente = Cliente(
+            dni=dni_cliente,
+            nombre=nombre_cliente,
+            apellido=apellido_cliente,
+            telefono=telefono_cliente,
+            institucion=institucion_cliente,
+        )
+        db.session.add(cliente)
 
-    cliente = Cliente(
-        dni=dni_cliente,
-        nombre=nombre_cliente,
-        apellido=apellido_cliente,
-        telefono=telefono_cliente,
-        institucion=institucion_cliente,
-    )
-
-    db.session.add(cliente)
     return cliente
 
 
@@ -271,7 +273,6 @@ def rango_eventos_por_fecha():
         flash(f"⚠️ Error al filtrar eventos: {str(e)}", "danger")
         return redirect(url_for("eventos_bp.eventos"))
 
-
 #Los criterios de búsqueda pueden ser:
 #i. Por DNI del cliente
 #ii. Por Nombre del cliente 
@@ -338,7 +339,6 @@ def eliminar_evento(id_evento):
 # Funcion para actualizar el estado de pago de un evento
 # def actualizar_pago_evento(evento):
 #     ingresos_bp.actualizar_pago_evento(evento)
-
 
 
 
