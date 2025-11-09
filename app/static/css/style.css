@@ -69,3 +69,37 @@ body {
   border-radius: 12px;
   padding: 8px 8px;
 }
+
+/* Estilos para detalles_evento */
+.detalle-label {
+  font-weight: 600;
+  color: #555;
+  font-size: .95rem;
+  margin-bottom: .25rem;
+}
+
+.detalle-value {
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,0.04);
+  padding: .55rem .6rem;
+  border-radius: 8px;
+  color: #222;
+}
+
+/* Ajustes para la tarjeta principal en detalles */
+.card-main { /* ya existe; refinar espacio interno para esta vista */
+  padding: 1rem;
+}
+
+/* Badges en botones */
+.btn .badge {
+  font-weight: 600;
+  font-size: .82rem;
+}
+
+/* Asegurar consistencia en móviles */
+@media (max-width: 767.98px) {
+  .detalle-value { padding: .5rem; }
+  .card-main { padding: .75rem; }
+  .d-flex.justify-content-end { flex-direction: column-reverse; gap: .5rem; }
+}

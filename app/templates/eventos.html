@@ -71,7 +71,7 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
           </div>
         </div>
 
-        <div class="d-flex justify-content-end gap-2 mt-2">
+        <div class="d-flex justify-content-end gap-2 mt-auto">
           <button
             type="button"
             id="cancelPaymentBtn"
@@ -81,6 +81,13 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
           </button>
           <button type="submit" class="btn btn-custom">Crear Pago</button>
         </div>
+        <script>
+          (function () {
+            const s = document.currentScript;
+            const col = s.closest('.col-md-7');
+            if (col) col.classList.add('d-flex', 'flex-column');
+          })();
+        </script>
       </div>
 
       <!-- Right: resumen / datos del evento y responsable -->

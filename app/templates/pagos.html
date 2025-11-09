@@ -1,39 +1,127 @@
 {% extends 'base.html' %}
-{% block title%} Clientes {% endblock %}
+{% block title %} Pagos - Evento {% endblock %}
 
 {% block content %}
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+  {% if mensajes %}
+    {% for categoria, mensaje in mensajes %}
+      <div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
-    <h1> Pagos </h1>
-    <p> Acá iría el listado de pagos del evento número {{ id_evento }} </p>
+<div class="container py-3">
+  <div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('eventos_bp.eventos') }}" class="text-muted me-3" aria-label="Volver">
+      <i class="bi bi-arrow-left fs-4"></i>
+    </a>
+    <div>
+      <h2 class="m-0">Pagos</h2>
+      {% if evento is defined %}
+        <small class="text-muted">Evento: {{ evento.descripcion }} {% if evento.fecha_inicio %}— {{ evento.fecha_inicio }}{% endif %}</small>
+      {% endif %}
+    </div>
+  </div>
 
-     {% if pagos %}
-        <ul>
-            {% for pago in pagos %}
-            <li>
-                <strong>ID pago: {{ pago.id_pago }} </strong>
-                {% if pago.fecha %} - Fecha: {{ pago.fecha }}{% endif %}
-                {% if pago.monto_pago %} - Monto: {{  pago.monto_pago }}{% endif %}
-                {% if pago.usuario_creacion %} - {{ pago.usuario_creacion }}{% endif %}
-                <td class="acciones">
-                    <a href="{{ url_for('ingresos.eliminar_pago', id_pago=pago.id_pago ) }}" class="me-2">🚮</a>
-                    </form>
-                </td>
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No hay pagos registrados.</p>
-    {% endif %}
-    {% if mensaje %}
-        <div class="alert alert-warning">{{ mensaje }}</div>
-    {% endif %}
+  <div class="d-flex justify-content-center">
+    <div class="card w-100" style="max-width:1100px;">
+      <div class="card-body d-flex flex-column" style="min-height:50vh;">
 
-    <a href="{{ url_for('ingresos.ingresos') }}">Volver</a>
+        <!-- acciones superiores -->
+        <div class="row mb-3">
+          <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+              <a href="{{ url_for('ingresos.ingresos') }}" class="btn btn-outline-secondary">Volver</a>
+            </div>
+            <div class="d-flex gap-2">
+              <!-- si tenés una vista/acción para agregar pago la enlazás aquí -->
+              <a href="{{ url_for('ingresos.agregar_pago', id_evento=id_evento) }}" class="btn btn-custom">Agregar Pago</a>
+            </div>
+          </div>
+        </div>
 
+        <!-- tabla de pagos con scroll -->
+        <div class="row flex-grow-1 mb-3">
+          <div class="col-12">
+            <div style="max-height:48vh; overflow:auto;">
+              <table class="table table-striped table-hover mb-0">
+                <thead class="table-light position-sticky top-0" style="z-index:1;">
+                  <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th class="text-end">Monto</th>
+                    <th>Usuario</th>
+                    <th>Observaciones</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
 
+                <tbody>
+                  {% if pagos %}
+                    {% for pago in pagos %}
+                    <tr>
+                      <td>{{ pago.id_pago }}</td>
+                      <td>{{ pago.fecha }}</td>
+                      <td class="text-end">${{ pago.monto_pago | float | round(2) }}</td>
+                      <td>{{ pago.usuario_creacion }}</td>
+                      <td>{{ pago.observaciones if pago.observaciones is defined else '' }}</td>
+                      <td class="acciones">
+                        <form action="{{ url_for('ingresos.eliminar_pago', id_pago=pago.id_pago ) }}" method="POST" style="display:inline">
+                          <button type="submit" class="btn btn-link p-0 text-danger" onclick="return confirm('¿Seguro que querés eliminar este pago?')">🗑️</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="6" class="text-center py-4">No hay pagos registrados para este evento.</td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- totales -->
+        <div class="row">
+          <div class="col-md-8 d-flex flex-column justify-content-center">
+            <div class="section-card p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <strong>Total pagado</strong>
+                </div>
+                <div>
+                  {% set total = pagos | sum(attribute='monto_pago') if pagos else 0 %}
+                  <strong>${{ total | float | round(2) }}</strong>
+                </div>
+              </div>
+
+              {% if evento is defined and evento.monto_total is defined %}
+              <hr class="my-2">
+              <div class="d-flex justify-content-between">
+                <div><small class="text-muted">Monto total evento</small></div>
+                <div><small class="text-muted">${{ evento.monto_total | float | round(2) }}</small></div>
+              </div>
+              <div class="d-flex justify-content-between mt-1">
+                <div><small class="text-muted">Saldo</small></div>
+                <div><small class="text-muted">${{ (evento.monto_total - total) | float | round(2) }}</small></div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-4 d-flex justify-content-end align-items-center">
+            <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-outline-secondary">Volver a Eventos</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
-        
 
-    
+
