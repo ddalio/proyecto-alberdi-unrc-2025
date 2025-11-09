@@ -45,7 +45,7 @@
 
     <div class="d-flex">
       <!-- Sidebar vertical -->
-      <nav class="bg-pry vh-100 p-3" style="width: 70px">
+      <nav class="bg-pry p-3" style="width: 70px">
         <ul class="nav flex-column align-items-center">
           <!--Este icono no se que onda-->
           <li class="nav-item mb-4">
@@ -83,11 +83,17 @@
               ></i>
             </a>
           </li>
-          <li class="nav-item mb-4">	
+          <li class="nav-item mb-4">
             <a
               class="nav-link p-0 text-white"
-              href="{{ url_for('auth.salir') }}" aria-label="Cerrar sesión" title="Cerrar sesión">
-                <i class="bi bi-box-arrow-right text-white" style="font-size: 1.8rem"></i>
+              href="{{ url_for('auth.salir') }}"
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
+            >
+              <i
+                class="bi bi-box-arrow-right text-white"
+                style="font-size: 1.8rem"
+              ></i>
             </a>
           </li>
         </ul>
