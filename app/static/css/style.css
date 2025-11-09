@@ -8,12 +8,45 @@ h1 {
   color: var(--color-primario);
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
 body {
   font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
+/* Layout wrapper that controla la altura de la vista */
+.layout-with-sidebar {
+  display: flex;
+  align-items: stretch; /* hace que sidebar y main tengan la misma altura disponible */
+  min-height: 100vh;    /* ocupa al menos la altura de la ventana */
+}
+
+/* Sidebar: no forzar más altura, permitir scroll interno si hace falta */
+.sidebar {
+  width: 70px;           /* ancho fijo, antes estaba inline */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  height: auto;          /* no forzar 100vh aquí */
+  overflow-y: auto;      /* solo hace scroll si el contenido excede la altura del viewport */
+}
+
+/* Main content (flex child) */
+.main-content {
+  flex: 1;
+  min-height: 0; /* importante para que los hijos con overflow funcionen correctamente */
+  background: transparent;
+  padding: 0;
+}
+
+/* botones y estilos existentes */
 .btn-custom {
   background-color: var(--color-btn);
   color: var(--color-hover);
