@@ -1,39 +1,171 @@
-{% extends 'base.html' %}
-{% block title %} Eventos {% endblock %}
+{% extends 'base.html' %} {% block title %} Eventos {% endblock %} {% block
+content %} {% with mensajes = get_flashed_messages(with_categories=true) %} {%
+if mensajes %} {% for categoria, mensaje in mensajes %}
+<div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
+{% endfor %} {% endif %} {% endwith %}
 
-{% block content %}
-{% with mensajes = get_flashed_messages(with_categories=true) %}
-  {% if mensajes %}
-    {% for categoria, mensaje in mensajes %}
-      <div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+<!-- Modal overlay para "Agregar Pago" (todo inline en esta plantilla) -->
+<div
+  id="paymentModalOverlay"
+  class="d-none"
+  aria-hidden="true"
+  style="
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 40px;
+    background: rgba(0, 0, 0, 0.5);
+  "
+>
+  <div
+    class="card shadow p-4"
+    style="width: 92vw; max-width: 900px; max-height: 92vh; overflow: auto"
+  >
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="m-0">Nuevo Pago</h5>
+      <button
+        type="button"
+        id="closePaymentModalBtn"
+        class="btn btn-close"
+        aria-label="Cerrar"
+      ></button>
+    </div>
+
+    <form id="paymentForm" action="#" method="POST" class="row g-3">
+      <!-- CSRF token si aplica -->
+      {# {{ csrf_token() }} #}
+      <input type="hidden" name="id_evento" id="modal_event_id" />
+
+      <!-- Left: inputs de pago -->
+      <div class="col-md-7">
+        <div class="mb-2">
+          <label class="form-label">Descripción del evento</label>
+          <input id="modal_event_desc" class="form-control" readonly />
+        </div>
+
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label">Monto a Pagar</label>
+            <input
+              id="modal_monto_pago"
+              name="monto_pago"
+              type="number"
+              step="0.01"
+              class="form-control"
+              required
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Fecha de pago</label>
+            <input
+              id="modal_fecha_pago"
+              name="fecha_inicio"
+              type="date"
+              class="form-control"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-2">
+          <button
+            type="button"
+            id="cancelPaymentBtn"
+            class="btn btn-outline-secondary"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-custom">Crear Pago</button>
+        </div>
+      </div>
+
+      <!-- Right: resumen / datos del evento y responsable -->
+      <aside class="col-md-5">
+        <div class="section-card p-3">
+          <h6 class="mb-2">Datos del Evento</h6>
+          <p class="mb-1">
+            <strong>ID:</strong> <span id="modal_event_id_text">-</span>
+          </p>
+          <p class="mb-1">
+            <strong>Monto total:</strong> $<span id="modal_event_monto"
+              >0.00</span
+            >
+          </p>
+          <p class="mb-1">
+            <strong>Monto deuda:</strong> $<span id="modal_event_monto_deuda"
+              >0.00</span
+            >
+          </p>
+          <p class="mb-1">
+            <strong>Adeuda:</strong> <span id="modal_event_adeuda">No</span>
+          </p>
+        </div>
+
+        <div class="section-card p-3 mt-3">
+          <h6 class="mb-2">Cliente / Responsable</h6>
+          <p class="mb-1">
+            <strong>Nombre:</strong> <span id="modal_cliente_nombre">-</span>
+          </p>
+          <p class="mb-1">
+            <strong>DNI:</strong> <span id="modal_cliente_dni">-</span>
+          </p>
+          <p class="mb-1">
+            <strong>Responsable:</strong> <span id="modal_responsable">-</span>
+          </p>
+        </div>
+      </aside>
+    </form>
+  </div>
+</div>
 
 <div class="container py-3">
   <div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('eventos_bp.eventos') }}" class="text-muted me-3" aria-label="Volver">
+    <a
+      href="{{ url_for('eventos_bp.eventos') }}"
+      class="text-muted me-3"
+      aria-label="Volver"
+    >
       <i class="bi bi-arrow-left fs-4"></i>
     </a>
     <h2 class="m-0">Eventos</h2>
   </div>
 
   <div class="d-flex justify-content-center">
-    <div class="card w-100" style="max-width:1100px;">
-      <div class="card-body d-flex flex-column" style="min-height:60vh;">
-
-        <!-- Row 1: buscador por DNI y boton de descarga (solo estética) -->
+    <div class="card w-100" style="max-width: 1100px">
+      <div class="card-body d-flex flex-column" style="min-height: 60vh">
+        <!-- Row 1: buscador por DNI y boton de descarga (estética) -->
         <div class="row mb-3">
           <div class="col-12">
-            <form action="{{ url_for('eventos_bp.buscar_evento_campo') }}" method="POST" class="d-flex gap-2 align-items-end">
-              <div class="flex-grow-1" style="max-width:420px;">
+            <form
+              action="{{ url_for('eventos_bp.buscar_evento_campo') }}"
+              method="POST"
+              class="d-flex gap-2 align-items-end"
+            >
+              <div class="flex-grow-1" style="max-width: 420px">
                 <label class="form-label mb-1 visually-hidden">DNI</label>
-                <input type="search" name="valor" class="form-control" placeholder="Buscar por DNI..." aria-label="Buscar por DNI"/>
+                <input
+                  type="search"
+                  name="valor"
+                  class="form-control"
+                  placeholder="Buscar por DNI..."
+                  aria-label="Buscar por DNI"
+                />
               </div>
 
               <div class="d-flex align-items-center">
-                <button type="submit" class="btn btn-custom me-2">Buscar</button>
-                <button type="button" id="downloadPdfBtn" class="btn btn-outline-secondary" title="Descargar lista (PDF)">
+                <button type="submit" class="btn btn-custom me-2">
+                  Buscar
+                </button>
+                <button
+                  type="button"
+                  id="downloadPdfBtn"
+                  class="btn btn-outline-secondary"
+                  title="Descargar lista (PDF)"
+                >
                   <i class="bi bi-download fs-5"></i>
                 </button>
               </div>
@@ -44,14 +176,28 @@
         <!-- Row 2: filtros por fecha -->
         <div class="row mb-3">
           <div class="col-12">
-            <form action="{{ url_for('eventos_bp.rango_eventos_por_fecha') }}" method="GET" class="d-flex gap-2 align-items-end">
+            <form
+              action="{{ url_for('eventos_bp.rango_eventos_por_fecha') }}"
+              method="GET"
+              class="d-flex gap-2 align-items-end"
+            >
               <div>
                 <label class="form-label mb-1">Desde:</label>
-                <input type="date" id="desde" name="desde" class="form-control" />
+                <input
+                  type="date"
+                  id="desde"
+                  name="desde"
+                  class="form-control"
+                />
               </div>
               <div>
                 <label class="form-label mb-1">Hasta:</label>
-                <input type="date" id="hasta" name="hasta" class="form-control" />
+                <input
+                  type="date"
+                  id="hasta"
+                  name="hasta"
+                  class="form-control"
+                />
               </div>
               <div class="align-self-end">
                 <button type="submit" class="btn btn-custom">Filtrar</button>
@@ -60,12 +206,15 @@
           </div>
         </div>
 
-        <!-- Row 3: tabla de eventos con scroll (sin cambios en lo mostrado) -->
+        <!-- Row 3: tabla de eventos con scroll -->
         <div class="row flex-grow-1 mb-3">
           <div class="col-12">
-            <div style="max-height:50vh; overflow:auto;">
+            <div style="max-height: 50vh; overflow: auto">
               <table class="table table-striped table-hover mb-0">
-                <thead class="table-light position-sticky top-0" style="z-index:1;">
+                <thead
+                  class="table-light position-sticky top-0"
+                  style="z-index: 1"
+                >
                   <tr>
                     <th>DNI</th>
                     <th>Hora Inicio</th>
@@ -78,17 +227,47 @@
                 <tbody>
                   {% for evento in eventos_list %}
                   <tr>
-                    <td>{{ evento.dni }}</td>
+                    <td class="td-dni">{{ evento.dni }}</td>
                     <td>{{ evento.fecha_inicio }}</td>
                     <td>{{ evento.fecha_fin }}</td>
-                    <td>{{ evento.pagos | map(attribute='monto_pago') | sum }}</td>
                     <td>
-                      {{ evento.responsable_apertura.nombre }} {{ evento.responsable_apertura.apellido }}
+                      {{ evento.pagos | map(attribute='monto_pago') | sum }}
+                    </td>
+                    <td>
+                      {{ evento.responsable_apertura.nombre }} {{
+                      evento.responsable_apertura.apellido }}
                     </td>
                     <td class="acciones">
-                      <a href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}" class="me-2">📄</a>
-                      <a href="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}" class="me-2">💳</a>
-                      <a href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}" class="me-2">✏️</a>
+                      <a
+                        href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}"
+                        class="me-2"
+                        >📄</a
+                      >
+
+                      <!-- botón que abre el modal para agregar pago (no navega) -->
+                      <button
+                        type="button"
+                        class="me-2 btn btn-link p-0 openAddPaymentBtn"
+                        data-action="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}"
+                        data-id="{{ evento.id_evento }}"
+                        data-descripcion="{{ evento.descripcion | e }}"
+                        data-monto="{{ evento.monto_total }}"
+                        data-monto-deuda="{{ (evento.monto_deuda if evento.monto_deuda is defined else (evento.monto_total - (evento.pagos | map(attribute='monto_pago') | sum))) }}"
+                        data-adeuda="{{ '1' if evento.adeuda else '0' }}"
+                        data-cliente-nombre="{{ evento.cliente.nombre if evento.cliente is defined else '' }}"
+                        data-cliente-apellido="{{ evento.cliente.apellido if evento.cliente is defined else '' }}"
+                        data-cliente-dni="{{ evento.cliente.dni if evento.cliente is defined else '' }}"
+                        data-responsable-nombre="{{ evento.responsable_apertura.nombre if evento.responsable_apertura is defined else '' }}"
+                        data-responsable-apellido="{{ evento.responsable_apertura.apellido if evento.responsable_apertura is defined else '' }}"
+                      >
+                        💳
+                      </button>
+
+                      <a
+                        href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}"
+                        class="me-2"
+                        >✏️</a
+                      >
                       <form
                         action="{{ url_for('eventos_bp.eliminar_evento', id_evento=evento.id_evento) }}"
                         method="POST"
@@ -106,7 +285,9 @@
                   </tr>
                   {% else %}
                   <tr>
-                    <td colspan="7" class="text-center py-4">No hay eventos cargados</td>
+                    <td colspan="7" class="text-center py-4">
+                      No hay eventos cargados
+                    </td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -115,7 +296,7 @@
           </div>
         </div>
 
-        <!-- Row 4: resumen (vacío) y botón volver -->
+        <!-- Row 4: resumen y volver -->
         <div class="row">
           <div class="col-md-8 d-flex flex-column justify-content-center">
             <!-- Resumen opcional -->
@@ -125,18 +306,139 @@
             <a href="/" class="btn btn-outline-secondary">Volver</a>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // placeholder para futura implementación de descarga PDF
-  document.getElementById('downloadPdfBtn')?.addEventListener('click', function(){
-    // implementar descarga más tarde
-    alert('Descarga de PDF pendiente de implementación.');
-  });
+  // descarga placeholder
+  document
+    .getElementById("downloadPdfBtn")
+    ?.addEventListener("click", function () {
+      alert("Descarga de PDF pendiente de implementación.");
+    });
+
+  (function () {
+    const overlay = document.getElementById("paymentModalOverlay");
+    const openBtns = document.querySelectorAll(".openAddPaymentBtn");
+    const closeBtn = document.getElementById("closePaymentModalBtn");
+    const cancelBtn = document.getElementById("cancelPaymentBtn");
+    const form = document.getElementById("paymentForm");
+
+    // inputs / spans
+    const inputEventId = document.getElementById("modal_event_id");
+    const spanEventId = document.getElementById("modal_event_id_text");
+    const inputDesc = document.getElementById("modal_event_desc");
+    const inputFecha = document.getElementById("modal_fecha_pago");
+    const inputMonto = document.getElementById("modal_monto_pago");
+    const spanMontoTotal = document.getElementById("modal_event_monto");
+    const spanMontoDeuda = document.getElementById("modal_event_monto_deuda");
+    const spanAdeuda = document.getElementById("modal_event_adeuda");
+    const spanClienteNombre = document.getElementById("modal_cliente_nombre");
+    const spanClienteDni = document.getElementById("modal_cliente_dni");
+    const spanResponsable = document.getElementById("modal_responsable");
+
+    function formatNumber(v) {
+      return Number(v || 0).toFixed(2);
+    }
+
+    function openModal(actionUrl, details) {
+      form.action = actionUrl || "#";
+      inputEventId.value = details.id || "";
+      spanEventId.textContent = details.id || "-";
+      inputDesc.value = details.descripcion || "";
+      inputMonto.value = details.monto || "";
+      inputFecha.value = new Date().toISOString().slice(0, 10);
+
+      spanMontoTotal.textContent = formatNumber(details.monto);
+      spanMontoDeuda.textContent = formatNumber(details.monto_deuda);
+      spanAdeuda.textContent =
+        details.adeuda === "1" ||
+        details.adeuda === 1 ||
+        details.adeuda === true
+          ? "Sí"
+          : "No";
+
+      spanClienteNombre.textContent = details.cliente_nombre
+        ? details.cliente_nombre +
+          (details.cliente_apellido ? " " + details.cliente_apellido : "")
+        : "-";
+      spanClienteDni.textContent = details.cliente_dni || "-";
+      spanResponsable.textContent = details.responsable_nombre
+        ? details.responsable_nombre +
+          (details.responsable_apellido
+            ? " " + details.responsable_apellido
+            : "")
+        : "-";
+
+      overlay.classList.remove("d-none");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      overlay.classList.add("d-none");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      form.action = "#";
+      inputEventId.value = "";
+      inputDesc.value = "";
+      inputMonto.value = "";
+    }
+
+    openBtns.forEach((btn) => {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        const details = {
+          id: btn.dataset.id,
+          descripcion: btn.dataset.descripcion,
+          monto: btn.dataset.monto,
+          monto_deuda: btn.dataset.montoDeuda || btn.dataset.monto_deuda || 0,
+          adeuda: btn.dataset.adeuda,
+          cliente_nombre:
+            btn.dataset.clienteNombre || btn.dataset.cliente_nombre,
+          cliente_apellido:
+            btn.dataset.clienteApellido || btn.dataset.cliente_apellido,
+          cliente_dni: btn.dataset.clienteDni || btn.dataset.cliente_dni,
+          responsable_nombre:
+            btn.dataset.responsableNombre || btn.dataset.responsable_nombre,
+          responsable_apellido:
+            btn.dataset.responsableApellido || btn.dataset.responsable_apellido,
+        };
+        const action = btn.dataset.action;
+        openModal(action, details);
+      });
+    });
+
+    closeBtn && closeBtn.addEventListener("click", closeModal);
+    cancelBtn && cancelBtn.addEventListener("click", closeModal);
+
+    overlay &&
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) closeModal();
+      });
+
+    document.addEventListener("keydown", function (e) {
+      if (
+        e.key === "Escape" &&
+        overlay &&
+        !overlay.classList.contains("d-none")
+      )
+        closeModal();
+    });
+
+    // Validación mínima antes de submit
+    form &&
+      form.addEventListener("submit", function (e) {
+        const monto = inputMonto.value;
+        const fecha = inputFecha.value;
+        if (!monto || !fecha) {
+          e.preventDefault();
+          alert("Complete monto y fecha del pago.");
+        }
+      });
+  })();
 </script>
 
 {% endblock %}
