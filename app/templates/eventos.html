@@ -12,7 +12,7 @@
 
 <div class="container py-3">
   <div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('auth.inicio') }}" class="text-muted me-3" aria-label="Volver">
+    <a href="{{ url_for('eventos_bp.eventos') }}" class="text-muted me-3" aria-label="Volver">
       <i class="bi bi-arrow-left fs-4"></i>
     </a>
     <h2 class="m-0">Eventos</h2>
@@ -22,40 +22,24 @@
     <div class="card w-100" style="max-width:1100px;">
       <div class="card-body d-flex flex-column" style="min-height:60vh;">
 
-        <!-- Row 1: buscador con selector de campo y botón de descarga -->
-  <div class="row mb-3">
-    <div class="col-12">
-      <form action="{{ url_for('eventos_bp.buscar_evento_campo') }}" method="POST" class="d-flex gap-2 align-items-end flex-wrap">
-        
-        <!-- Selector de campo -->
-        <div>
-          <label for="campo" class="form-label mb-1 visually-hidden">Campo</label>
-          <select name="campo" id="campo" class="form-select">
-            <option value="dni" selected>DNI del cliente</option>
-            <option value="nombre">Nombre del cliente</option>
-            <option value="descripcion">Descripción del evento</option>
-            <option value="id_evento">ID del evento</option>
-          </select>
-        </div>
+        <!-- Row 1: buscador por DNI y boton de descarga (solo estética) -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <form action="{{ url_for('eventos_bp.buscar_evento_campo') }}" method="POST" class="d-flex gap-2 align-items-end">
+              <div class="flex-grow-1" style="max-width:420px;">
+                <label class="form-label mb-1 visually-hidden">DNI</label>
+                <input type="search" name="valor" class="form-control" placeholder="Buscar por DNI..." aria-label="Buscar por DNI"/>
+              </div>
 
-        <!-- Campo de búsqueda -->
-        <div class="flex-grow-1" style="max-width:420px;">
-          <label class="form-label mb-1 visually-hidden">Valor</label>
-          <input type="search" name="valor" id="valor" class="form-control" placeholder="Buscar por DNI..." aria-label="Buscar" />
+              <div class="d-flex align-items-center">
+                <button type="submit" class="btn btn-custom me-2">Buscar</button>
+                <button type="button" id="downloadPdfBtn" class="btn btn-outline-secondary" title="Descargar lista (PDF)">
+                  <i class="bi bi-download fs-5"></i>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <!-- Botones -->
-        <div class="d-flex align-items-center">
-          <button type="submit" class="btn btn-custom me-2">Buscar</button>
-          <button type="button" id="downloadPdfBtn" class="btn btn-outline-secondary" title="Descargar lista (PDF)">
-            <i class="bi bi-download fs-5"></i>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  
 
         <!-- Row 2: filtros por fecha -->
         <div class="row mb-3">
@@ -84,10 +68,9 @@
                 <thead class="table-light position-sticky top-0" style="z-index:1;">
                   <tr>
                     <th>DNI</th>
-                    <th>Fecha</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
-                    <th>Descripcion</th>
+                    <th>Pago</th>
                     <th>Nombre responsable</th>
                     <th>Acciones</th>
                   </tr>
@@ -98,13 +81,13 @@
                     <td>{{ evento.dni }}</td>
                     <td>{{ evento.fecha_inicio }}</td>
                     <td>{{ evento.fecha_fin }}</td>
-                    <td>{{ evento.descripcion }}</td>
+                    <td>{{ evento.pagos | map(attribute='monto_pago') | sum }}</td>
                     <td>
                       {{ evento.responsable_apertura.nombre }} {{ evento.responsable_apertura.apellido }}
                     </td>
                     <td class="acciones">
                       <a href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}" class="me-2">📄</a>
-                      <a href="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}" class="me-2">💳</a>
+                      <a href="" class="me-2">💳</a>
                       <a href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}" class="me-2">✏️</a>
                       <form
                         action="{{ url_for('eventos_bp.eliminar_evento', id_evento=evento.id_evento) }}"
@@ -153,27 +136,6 @@
   document.getElementById('downloadPdfBtn')?.addEventListener('click', function(){
     // implementar descarga más tarde
     alert('Descarga de PDF pendiente de implementación.');
-  });
-</script>
-
-<!-- Script para actualizar el placeholder según el campo elegido -->
-<script>
-  document.getElementById('campo').addEventListener('change', function() {
-    const input = document.getElementById('valor');
-    switch (this.value) {
-      case 'dni':
-        input.placeholder = 'Buscar por DNI...';
-        break;
-      case 'nombre':
-        input.placeholder = 'Buscar por nombre del cliente...';
-        break;
-      case 'descripcion':
-        input.placeholder = 'Buscar por descripción del evento...';
-        break;
-      case 'id_evento':
-        input.placeholder = 'Buscar por ID del evento...';
-        break;
-    }
   });
 </script>
 
