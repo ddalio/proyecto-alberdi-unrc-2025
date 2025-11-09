@@ -34,8 +34,9 @@
               <a href="{{ url_for('ingresos.ingresos') }}" class="btn btn-outline-secondary">Volver</a>
             </div>
             <div class="d-flex gap-2">
-              <!-- si tenés una vista/acción para agregar pago la enlazás aquí -->
-              <a href="{{ url_for('ingresos.agregar_pago', id_evento=id_evento) }}" class="btn btn-custom">Agregar Pago</a>
+              {% if evento is defined %}
+                <a href="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}" class="btn btn-custom">Agregar Pago</a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -52,7 +53,6 @@
                     <th class="text-end">Monto</th>
                     <th>Usuario</th>
                     <th>Observaciones</th>
-                    <th>Acciones</th>
                   </tr>
                 </thead>
 
@@ -65,16 +65,11 @@
                       <td class="text-end">${{ pago.monto_pago | float | round(2) }}</td>
                       <td>{{ pago.usuario_creacion }}</td>
                       <td>{{ pago.observaciones if pago.observaciones is defined else '' }}</td>
-                      <td class="acciones">
-                        <form action="{{ url_for('ingresos.eliminar_pago', id_pago=pago.id_pago ) }}" method="POST" style="display:inline">
-                          <button type="submit" class="btn btn-link p-0 text-danger" onclick="return confirm('¿Seguro que querés eliminar este pago?')">🗑️</button>
-                        </form>
-                      </td>
                     </tr>
                     {% endfor %}
                   {% else %}
                     <tr>
-                      <td colspan="6" class="text-center py-4">No hay pagos registrados para este evento.</td>
+                      <td colspan="5" class="text-center py-4">No hay pagos registrados para este evento.</td>
                     </tr>
                   {% endif %}
                 </tbody>
@@ -113,6 +108,9 @@
 
           <div class="col-md-4 d-flex justify-content-end align-items-center">
             <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-outline-secondary">Volver a Eventos</a>
+            <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-light ms-2">
+              <i class="bi bi-arrow-left-circle me-1"></i> Ver eventos
+            </a>
           </div>
         </div>
 
