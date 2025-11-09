@@ -87,7 +87,7 @@
                     </td>
                     <td class="acciones">
                       <a href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}" class="me-2">📄</a>
-                      <a href="" class="me-2">💳</a>
+                      <a href="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}" class="me-2">💳</a>
                       <a href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}" class="me-2">✏️</a>
                       <form
                         action="{{ url_for('eventos_bp.eliminar_evento', id_evento=evento.id_evento) }}"
