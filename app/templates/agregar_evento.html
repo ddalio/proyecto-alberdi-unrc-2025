@@ -1,78 +1,316 @@
-{% extends 'base.html' %}
-{% block title %} Crear Nuevo Evento {% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %} Crear Nuevo Evento {% endblock %} {%
+block content %}
 
-<h1>Crear Nuevo Evento</h1>
-
-<!-- Mostrar mensajes de flash -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-
-<form action="{{ url_for('eventos_bp.agregar_evento') }}" method="POST">
-  
-  <h3>Datos del Cliente</h3>
-  <label>DNI:</label>
-  <input type="text" name="dni" required><br>
-
-  <label>Nombre:</label>
-  <input type="text" name="nombre" required><br>
-
-  <label>Apellido:</label>
-  <input type="text" name="apellido" required><br>
-
-  <label>Teléfono:</label>
-  <input type="text" name="telefono"><br>
-
-  <label>Institución:</label>
-  <input type="text" name="institucion"><br>
-
-  <h3>Datos del Evento</h3>
-  <label>Descripción:</label>
-  <input type="text" name="descripcion" required><br>
-
-  <div>
-      <label>Fecha Inicio*</label>
-      <input type="date" name="fecha_inicio" required>
-      <label>Hora Inicio</label>
-      <input type="time" name="hora_inicio">
+<div class="container py-3">
+  <div class="d-flex align-items-center mb-3">
+    <a
+      href="{{ url_for('eventos_bp.eventos') }}"
+      class="text-muted me-3"
+      aria-label="Volver"
+    >
+      <i class="bi bi-arrow-left fs-4"></i>
+    </a>
+    <h2 class="m-0">Crear Nuevo Evento</h2>
   </div>
 
-  <div>
-      <label>Fecha Fin*</label>
-      <input type="date" name="fecha_fin" required>
-      <label>Hora Final</label>
-      <input type="time" name="hora_fin">
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div class="alert alert-{{ category }} mt-2">{{ message }}</div>
+  {% endfor %} {% endif %} {% endwith %}
+
+  <div class="d-flex justify-content-center">
+    <!-- main card: estilo similar a la imagen -->
+    <div class="card card-main w-100" style="max-width: 1100px">
+      <div class="card-body">
+        <form
+          action="{{ url_for('eventos_bp.agregar_evento') }}"
+          method="POST"
+          class="row g-3"
+        >
+          <!-- CSRF token si aplica -->
+          {# {{ csrf_token() }} #}
+
+          <!-- layout en dos columnas: izquierda grande, derecha con pequeñas cards -->
+          <div class="col-12">
+            <div class="row gy-3">
+              <div class="col-md-7">
+                <!-- sección principal (Datos del Cliente + Datos del Evento) -->
+
+                <div class="section-card ">
+                  <h5 class="mb-3">Datos del Evento</h5>
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label for="descripcion" class="form-label"
+                        >Descripción <span class="text-danger">*</span></label
+                      >
+                      <input
+                        id="descripcion"
+                        type="text"
+                        name="descripcion"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="fecha_inicio" class="form-label"
+                        >Fecha Inicio <span class="text-danger">*</span></label
+                      >
+                      <input
+                        id="fecha_inicio"
+                        type="date"
+                        name="fecha_inicio"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="hora_inicio" class="form-label"
+                        >Hora Inicio</label
+                      >
+                      <input
+                        id="hora_inicio"
+                        type="time"
+                        name="hora_inicio"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="fecha_fin" class="form-label"
+                        >Fecha Fin <span class="text-danger">*</span></label
+                      >
+                      <input
+                        id="fecha_fin"
+                        type="date"
+                        name="fecha_fin"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="hora_fin" class="form-label"
+                        >Hora Final</label
+                      >
+                      <input
+                        id="hora_fin"
+                        type="time"
+                        name="hora_fin"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="col-12">
+                      <label for="observaciones" class="form-label"
+                        >Observaciones</label
+                      >
+                      <textarea
+                        id="observaciones"
+                        name="observaciones"
+                        class="form-control"
+                        rows="3"
+                      ></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="monto_total" class="form-label"
+                        >Monto Total <span class="text-danger">*</span></label
+                      >
+                      <input
+                        id="monto_total"
+                        type="number"
+                        step="0.01"
+                        name="monto_total"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="monto" class="form-label"
+                        >Monto Inicial (seña)</label
+                      >
+                      <input
+                        id="monto"
+                        type="number"
+                        step="0.01"
+                        name="monto"
+                        class="form-control"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-card mt-4">
+                  <h5 class="mb-3">Datos del Cliente</h5>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label for="dni" class="form-label"
+                        >DNI <span class="text-danger">*</span></label
+                      >
+                      <input
+                        id="dni"
+                        type="text"
+                        name="dni"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-4">
+                      <label for="nombre" class="form-label"
+                        >Nombre <span class="text-danger">*</span></label
+                      >
+                      <input
+                        id="nombre"
+                        type="text"
+                        name="nombre"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-4">
+                      <label for="apellido" class="form-label"
+                        >Apellido <span class="text-danger">*</span></label
+                      >
+                      <input
+                        id="apellido"
+                        type="text"
+                        name="apellido"
+                        class="form-control"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="telefono" class="form-label">Teléfono</label>
+                      <input
+                        id="telefono"
+                        type="text"
+                        name="telefono"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="institucion" class="form-label"
+                        >Institución</label
+                      >
+                      <input
+                        id="institucion"
+                        type="text"
+                        name="institucion"
+                        class="form-control"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-5">
+                <!-- derecha: dos tarjetas pequeñas -->
+                <div class="section-card">
+                  <h6 class="mb-3">Responsable del Alquiler</h6>
+                  <div class="row g-2">
+                    <div class="col-12">
+                      <label class="form-label">Nombre</label>
+                      <input
+                        type="text"
+                        name="nombre_responsable"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Apellido</label>
+                      <input
+                        type="text"
+                        name="apellido_responsable"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">DNI</label>
+                      <input
+                        type="text"
+                        name="dni_responsable"
+                        class="form-control"
+                      />
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Teléfono</label>
+                      <input
+                        type="text"
+                        name="telefono_responsable"
+                        class="form-control"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-card mt-3">
+                  <h6 class="mb-3">Responsables de la Llave</h6>
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <label class="form-label">Nombre (Apertura)</label>
+                      <input
+                        id="nombre_apertura"
+                        type="text"
+                        name="nombre_apertura"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Apellido (Apertura)</label>
+                      <input
+                        id="apellido_apertura"
+                        type="text"
+                        name="apellido_apertura"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Nombre (Cierre)</label>
+                      <input
+                        id="nombre_cierre"
+                        type="text"
+                        name="nombre_cierre"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Apellido (Cierre)</label>
+                      <input
+                        id="apellido_cierre"
+                        type="text"
+                        name="apellido_cierre"
+                        class="form-control"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- botones al pie (estilo CTA grande rojo y cancelar gris) -->
+          <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+            <a
+              href="{{ url_for('eventos_bp.eventos') }}"
+              class="btn btn-outline-secondary btn-lg"
+              >Cancelar</a
+            >
+            <button type="submit" class="btn btn-custom btn-lg">Aceptar</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
-
-  <label>Observaciones:</label>
-  <input type="text" name="observaciones"><br>
-
-  <label>Monto Total:</label>
-  <input type="number" step="0.01" name="monto_total" required><br>
-
-  <h3>Responsables de Llave</h3>
-  <label>Nombre Apertura:</label>
-  <input type="text" name="nombre_apertura"><br>
-
-  <label>Apellido Apertura:</label>
-  <input type="text" name="apellido_apertura"><br>
-
-  <label>Nombre Cierre:</label>
-  <input type="text" name="nombre_cierre"><br>
-
-  <label>Apellido Cierre:</label>
-  <input type="text" name="apellido_cierre"><br>
-
-  <button type="submit">Crear Evento</button>
-</form>
-
-<br>
-<a href="{{ url_for('eventos_bp.eventos') }}">Volver a lista de eventos</a>
+</div>
 
 {% endblock %}
