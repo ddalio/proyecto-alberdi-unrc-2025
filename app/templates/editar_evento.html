@@ -1,0 +1,191 @@
+{% with mensajes = get_flashed_messages(with_categories=true) %} {% if mensajes
+%} {% for categoria, mensaje in mensajes %}
+<div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
+{% endfor %} {% endif %} {% endwith %} {% extends 'base.html' %}
+{% block title %}Editar Evento{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Fondo solo para esta página */
+    body {
+      background-color: #e9ecef;
+    }
+</style>
+<div class="container py-3">
+    <div class="d-flex align-items-center mb-3">
+      <a
+        href="{{ url_for('eventos_bp.eventos') }}"
+        class="text-muted me-3"
+        aria-label="Volver"
+      >
+        <i class="bi bi-arrow-left fs-4"></i>
+      </a>
+      <h2 class="m-0">Editar Evento</h2>
+    </div>
+    <form action="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}" method="POST">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h5 class="card-title border-bottom pb-3 mb-4">Datos del Evento</h5>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Descripción <span class="text-danger">*</span></label>
+                                    <input type="text" name="descripcion" class="form-control" 
+                                           placeholder="¿Qué tipo de evento es?" 
+                                           value="{{ evento.descripcion }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Monto de Colaboración <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" name="monto_total" class="form-control" 
+                                           placeholder="0.00" 
+                                           value="{{ evento.monto_total }}" required>
+                                </div>
+
+
+                            </div>
+                            
+                            
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Fecha Inicio <span class="text-danger">*</span></label>
+                                  <input type="date" name="fecha_inicio" class="form-control" 
+                                         value="{{ evento.fecha_inicio.strftime('%Y-%m-%d') }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Hora Inicio</label>
+                                  <input type="time" name="hora_inicio" class="form-control" 
+                                         value="{{ evento.fecha_inicio.strftime('%H:%M') }}">
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Fecha Fin <span class="text-danger">*</span></label>
+                                  <input type="date" name="fecha_fin" class="form-control" 
+                                         value="{{ evento.fecha_fin.strftime('%Y-%m-%d') }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Hora Final</label>
+                                  <input type="time" name="hora_fin" class="form-control" 
+                                         value="{{ evento.fecha_fin.strftime('%H:%M') }}">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Observaciones</label>
+                                <textarea name="observaciones" class="form-control" rows="3"
+                                          placeholder="Observaciones adicionales">{{ evento.observaciones or '' }}</textarea>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="card-title border-bottom pb-3 mb-4">Responsable del Alquiler</h5>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                                    <input type="text" name="nombre" class="form-control" 
+                                           placeholder="Nombre" 
+                                           value="{{ evento.cliente.nombre }}" required>
+                                </div>
+                                  
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Apellido <span class="text-danger">*</span></label>
+                                    <input type="text" name="apellido" class="form-control" 
+                                           placeholder="Apellido" 
+                                           value="{{ evento.cliente.apellido }}" required>
+                                </div>
+
+                            </div>
+
+                            <div class="row g-3 mb-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">DNI <span class="text-danger">*</span></label>
+                                    <input type="text" name="dni" class="form-control" 
+                                           placeholder="DNI" 
+                                           value="{{ evento.cliente.dni }}" required>
+                                </div>
+
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Teléfono <span class="text-danger">*</span></label>
+                                    <input type="text" name="telefono" class="form-control" 
+                                           placeholder="Teléfono" 
+                                           value="{{ evento.cliente.telefono }}" required>
+                                </div>
+
+                                
+                            </div>
+                              
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Institución</label>
+                                <input type="text" name="institucion" class="form-control" 
+                                       placeholder="Institución a la que pertenece" 
+                                       value="{{ evento.cliente.institucion or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title border-bottom pb-3 mb-4">Responsable de la Llave</h5>
+                            
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Nombre (Apertura)</label>
+                                  <input type="text" name="nombre_apertura" class="form-control" 
+                                         placeholder="Nombre" 
+                                         value="{{ evento.responsable_apertura.nombre if evento.responsable_apertura else '' }}">
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Apellido (Apertura)</label>
+                                  <input type="text" name="apellido_apertura" class="form-control" 
+                                         placeholder="Apellido" 
+                                         value="{{ evento.responsable_apertura.apellido if evento.responsable_apertura else '' }}">
+                                </div>
+                            </div>
+                              
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Nombre (Cierre)</label>
+                                  <input type="text" name="nombre_cierre" class="form-control" 
+                                         placeholder="Nombre" 
+                                         value="{{ evento.responsable_cierre.nombre if evento.responsable_cierre else '' }}">
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label fw-semibold">Apellido (Cierre)</label>
+                                  <input type="text" name="apellido_cierre" class="form-control" 
+                                         placeholder="Apellido" 
+                                         value="{{ evento.responsable_cierre.apellido if evento.responsable_cierre else '' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="row mt-3">
+                <div class="d-flex justify-content-center gap-3 pt-4 border-top">
+                    <button type="submit" class="btn btn-danger px-5">Guardar Cambios</button>
+                    <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-outline-secondary px-5">Cancelar</a>
+
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

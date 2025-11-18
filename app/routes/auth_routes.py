@@ -1,11 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.models import Evento, Cliente, ResponsableLlave, Pago, Cuenta
+from app.models import Cuenta
 
 auth_bp = Blueprint('auth', __name__)
-
-   
 
 @auth_bp.route("/")
 @auth_bp.route("/inicio ")
@@ -13,8 +10,6 @@ def inicio():
     if 'username' not in session:
         return redirect(url_for('auth.login'))
     return render_template('inicio.html')
-
-
 
 # Login
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -38,9 +33,12 @@ def login():
 
     return render_template("login.html", error=error)
 
-#cerrar sesion
+# Cerrar sesión
+@auth_bp.route("/logout")
 def salir():
-    return 0
+    session.pop('username', None)  # elimina la sesión si existe
+    flash("Has cerrado sesión correctamente", "success")
+    return redirect(url_for("auth.login"))
 
 # Funcion que ya tiene flask para los errores
 

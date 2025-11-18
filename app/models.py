@@ -60,6 +60,10 @@ class Cuenta(db.Model):
 
     def __repr__(self):
         return f'<Cuenta {self.nombre_usuario}>'
+    
+    #Este metodo hay que implementarlo... dice si el usuario es admin o no 
+    def es_admin(self):
+        return True  #Por ahora todos son admin (y en las vistas pueden ver todo)
 
 
 # ==============================
@@ -76,6 +80,14 @@ class Evento(db.Model):
     monto_total = db.Column(db.Numeric(10, 2), nullable=False)
     adeuda = db.Column(db.Boolean, default=True) #esto se actualiza cuando todos los pagos == monto total
     nro_recibo = db.Column(db.Integer) #esto se actualiza cuando todos los pagos == monto total
+
+    @property
+    def total_pagado(self):
+        return sum(float(p.monto_pago) for p in self.pagos)
+    
+    @property
+    def monto_deuda(self):
+        return float(self.monto_total) - sum(float(p.monto_pago) for p in self.pagos)
 
     # FKs
     dni = db.Column(db.String(20), db.ForeignKey('cliente.dni'), nullable=False)
