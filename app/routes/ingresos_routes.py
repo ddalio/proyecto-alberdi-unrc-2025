@@ -40,7 +40,7 @@ def rango_eventos_por_fecha():
 
         # Validación de rango
         if desde and hasta and desde > hasta:
-            flash("⚠️ La fecha 'Desde' no puede ser mayor que 'Hasta'.", "warning")
+            flash("La fecha 'Desde' no puede ser mayor que 'Hasta'.", "warning")
             return redirect(url_for("eventos_bp.eventos"))
 
         # Construir la query dinámicamente
@@ -68,20 +68,36 @@ def rango_eventos_por_fecha():
 def agregar_pago(id_evento):
     evento = Evento.query.get_or_404(id_evento)
     if request.method == "POST":
-        monto_pago = request.form.get("monto_pago")
-        # Usuario logueado
-        usuario_creacion = session.get("username")
-        if monto_pago and float(monto_pago) > 0:
-            # Registro de un pago
-            pago = Pago(id_evento = id_evento,
-                        monto_pago = float(monto_pago),
-                        fecha = datetime.utcnow(),
-                        usuario_creacion = usuario_creacion)
-            db.session.add(pago)
-            # Actualizar el estado de pago del evento
-            actualizar_pago_evento(evento)
-            db.session.commit()
-        return redirect(url_for('ingresos.ingresos'))
+        try:
+            if evento.total_pagado == evento.monto_total:
+                raise ValueError("El monto total ya es el correcto, NO se reciben más pagos")
+            
+            monto_pago = request.form.get("monto_pago")
+
+            # Usuario logueado
+            usuario_creacion = session.get("username")
+            
+            if float(monto_pago) < 0:
+                raise ValueError("El monto debe ser positivo")
+            
+            
+            if float(monto_pago) > evento.monto_total or float(monto_pago) + evento.total_pagado > evento.monto_total:
+                raise ValueError("El monto es mayor a lo necesario")
+            
+            if monto_pago:
+                # Registro de un pago
+                pago = Pago(id_evento = id_evento,
+                            monto_pago = float(monto_pago),
+                            fecha = datetime.utcnow(),
+                            usuario_creacion = usuario_creacion)
+                db.session.add(pago)
+                # Actualizar el estado de pago del evento
+                actualizar_pago_evento(evento)
+                db.session.commit()
+            return redirect(url_for('ingresos.ingresos'))
+        except ValueError as e:
+            flash(f"Error al agregar pago: {str(e)}")
+            return redirect(url_for("ingresos.ingresos"))
     return render_template("agregar_pago.html", evento=evento)
 
 @ingresos_bp.route("pagos/<int:id_evento>")
