@@ -350,9 +350,12 @@ def eventos_json():
     return jsonify([
         {
             "title": e.descripcion,
-            "start": e.fecha_inicio.strftime("%Y-%m-%d"),
-            "end": (e.fecha_fin + timedelta(days=1)).strftime("%Y-%m-%d"),
-            "allDay": True,
+            #"start": e.fecha_inicio.strftime("%Y-%m-%d"),
+            #"end": (e.fecha_fin + timedelta(days=1)).strftime("%Y-%m-%d"),
+            #"allDay": True,
+            "start": e.fecha_inicio.isoformat(),  # → incluye fecha y hora
+            "end": e.fecha_fin.isoformat(),       # → incluye fecha y hora
+            "allDay": False,  
             "extendedProps": {
                 "observaciones": e.observaciones or "",
                 "monto_total": float(e.monto_total) if e.monto_total else 0.0,

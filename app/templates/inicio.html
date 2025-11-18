@@ -5,12 +5,18 @@ block content %}
     <!-- Row superior -->
     <div class="top-buttons">
       <div class="d-flex flex-column flex-md-row justify-content-md-end gap-2">
+
+
         <button class="btn btn-custom d-flex align-items-center justify-content-center">
           <i class="bi bi-image me-2"></i> <span>Descargar como imagen</span>
         </button>
-        <button class="btn btn-outline-primary d-flex align-items-center justify-content-center">
-          <i class="bi bi-calendar-week me-2"></i> <span>Semana</span>
+
+
+        <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center" id="btnCambiarVista" onclick="toggleVista()">
+          <i id="iconoVista" class="bi bi-calendar-week me-2"></i> 
+          <span id="textoVista">Semana</span>
         </button>
+
       </div>
     </div>
 
@@ -20,9 +26,13 @@ block content %}
     <!-- Row inferior -->
     <div class="bottom-buttons">
       <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
+
+        {% if current_user.es_admin() %}
         <a href="{{url_for('eventos_bp.agregar_evento')}}" class="btn btn-custom px-5 py-2">
           Ingresar
         </a>
+        {% endif %}
+
         <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-custom px-5 py-2">
           Consultar
         </a>
@@ -67,11 +77,16 @@ block content %}
   </div>
 </div>
 <script>
+  
+  let calendar;
+  let vistaActual = "dayGridMonth"; // Vista inicial es mes
+
+
   document.addEventListener("DOMContentLoaded", function () {
     const calendarEl = document.getElementById("calendar");
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: "dayGridMonth",
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "dayGridMonth",  
       height: "100%",
       contentHeight: "100%",
       locale: "es",
@@ -81,6 +96,35 @@ block content %}
       events: "{{ url_for('eventos_bp.eventos_json') }}",
       eventDisplay: "block",
       displayEventTime: false,
+
+      /*dayCellContent: (arg) => {
+        // deja el número del día nomás
+        return { html: arg.date.getDate() };
+      },*/
+
+
+      views: {
+        //Vista mes
+        dayGridMonth: {
+          displayEventTime: false,
+        },
+        timeGridWeek: {
+        allDaySlot: false,      // no queremos la fila "Todo el día"
+        slotMinTime: "08:00:00",
+        slotMaxTime: "24:00:00",
+        slotDuration: "02:00:00",
+        displayEventTime: true,
+        nowIndicator: false,
+        expandRows: true 
+      }
+      },
+
+      buttonText: {
+        today: 'Hoy',
+        month: 'Mes',
+        week: 'Semana'
+      },
+
 
       /*eventClick: function (info) {
         console.log("✅ eventClick ejecutándose");
@@ -185,6 +229,29 @@ block content %}
 
     calendar.render();
   });
+
+  function toggleVista(){
+    if(!calendar)return;
+
+    const iconoVista = document.getElementById('iconoVista');
+    const textoVista = document.getElementById('textoVista');
+
+    if(vistaActual === "dayGridMonth"){
+      calendar.changeView("timeGridWeek");
+      vistaActual = "timeGridWeek";
+
+      iconoVista.className = "bi bi-calendar-month me-2";
+      textoVista.textContent = "Mes";
+
+    } else {
+      calendar.changeView("dayGridMonth");
+      vistaActual = "dayGridMonth";
+
+      iconoVista.className = "bi bi-calendar-week me-2";
+      textoVista.textContent = "Semana";
+    }
+  }
+
   /*select: function (info) {
         const title = prompt("Título del evento:");
         if (title) {

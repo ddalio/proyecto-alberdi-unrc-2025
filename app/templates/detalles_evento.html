@@ -190,9 +190,11 @@
             {% endif %}
           </a>
 
+          {% if current_user.es_admin() %}
           <a href="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}" class="btn btn-custom">
             <i class="bi bi-cash-stack me-1"></i> Agregar pago
           </a>
+          {% endif %}
 
           <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-outline-secondary">Volver</a>
         </div>

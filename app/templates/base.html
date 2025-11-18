@@ -63,6 +63,8 @@
               ></i>
             </a>
           </li>
+
+          {% if current_user.es_admin() %}
           <li
             class="nav-item {% if active_page == 'ingresos' %}active-nav{% endif %}"
           >
@@ -73,6 +75,9 @@
               ></i>
             </a>
           </li>
+          {% endif %}
+
+          {% if current_user.es_admin() %}
           <li class="nav-item {% if active_page == 'cuentas' %}active-nav{% endif %}">
             <a class="nav-link p-0" href="{{ url_for('cuentas.cuentas') }}" title="Cuentas">
               <i
@@ -81,6 +86,8 @@
               ></i>
             </a>
           </li>
+          {% endif %}
+
           <li class="nav-item mt-auto">
             <a
               class="nav-link p-0 text-white"

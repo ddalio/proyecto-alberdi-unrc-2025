@@ -251,6 +251,7 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
                         >📄</a
                       >
 
+                      {% if current_user.es_admin() %}
                       <!-- botón que abre el modal para agregar pago (no navega) -->
                       <button
                         type="button"
@@ -288,6 +289,7 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
                           🗑️
                         </button>
                       </form>
+                      {% endif %}
                     </td>
                   </tr>
                   {% else %}

@@ -60,6 +60,10 @@ class Cuenta(db.Model):
 
     def __repr__(self):
         return f'<Cuenta {self.nombre_usuario}>'
+    
+    #Este metodo hay que implementarlo... dice si el usuario es admin o no 
+    def es_admin(self):
+        return True  #Por ahora todos son admin (y en las vistas pueden ver todo)
 
 
 # ==============================
