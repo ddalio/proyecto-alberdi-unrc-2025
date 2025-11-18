@@ -132,7 +132,7 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
 <div class="container py-3">
   <div class="d-flex align-items-center mb-3">
     <a
-      href="{{ url_for('eventos_bp.eventos') }}"
+      href="{{ url_for('auth.inicio') }}"
       class="text-muted me-3"
       aria-label="Volver"
     >
@@ -152,28 +152,28 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
               method="POST"
               class="d-flex gap-2 align-items-end"
             >
-              <div class="flex-grow-1" style="max-width: 420px">
-                <label class="form-label mb-1 visually-hidden">DNI</label>
-                <input
-                  type="search"
-                  name="valor"
-                  class="form-control"
-                  placeholder="Buscar por DNI..."
-                  aria-label="Buscar por DNI"
-                />
+               <!-- Selector de campo -->
+              <div>
+                <label for="campo" class="form-label mb-1 visually-hidden">Campo</label>
+                <select name="campo" id="campo" class="form-select">
+                  <option value="dni" selected>DNI del cliente</option>
+                  <option value="nombre">Nombre del cliente</option>
+                  <option value="descripcion">Descripción del evento</option>
+                  <option value="id_evento">ID del evento</option>
+                </select>
               </div>
 
+               <!-- Campo de búsqueda -->
+              <div class="flex-grow-1" style="max-width:420px;">
+                <label class="form-label mb-1 visually-hidden">Valor</label>
+                <input type="search" name="valor" id="valor" class="form-control" placeholder="Buscar por DNI..." aria-label="Buscar" />
+              </div>
+
+              <!-- Botones -->
               <div class="d-flex align-items-center">
-                <button type="submit" class="btn btn-custom me-2">
-                  Buscar
-                </button>
-                <button
-                  type="button"
-                  id="downloadPdfBtn"
-                  class="btn btn-outline-secondary"
-                  title="Descargar lista (PDF)"
-                >
-                  <i class="bi bi-download fs-5"></i>
+                  <button type="submit" class="btn btn-custom me-2">Buscar</button>
+                  <button type="button" id="downloadPdfBtn" class="btn btn-outline-secondary" title="Descargar lista (PDF)">
+                    <i class="bi bi-download fs-5"></i>
                 </button>
               </div>
             </form>
