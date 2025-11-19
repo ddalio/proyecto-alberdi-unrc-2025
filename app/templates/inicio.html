@@ -5,35 +5,43 @@ block content %}
     <!-- Row superior -->
     <div class="top-buttons">
       <div class="d-flex flex-column flex-md-row justify-content-md-end gap-2">
-
-
-        <button class="btn btn-custom d-flex align-items-center justify-content-center">
+        <button
+          class="btn btn-custom d-flex align-items-center justify-content-center"
+        >
           <i class="bi bi-image me-2"></i> <span>Descargar como imagen</span>
         </button>
 
-
-        <button type="button" class="btn btn-outline-primary d-flex align-items-center justify-content-center" id="btnCambiarVista" onclick="toggleVista()">
-          <i id="iconoVista" class="bi bi-calendar-week me-2"></i> 
+        <button
+          type="button"
+          class="btn btn-outline-primary d-flex align-items-center justify-content-center"
+          id="btnCambiarVista"
+          onclick="toggleVista()"
+        >
+          <i id="iconoVista" class="bi bi-calendar-week me-2"></i>
           <span id="textoVista">Semana</span>
         </button>
-
       </div>
     </div>
 
-      <!-- REEMPLAZO: antes era [Aquí irá el calendario] -->
-      <div id="calendar"></div>
+    <!-- REEMPLAZO: antes era [Aquí irá el calendario] -->
+    <div id="calendar"></div>
 
     <!-- Row inferior -->
     <div class="bottom-buttons">
       <div class="d-flex flex-column flex-md-row justify-content-center gap-3">
-
-        {% if current_user.es_admin() %}
-        <a href="{{url_for('eventos_bp.agregar_evento')}}" class="btn btn-custom px-5 py-2">
+        {% if current_user.es_administrador() %}
+        <a
+          href="{{url_for('eventos_bp.agregar_evento')}}"
+          class="btn btn-custom px-5 py-2"
+        >
           Ingresar
         </a>
         {% endif %}
 
-        <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-custom px-5 py-2">
+        <a
+          href="{{ url_for('eventos_bp.eventos') }}"
+          class="btn btn-custom px-5 py-2"
+        >
           Consultar
         </a>
       </div>
@@ -42,12 +50,23 @@ block content %}
 </div>
 
 <!-- Modal para detalle del evento -->
-<div class="modal fade" id="eventoModal" tabindex="-1" aria-labelledby="eventoModalLabel" aria-hidden="true">
+<div
+  class="modal fade"
+  id="eventoModal"
+  tabindex="-1"
+  aria-labelledby="eventoModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="eventoModalLabel">Detalle del Evento</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Cerrar"
+        ></button>
       </div>
       <div class="modal-body">
         <p><strong>Descripción:</strong> <span id="modalDescripcion"></span></p>
@@ -77,16 +96,14 @@ block content %}
   </div>
 </div>
 <script>
-  
   let calendar;
   let vistaActual = "dayGridMonth"; // Vista inicial es mes
-
 
   document.addEventListener("DOMContentLoaded", function () {
     const calendarEl = document.getElementById("calendar");
 
     calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: "dayGridMonth",  
+      initialView: "dayGridMonth",
       height: "100%",
       contentHeight: "100%",
       locale: "es",
@@ -102,29 +119,27 @@ block content %}
         return { html: arg.date.getDate() };
       },*/
 
-
       views: {
         //Vista mes
         dayGridMonth: {
           displayEventTime: false,
         },
         timeGridWeek: {
-        allDaySlot: false,      // no queremos la fila "Todo el día"
-        slotMinTime: "08:00:00",
-        slotMaxTime: "24:00:00",
-        slotDuration: "02:00:00",
-        displayEventTime: true,
-        nowIndicator: false,
-        expandRows: true 
-      }
+          allDaySlot: false, // no queremos la fila "Todo el día"
+          slotMinTime: "08:00:00",
+          slotMaxTime: "24:00:00",
+          slotDuration: "02:00:00",
+          displayEventTime: true,
+          nowIndicator: false,
+          expandRows: true,
+        },
       },
 
       buttonText: {
-        today: 'Hoy',
-        month: 'Mes',
-        week: 'Semana'
+        today: "Hoy",
+        month: "Mes",
+        week: "Semana",
       },
-
 
       /*eventClick: function (info) {
         console.log("✅ eventClick ejecutándose");
@@ -194,8 +209,8 @@ block content %}
 
         document.getElementById("modalFin").textContent = evento.end
           ? new Date(evento.end.getTime() - 86400000).toLocaleDateString(
-            "es-ES"
-          )
+              "es-ES"
+            )
           : "No especificada";
 
         document.getElementById("modalObservaciones").textContent =
@@ -230,19 +245,18 @@ block content %}
     calendar.render();
   });
 
-  function toggleVista(){
-    if(!calendar)return;
+  function toggleVista() {
+    if (!calendar) return;
 
-    const iconoVista = document.getElementById('iconoVista');
-    const textoVista = document.getElementById('textoVista');
+    const iconoVista = document.getElementById("iconoVista");
+    const textoVista = document.getElementById("textoVista");
 
-    if(vistaActual === "dayGridMonth"){
+    if (vistaActual === "dayGridMonth") {
       calendar.changeView("timeGridWeek");
       vistaActual = "timeGridWeek";
 
       iconoVista.className = "bi bi-calendar-month me-2";
       textoVista.textContent = "Mes";
-
     } else {
       calendar.changeView("dayGridMonth");
       vistaActual = "dayGridMonth";

@@ -8,12 +8,12 @@ h1 {
   color: var(--color-primario);
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   overflow-x: hidden;
 }
-
 
 body {
   font-family: "Poppins", sans-serif;
@@ -27,19 +27,19 @@ body {
 .layout-with-sidebar {
   display: flex;
   align-items: stretch; /* hace que sidebar y main tengan la misma altura disponible */
-  min-height: 100vh;    /* ocupa al menos la altura de la ventana */
+  min-height: 100vh; /* ocupa al menos la altura de la ventana */
 }
 
 /* Sidebar: no forzar más altura, permitir scroll interno si hace falta */
 .sidebar {
-  width: 70px;           /* ancho fijo, antes estaba inline */
+  width: 70px; /* ancho fijo, antes estaba inline */
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  height: auto;          /* no forzar 100vh aquí */
-  overflow-y: auto;      /* solo hace scroll si el contenido excede la altura del viewport */
+  height: auto; /* no forzar 100vh aquí */
+  overflow-y: auto; /* solo hace scroll si el contenido excede la altura del viewport */
 }
 
 /* Main content (flex child) */
@@ -78,47 +78,54 @@ body {
 .detalle-label {
   font-weight: 600;
   color: #555;
-  font-size: .95rem;
-  margin-bottom: .25rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
 }
 
 .detalle-value {
   background: #fafafa;
-  border: 1px solid rgba(0,0,0,0.04);
-  padding: .55rem .6rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 0.55rem 0.6rem;
   border-radius: 8px;
   color: #222;
 }
 
 /* Ajustes para la tarjeta principal en detalles */
-.card-main { /* ya existe; refinar espacio interno para esta vista */
+.card-main {
+  /* ya existe; refinar espacio interno para esta vista */
   padding: 1rem;
 }
 
 /* Badges en botones */
 .btn .badge {
   font-weight: 600;
-  font-size: .82rem;
+  font-size: 0.82rem;
 }
 
 /* Asegurar consistencia en móviles */
 @media (max-width: 767.98px) {
-  .detalle-value { padding: .5rem; }
-  .card-main { padding: .75rem; }
-  .d-flex.justify-content-end { flex-direction: column-reverse; gap: .5rem; }
+  .detalle-value {
+    padding: 0.5rem;
+  }
+  .card-main {
+    padding: 0.75rem;
+  }
+  .d-flex.justify-content-end {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
 }
-
 
 /* ============================================
    RESPONSIVE LAYOUT - MOBILE
    ============================================ */
 
-   /* Mobile: Sidebar se convierte en bottom navbar */
+/* Mobile: Sidebar se convierte en bottom navbar */
 @media (max-width: 768px) {
   .layout-with-sidebar {
     flex-direction: column;
   }
-  
+
   .sidebar {
     width: 100%;
     height: auto;
@@ -128,36 +135,36 @@ body {
     z-index: 1000;
     flex-direction: row;
     padding: 0.5rem 0;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
-  
+
   .sidebar .nav {
     flex-direction: row !important;
     justify-content: space-around !important;
     width: 100%;
     gap: 0 !important;
   }
-  
+
   .sidebar .nav-item {
     flex: 1;
     display: flex;
     justify-content: center;
   }
-  
+
   .sidebar .nav-item.mt-auto {
     margin-top: 0 !important;
   }
-  
+
   /* Ocultar el icono de menú hamburguesa en mobile */
   .sidebar .nav-item:first-child {
     display: none;
   }
-  
+
   .main-content {
     margin-bottom: 70px; /* Espacio para el navbar inferior */
     padding-bottom: 1rem;
   }
-  
+
   /* Active nav en mobile: borde superior */
   .active-nav {
     background: transparent;
@@ -174,16 +181,16 @@ body {
     grid-template-rows: auto !important;
     gap: 1rem !important;
   }
-  
+
   .form-grid > div:first-child {
     grid-row: auto !important;
   }
-  
+
   /* Cards con menos padding en mobile */
   .card-body.p-4 {
     padding: 1rem !important;
   }
-  
+
   /* Botones más pequeños en mobile */
   .btn.px-5 {
     padding-left: 2rem !important;
@@ -197,13 +204,14 @@ body {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   /* Reducir padding de celdas */
-  .table td, .table th {
+  .table td,
+  .table th {
     padding: 0.5rem;
     font-size: 0.875rem;
   }
-  
+
   /* Ocultar columnas menos importantes en mobile si hace falta */
   .table .d-none-mobile {
     display: none;
@@ -216,12 +224,11 @@ body {
     max-height: 85vh !important;
     margin: 0 auto;
   }
-  
+
   #modalOverlay {
     padding-top: 20px !important;
   }
 }
-
 
 /* Espaciado más compacto en mobile */
 @media (max-width: 768px) {
@@ -229,20 +236,23 @@ body {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
-  h1, h2 {
+
+  h1,
+  h2 {
     font-size: 1.5rem;
   }
-  
-  h3, h4, h5 {
+
+  h3,
+  h4,
+  h5 {
     font-size: 1.1rem;
   }
-  
+
   /* Gap más pequeño en flex containers */
   .gap-3 {
     gap: 0.75rem !important;
   }
-  
+
   .gap-4 {
     gap: 1rem !important;
   }

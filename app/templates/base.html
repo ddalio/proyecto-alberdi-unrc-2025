@@ -45,8 +45,8 @@
 
     <div class="layout-with-sidebar">
       <!-- Sidebar vertical -->
-      <nav class="sidebar bg-pry p-3" aria-label="Barra lateral"> 
-        <ul class="nav flex-column align-items-center h-100" style="gap:1rem">
+      <nav class="sidebar bg-pry p-3" aria-label="Barra lateral">
+        <ul class="nav flex-column align-items-center h-100" style="gap: 1rem">
           <!--Este icono no se que onda-->
           <li class="nav-item">
             <a class="nav-link p-0" href="#" aria-label="Menu">
@@ -56,7 +56,11 @@
           <li
             class="nav-item {% if active_page == 'inicio' %}active-nav{% endif %}"
           >
-            <a class="nav-link p-0" href="{{ url_for('auth.inicio') }}" title="Inicio">
+            <a
+              class="nav-link p-0"
+              href="{{ url_for('auth.inicio') }}"
+              title="Inicio"
+            >
               <i
                 class="bi bi-house-door {% if active_page == 'inicio' %}text-secondary{% else %}text-white{% endif %}"
                 style="font-size: 1.8rem"
@@ -64,22 +68,30 @@
             </a>
           </li>
 
-          {% if current_user.es_admin() %}
+          {% if current_user.es_administrador() %}
           <li
             class="nav-item {% if active_page == 'ingresos' %}active-nav{% endif %}"
           >
-            <a class="nav-link p-0" href="{{ url_for('ingresos.ingresos') }}" title="Ingresos">
+            <a
+              class="nav-link p-0"
+              href="{{ url_for('ingresos.ingresos') }}"
+              title="Ingresos"
+            >
               <i
                 class="bi bi-bar-chart {% if active_page == 'ingresos' %}text-secondary{% else %}text-white{% endif %}"
                 style="font-size: 1.8rem"
               ></i>
             </a>
           </li>
-          {% endif %}
-
-          {% if current_user.es_admin() %}
-          <li class="nav-item {% if active_page == 'cuentas' %}active-nav{% endif %}">
-            <a class="nav-link p-0" href="{{ url_for('cuentas.cuentas') }}" title="Cuentas">
+          {% endif %} {% if current_user.es_administrador() %}
+          <li
+            class="nav-item {% if active_page == 'cuentas' %}active-nav{% endif %}"
+          >
+            <a
+              class="nav-link p-0"
+              href="{{ url_for('cuentas.cuentas') }}"
+              title="Cuentas"
+            >
               <i
                 class="bi bi-person-lines-fill {% if active_page == 'cuentas' %}text-secondary{% else %}text-white{% endif %}"
                 style="font-size: 1.8rem"
@@ -105,7 +117,9 @@
       </nav>
 
       <!-- Main content -->
-      <main class="main-content flex-grow-1">{% block content %} {% endblock %}</main>
+      <main class="main-content flex-grow-1">
+        {% block content %} {% endblock %}
+      </main>
     </div>
   </body>
 </html>
