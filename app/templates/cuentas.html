@@ -665,7 +665,7 @@ content %}
     }
 
     function enviarEmailVerificacion(usuarioId) {
-      return fetch('{{ url_for("cuentas.enviar_verificacion_email") }}', {
+      return fetch('{{ url_for("cuentas.enviar_verificacion") }}', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -709,17 +709,14 @@ content %}
       );
       const btnActualizar = document.getElementById("btnActualizar");
 
-      // Ocultar mensajes de error previos
       passwordError.classList.add("d-none");
       passwordMismatch.classList.add("d-none");
       passwordRequirements.classList.add("d-none");
 
-      // Si ambos campos de contraseña están vacíos, enviar formulario (no cambiar contraseña)
       if (!nuevaPassword && !confirmarPassword) {
         return enviarFormularioEdicion();
       }
 
-      // Si solo uno de los campos está lleno, mostrar error
       if (
         (nuevaPassword && !confirmarPassword) ||
         (!nuevaPassword && confirmarPassword)
@@ -800,7 +797,6 @@ content %}
       return true;
     }
 
-    // ===== FUNCIONALIDAD REENVIAR VERIFICACIÓN =====
     function reenviarVerificacionEmail(usuario, email) {
       const modalReenviar = document.getElementById("modalReenviarOverlay");
       const reenviarContenido = document.getElementById("reenviarContenido");
@@ -825,7 +821,7 @@ content %}
         btnReenviar.innerHTML =
           '<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...';
 
-        fetch('{{ url_for("cuentas.reenviar_verificacion") }}', {
+        fetch('{{ url_for("cuentas.enviar_verificacion") }}', {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -910,7 +906,6 @@ content %}
     // Configurar toggles para todas las contraseñas
     setupPasswordToggle();
 
-    // ===== BÚSQUEDA EN TIEMPO REAL =====
     const inputBusqueda = document.getElementById("inputBusqueda");
     const btnBuscar = document.getElementById("btnBuscar");
     const loadingBusqueda = document.getElementById("loadingBusqueda");
@@ -1030,7 +1025,6 @@ content %}
       reassignEventListeners();
     }
 
-    // ===== MODALES =====
     const modalCrear = document.getElementById("modalCrearOverlay");
     const modalEditar = document.getElementById("modalEditarOverlay");
     const modalDetalles = document.getElementById("modalDetallesOverlay");
@@ -1135,13 +1129,11 @@ content %}
         });
     }
 
-    // Función global para abrir detalles
     window.abrirModalDetalles = function (nombreUsuario) {
       cargarDetallesUsuario(nombreUsuario);
       openDetallesModal();
     };
 
-    // Cargar detalles via AJAX
     function cargarDetallesUsuario(nombreUsuario) {
       fetch(`/cuentas/detalles-json/${nombreUsuario}`)
         .then((response) => response.json())

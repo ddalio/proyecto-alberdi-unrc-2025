@@ -54,27 +54,29 @@ def create_app():
         # Crear admin por defecto
         from app.models import Cuenta, Administrador
 
-        if not Cuenta.query.filter_by(nombre_usuario='admin').first():
+        cuenta = Cuenta.query.filter_by(nombre_usuario='admin1').first()
+        if not cuenta:
             try:
                 cuenta_admin = Cuenta(
-                    nombre_usuario='admin',
-                    email='admin@alberdi.com',
+                    nombre_usuario='admin1',
+                    email='admin1@alberdi.com',
                     nombre='Administrador',
                     apellido='Sistema',
-                    password=generate_password_hash('Admin123!'),
-                    fecha_creacion=datetime.utcnow()
+                    password_hash=generate_password_hash('Admin1231!'),
+                    fecha_creacion=datetime.utcnow(),
+                    email_verificado=True
                 )
                 db.session.add(cuenta_admin)
 
-                admin = Administrador(nombre_usuario='admin')
+                admin = Administrador(nombre_usuario='admin1')
                 db.session.add(admin)
 
                 db.session.commit()
 
                 print("✅ USUARIO ADMIN CREADO:")
-                print("   Usuario: admin")
-                print("   Contraseña: Admin123!")
-                print("   Email: admin@alberdi.com")
+                print("   Usuario: admin1")
+                print("   Contraseña: Admin1231!")
+                print("   Email: admin1@alberdi.com")
 
             except Exception as e:
                 db.session.rollback()

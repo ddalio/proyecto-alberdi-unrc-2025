@@ -20,7 +20,6 @@ SALT_LENGTH = 16
 MIN_PASSWORD_LENGTH = 8
 
 
-# Listado de cuentas
 @cuentas_bp.route("/")
 @login_required
 @admin_required 
@@ -46,86 +45,47 @@ def cuentas():
 @cuentas_bp.route("/crear", methods=['POST'])
 @admin_required 
 def crear_cuenta():
-    # Verificar si es una petición AJAX
     es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
-    if es_ajax:
-        # Para peticiones AJAX, obtener datos del form data
-        nombre_usuario = request.form.get('usuario', '').strip()
-        contraseña = request.form.get('password', '').strip()
-        repetir_contraseña = request.form.get('password2', '').strip()
-        nombre = request.form.get('nombre', '').strip()
-        apellido = request.form.get('apellido', '').strip()
-        email = request.form.get('email', '').strip().lower()
-        rol = request.form.get('rol', '').strip()
-    else:
-        # Para peticiones normales
-        nombre_usuario = request.form.get('usuario', '').strip()
-        contraseña = request.form.get('password', '').strip()
-        repetir_contraseña = request.form.get('password2', '').strip()
-        nombre = request.form.get('nombre', '').strip()
-        apellido = request.form.get('apellido', '').strip()
-        email = request.form.get('email', '').strip().lower()
-        rol = request.form.get('rol', '').strip()
 
-    # Validación 1: Campos obligatorios
+    nombre_usuario = request.form.get('usuario', '').strip()
+    contraseña = request.form.get('password', '').strip()
+    repetir_contraseña = request.form.get('password2', '').strip()
+    nombre = request.form.get('nombre', '').strip()
+    apellido = request.form.get('apellido', '').strip()
+    email = request.form.get('email', '').strip().lower()
+    rol = request.form.get('rol', '').strip()
+
+    # Validaciones básicas
     campos_obligatorios = [nombre_usuario, contraseña, repetir_contraseña, nombre, apellido, email, rol]
     if not all(campos_obligatorios):
-        if es_ajax:
-            return jsonify({'success': False, 'error': 'Todos los campos son obligatorios'})
-        else:
-            flash("Todos los campos son obligatorios", "error")
-            return redirect(url_for('cuentas.cuentas'))
+        mensaje = 'Todos los campos son obligatorios'
+        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
-    # Validación 2: Email válido
     if not validar_email(email):
-        if es_ajax:
-            return jsonify({'success': False, 'error': 'El formato del email no es válido'})
-        else:
-            flash("El formato del email no es válido", "error")
-            return redirect(url_for('cuentas.cuentas'))
+        mensaje = 'El formato del email no es válido'
+        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
-    # Validación 3: Coincidencia de contraseñas
     if contraseña != repetir_contraseña:
-        if es_ajax:
-            return jsonify({'success': False, 'error': 'Las contraseñas no coinciden'})
-        else:
-            flash("Las contraseñas no coinciden", "error")
-            return redirect(url_for('cuentas.cuentas'))
+        mensaje = 'Las contraseñas no coinciden'
+        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
-    # Validación 4: Fortaleza de contraseña
     error_contraseña = validar_contraseña(contraseña)
     if error_contraseña:
-        if es_ajax:
-            return jsonify({'success': False, 'error': error_contraseña})
-        else:
-            flash(error_contraseña, "error")
-            return redirect(url_for('cuentas.cuentas'))
+        return jsonify({'success': False, 'error': error_contraseña}) if es_ajax else (flash(error_contraseña, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
-    # Validación 5: Usuario único
     if Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first():
-        if es_ajax:
-            return jsonify({'success': False, 'error': 'El nombre de usuario ya existe'})
-        else:
-            flash("El nombre de usuario ya existe", "error")
-            return redirect(url_for('cuentas.cuentas'))
+        mensaje = 'El nombre de usuario ya existe'
+        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
-    # Validación 6: Email único
     if Cuenta.query.filter_by(email=email).first():
-        if es_ajax:
-            return jsonify({'success': False, 'error': 'El email ya está registrado'})
-        else:
-            flash("El email ya está registrado", "error")
-            return redirect(url_for('cuentas.cuentas'))
+        mensaje = 'El email ya está registrado'
+        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
-    # Validación 7: Rol válido
     roles_validos = ['administrador', 'usuario']
     if rol.lower() not in roles_validos:
-        if es_ajax:
-            return jsonify({'success': False, 'error': 'Rol no válido'})
-        else:
-            flash("Rol no válido", "error")
-            return redirect(url_for('cuentas.cuentas'))
+        mensaje = 'Rol no válido'
+        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
     try:
         # Crear nueva cuenta
@@ -135,9 +95,14 @@ def crear_cuenta():
             nombre=nombre,
             apellido=apellido
         )
-        from werkzeug.security import generate_password_hash; nueva_cuenta.password_hash = generate_password_hash(contraseña)  # Usar el método set_password
-        
+        nueva_cuenta.password_hash = generate_password_hash(contraseña)
+
         db.session.add(nueva_cuenta)
+        db.session.flush()  # Para tener el ID y poder generar el token antes del commit
+
+        # Generar token y enviar email de verificación
+        token = generar_token_verificacion(nueva_cuenta.nombre_usuario)
+        enviar_email_verificacion(nueva_cuenta.email, token, nueva_cuenta.nombre)
 
         # Si es administrador, agregar a tabla Administrador
         if rol.lower() == "administrador":
@@ -146,27 +111,22 @@ def crear_cuenta():
 
         db.session.commit()
 
-        # Para peticiones AJAX, retornar JSON con éxito
         if es_ajax:
             return jsonify({
                 'success': True, 
-                'usuario_id': nueva_cuenta.nombre_usuario,  # Usar nombre_usuario como ID
-                'message': 'Usuario creado exitosamente'
+                'usuario_id': nueva_cuenta.nombre_usuario,
+                'message': 'Usuario creado exitosamente y email de verificación enviado'
             })
         else:
-            flash("Cuenta creada exitosamente ✅", "success")
+            flash("Cuenta creada exitosamente y email de verificación enviado", "success")
             return redirect(url_for("cuentas.cuentas"))
 
     except Exception as e:
         db.session.rollback()
         error_msg = f"Error al crear la cuenta: {str(e)}"
-        if es_ajax:
-            return jsonify({'success': False, 'error': error_msg})
-        else:
-            flash(error_msg, "error")
-            return redirect(url_for('cuentas.cuentas'))
+        return jsonify({'success': False, 'error': error_msg}) if es_ajax else (flash(error_msg, "error"), redirect(url_for('cuentas.cuentas')))[1]
 
-# Editar cuenta - SOLO POST
+
 @cuentas_bp.route("/editar/<nombre_usuario>", methods=['POST'])
 @admin_required 
 def editar_cuenta(nombre_usuario):
@@ -230,15 +190,12 @@ def editar_cuenta(nombre_usuario):
                 salt_length=SALT_LENGTH
             )
         
-        # Manejar cambio de rol (administrador vs usuario)
         admin_actual = Administrador.query.filter_by(nombre_usuario=nombre_usuario).first()
         
         if nuevo_rol.lower() == "administrador" and not admin_actual:
-            # Agregar como administrador
             nuevo_admin = Administrador(nombre_usuario=nombre_usuario)
             db.session.add(nuevo_admin)
         elif nuevo_rol.lower() != "administrador" and admin_actual:
-            # Remover de administradores
             db.session.delete(admin_actual)
         
         db.session.commit()
@@ -250,7 +207,7 @@ def editar_cuenta(nombre_usuario):
         flash(f"Error al actualizar la cuenta: {str(e)}", "error")
         return redirect(url_for('cuentas.cuentas'))
 
-# Eliminar cuenta
+
 @cuentas_bp.route("/eliminar/<nombre_usuario>", methods=['POST'])
 @admin_required 
 def eliminar_cuenta(nombre_usuario):
@@ -259,7 +216,6 @@ def eliminar_cuenta(nombre_usuario):
             flash("La cuenta no existe", "error")
             return redirect(url_for('cuentas.cuentas'))
 
-    # Si existe verificar si es administrador también
     admin = Administrador.query.filter_by(nombre_usuario=nombre_usuario).first()
     if admin:
         db.session.delete(admin)
@@ -282,14 +238,8 @@ def detalles_cuenta_json(nombre_usuario):
         
         # Verificar si es administrador
         es_admin = Administrador.query.filter_by(nombre_usuario=nombre_usuario).first() is not None
+    
         
-        # ✅ FORMATO CORRECTO PARA FECHAS
-        def formatear_fecha(fecha):
-            if fecha:
-                return fecha.strftime("%d/%m/%Y %H:%M")
-            return "No disponible"
-        
-        # Preparar datos para JSON
         datos_cuenta = {
             "nombre_usuario": cuenta.nombre_usuario,
             "nombre": cuenta.nombre,
@@ -357,7 +307,6 @@ def buscar_cuenta_ajax():
         # Traemos todos los administradores
         admins = {admin.nombre_usuario for admin in Administrador.query.all()}
         
-        # Preparar resultados para JSON
         resultados = []
         for cuenta in cuentas:
             rol = "Administrador" if cuenta.nombre_usuario in admins else "Usuario"
@@ -381,51 +330,30 @@ def buscar_cuenta_ajax():
             "error": str(e)
         }), 500
 
-
-@cuentas_bp.route('/enviar-email', methods=['POST'])
-def enviar_verificacion_email():
+@cuentas_bp.route('/verificar-email', methods=['POST'])
+def enviar_verificacion():
     try:
         data = request.get_json()
         nombre_usuario = data.get('usuario')
-        
-        usuario = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
-        if not usuario:
-            return jsonify({'success': False, 'error': 'Usuario no encontrado'})
-        
-        # Generar token usando nombre_usuario
-        token = generar_token_verificacion(usuario.nombre_usuario)
-        
-        # Enviar email de verificación
-        enviar_email_verificacion(usuario.email, token, usuario.nombre)
-        
-        return jsonify({'success': True, 'message': 'Email de verificación enviado'})
-        
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
 
-@cuentas_bp.route('/reenviar-verificacion', methods=['POST'])
-def reenviar_verificacion():
-    try:
-        data = request.get_json()
-        nombre_usuario = data.get('usuario')
-        
+        # Buscar usuario
         usuario = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
         if not usuario:
             return jsonify({'success': False, 'error': 'Usuario no encontrado'})
-        
+
+        # Revisar si ya está verificado
         if usuario.email_verificado:
             return jsonify({'success': False, 'error': 'El email ya está verificado'})
-        
-        # Generar nuevo token (también usando nombre_usuario)
+
+        # Generar token y enviar email
         token = generar_token_verificacion(usuario.nombre_usuario)
-        
-        # Enviar email
         enviar_email_verificacion(usuario.email, token, usuario.nombre)
-        
-        return jsonify({'success': True, 'message': 'Email de verificación reenviado'})
-        
+
+        return jsonify({'success': True, 'message': 'Email de verificación enviado'})
+    
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
 
 @cuentas_bp.route('/verificar-email/<token>')
 def verificar_email(token):
@@ -440,10 +368,9 @@ def verificar_email(token):
         if cuenta.email_verificado:
             return "El email ya fue verificado previamente."
 
-        # Cambiar a True
         cuenta.email_verificado = True
         cuenta.fecha_verificacion = datetime.utcnow()
-        db.session.commit()  # 🔑 commit necesario
+        db.session.commit()
 
         return """
             <h2>Email verificado correctamente 🎉</h2>
@@ -451,10 +378,15 @@ def verificar_email(token):
             <a href="/login">Ir al login</a>
         """
     except SignatureExpired:
-        return "<h3>❌ El enlace expiró. Pedí uno nuevo.</h3>"
+        return "<h3>El enlace expiró. Pedí uno nuevo.</h3>"
     except Exception as e:
         return f"Error verificando token: {e}", 400
 
+
+def formatear_fecha(fecha):
+    if fecha:
+        return fecha.strftime("%d/%m/%Y %H:%M")
+    return "No disponible"
 
 def generar_token_verificacion(nombre_usuario):
     s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])

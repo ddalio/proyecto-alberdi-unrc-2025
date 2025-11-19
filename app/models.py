@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 
 # ==============================
@@ -65,10 +66,16 @@ class Cuenta(db.Model):
 
     def __repr__(self):
         return f'<Cuenta {self.nombre_usuario}>'
+  
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
     
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
     def es_administrador(self):
         return Administrador.query.filter_by(nombre_usuario=self.nombre_usuario).first() is not None
-    
+
     def obtener_rol(self):
         return "Administrador" if self.es_administrador() else "Usuario"
 
