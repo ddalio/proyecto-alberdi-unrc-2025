@@ -49,7 +49,12 @@ class Cuenta(db.Model):
     email = db.Column(db.String(50), unique=True, nullable=False)
     nombre = db.Column(db.String(20), nullable=False)
     apellido = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(255), nullable=False) # ENCRIPTAR ESTO!!!
+    password_hash = db.Column(db.String(255), nullable=False)
+    email_verificado = db.Column(db.Boolean, default=False)
+
+
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    ultimo_acceso = db.Column(db.DateTime, nullable=True)
 
     # Relación con eventos y pagos creados por el usuario
     eventos = db.relationship('Evento', back_populates='usuario', cascade="all, delete-orphan")
@@ -61,10 +66,11 @@ class Cuenta(db.Model):
     def __repr__(self):
         return f'<Cuenta {self.nombre_usuario}>'
     
-    #Este metodo hay que implementarlo... dice si el usuario es admin o no 
-    def es_admin(self):
-        return True  #Por ahora todos son admin (y en las vistas pueden ver todo)
-
+    def es_administrador(self):
+        return Administrador.query.filter_by(nombre_usuario=self.nombre_usuario).first() is not None
+    
+    def obtener_rol(self):
+        return "Administrador" if self.es_administrador() else "Usuario"
 
 # ==============================
 # 4. EVENTO
@@ -178,3 +184,26 @@ class AuditoriaPago(db.Model):
 
     def __repr__(self):
         return f'<AuditoriaPago Pago {self.id_pago} - Usuario {self.nombre_usuario}>'
+
+# Agregar estos campos después de password_hash en la clase Cuenta
+    rol = db.Column(db.String(20), nullable=False, default='usuario')
+    email_verificado = db.Column(db.Boolean, nullable=False, default=False)
+    fecha_verificacion = db.Column(db.DateTime, nullable=True)
+
+# Agregar estos métodos después de la función obtener_rol() en la clase Cuenta
+    def set_password(self, password):
+        from werkzeug.security import generate_password_hash
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.password_hash, password)
+
+# Agregar estos métodos después de la función obtener_rol() en la clase Cuenta
+    def set_password(self, password):
+        from werkzeug.security import generate_password_hash
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.password_hash, password)
