@@ -5,7 +5,7 @@ block content %}
     <!-- Row superior -->
     <div class="top-buttons">
       <div class="d-flex flex-column flex-md-row justify-content-md-end gap-2">
-        <button
+        <button id="btnDescargarImagen"
           class="btn btn-custom d-flex align-items-center justify-content-center"
         >
           <i class="bi bi-image me-2"></i> <span>Descargar como imagen</span>
@@ -24,7 +24,9 @@ block content %}
     </div>
 
     <!-- REEMPLAZO: antes era [Aquí irá el calendario] -->
-    <div id="calendar"></div>
+
+      <div id="calendar"></div>
+
 
     <!-- Row inferior -->
     <div class="bottom-buttons">
@@ -266,6 +268,21 @@ block content %}
     }
   }
 
+
+  /*descargar imagen de  calendario*/
+  document.getElementById("btnDescargarImagen").addEventListener("click", () => {
+    const element = document.getElementById("calendar"); // Cambiar aquí
+    
+    html2canvas(element, {
+      backgroundColor: "#ffffff", // Fondo blanco
+      scale: 2, // Mejor calidad
+    }).then(function (canvas) {
+      const link = document.createElement("a");
+      link.download = "calendario.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
+  });
   /*select: function (info) {
         const title = prompt("Título del evento:");
         if (title) {
