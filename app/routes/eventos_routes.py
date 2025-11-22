@@ -11,7 +11,7 @@ def eventos():
     try:
         # todos los eventos
         eventos = Evento.query.all()
-        return render_template('eventos.html', eventos_list = eventos)
+        return render_template('eventos.html', eventos = eventos)
     except Exception as e:
         # si no hay eventos disponibles
         print(f"Error al cargar eventos: {str(e)}")
@@ -59,11 +59,8 @@ def agregar_evento():
 
             db.session.add(evento)
             db.session.flush()
-
-            # Registro de un monto inicial (seña)
-            agregar_pago(evento.id_evento, usuario.nombre_usuario, request.form.get("monto"))
             db.session.commit()
-            
+
             flash("Evento creado correctamente")
             return redirect(url_for('eventos_bp.eventos'))
 
@@ -73,7 +70,6 @@ def agregar_evento():
             return redirect(url_for('eventos_bp.agregar_evento'))
     return render_template("agregar_evento.html")
 
-    #ver nro_recibo. (HACER)
 
 def agregar_pago(id_evento, nombre_usuario, monto):
     monto_inicial = monto
@@ -103,7 +99,8 @@ def agregar_cliente(form) -> Cliente:
     if not nombre_cliente or not apellido_cliente:
         raise ValidationError("El nombre y apellido del cliente son obligatorios.")
     
-    cliente = Cliente.query.get_or_404(dni_cliente)
+    cliente = Cliente.query.get(dni_cliente)
+
     if not cliente:
         cliente = Cliente(
             dni=dni_cliente,
@@ -197,6 +194,7 @@ def editar_evento(id_evento):
             evento.fecha_inicio = fecha_inicio
             evento.fecha_fin = fecha_fin
             evento.observaciones = request.form.get("observaciones")
+            db.session.commit()
 
             # Datos del cliente asociado
             cliente = evento.cliente
@@ -215,8 +213,7 @@ def editar_evento(id_evento):
                                                                        request.form.get("nombre_cierre"), 
                                                                        request.form.get("apellido_cierre"))
 
-            db.session.commit()
-            flash("Evento actualizado correctamente ✅")
+            flash("Evento actualizado correctamente ")
             return redirect(url_for('eventos_bp.eventos'))
         except Exception as e:
             db.session.rollback()
@@ -242,7 +239,7 @@ def rango_eventos_por_fecha():
         # Si no se ingresó ninguna fecha, mostrar todos
         if not desde_str and not hasta_str:
             eventos = Evento.query.all()
-            return render_template("eventos.html", eventos_list=eventos)
+            return render_template("eventos.html", eventos=eventos)
 
         # Parsear las fechas
         desde = datetime.strptime(desde_str, "%Y-%m-%d") if desde_str else None
@@ -250,7 +247,7 @@ def rango_eventos_por_fecha():
 
         # Validación de rango
         if desde and hasta and desde > hasta:
-            flash("⚠️ La fecha 'Desde' no puede ser mayor que 'Hasta'.", "warning")
+            flash(" La fecha 'Desde' no puede ser mayor que 'Hasta'.", "warning")
             return redirect(url_for("eventos_bp.eventos"))
 
         # Construir la query dinámicamente
@@ -265,13 +262,13 @@ def rango_eventos_por_fecha():
         if not eventos:
             flash("No se encontraron eventos en ese rango de fechas.", "info")
 
-        return render_template("eventos.html", eventos_list=eventos)
+        return render_template("eventos.html", eventos=eventos)
 
     except ValueError:
-        flash("⚠️ Formato de fecha inválido. Usa el formato YYYY-MM-DD.", "danger")
+        flash("Formato de fecha inválido. Usa el formato YYYY-MM-DD.", "danger")
         return redirect(url_for("eventos_bp.eventos"))
     except Exception as e:
-        flash(f"⚠️ Error al filtrar eventos: {str(e)}", "danger")
+        flash(f"Error al filtrar eventos: {str(e)}", "danger")
         return redirect(url_for("eventos_bp.eventos"))
 
 #Los criterios de búsqueda pueden ser:
@@ -318,10 +315,10 @@ def buscar_evento_campo():
         if not resultados:
             flash("No se encontraron eventos con esos criterios.", "info")
 
-        return render_template("eventos.html", eventos_list=resultados)
+        return render_template("eventos.html", eventos=resultados)
 
     except Exception as e:
-        flash(f"⚠️ Error al buscar eventos: {str(e)}", "danger")
+        flash(f" Error al buscar eventos: {str(e)}", "danger")
         return redirect(url_for("eventos_bp.eventos"))
         
 @eventos_bp.route("/eliminar/<int:id_evento>", methods=["POST"])
@@ -330,7 +327,7 @@ def eliminar_evento(id_evento):
         evento = Evento.query.get_or_404(id_evento)
         db.session.delete(evento)
         db.session.commit()
-        flash("Evento eliminado correctamente ✅")
+        flash("Evento eliminado correctamente")
         return redirect(url_for("eventos_bp.eventos"))
     except Exception as e:
         db.session.rollback()
@@ -382,6 +379,7 @@ class ValidationError(Exception):
 @eventos_bp.route("/clientes")
 def clientes():
     clientes = Cliente.query.all()
-    return render_template('clientes.html', clientes=clientes)
+    eventos = Evento.query.all()
+    return render_template('clientes.html', clientes=clientes, eventos=eventos)
 
 

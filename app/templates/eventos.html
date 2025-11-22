@@ -224,25 +224,23 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
                 >
                   <tr>
                     <th>DNI</th>
+                    <th>Fecha</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
-                    <th>Pago</th>
-                    <th>Nombre responsable</th>
+                    <th>Nombre y Apellido Cliente</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for evento in eventos_list %}
+                  {% for evento in eventos %}
                   <tr>
                     <td class="td-dni">{{ evento.dni }}</td>
-                    <td>{{ evento.fecha_inicio }}</td>
-                    <td>{{ evento.fecha_fin }}</td>
+                    <td>{{ evento.fecha_inicio.strftime('%d-%m-%Y') if evento.fecha_inicio else 'N/A' }}</td>
+                    <td>{{ evento.fecha_inicio.strftime('%H:%M') if evento.fecha_inicio else 'N/A' }}</td>
+                    <td>{{ evento.fecha_fin.strftime('%H:%M') if evento.fecha_fin else 'N/A' }}</td>
                     <td>
-                      {{ evento.pagos | map(attribute='monto_pago') | sum }}
-                    </td>
-                    <td>
-                      {{ evento.responsable_apertura.nombre }} {{
-                      evento.responsable_apertura.apellido }}
+                      {{ evento.cliente.nombre }} {{
+                      evento.cliente.apellido }}
                     </td>
                     <td class="acciones">
                       <a
@@ -251,7 +249,7 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
                         >📄</a
                       >
 
-                      {% if current_user.es_admin() %}
+                      {% if current_user.es_administrador() %}
                       <!-- botón que abre el modal para agregar pago (no navega) -->
                       <button
                         type="button"
@@ -312,7 +310,7 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
           </div>
 
           <div class="col-md-4 d-flex justify-content-end align-items-center">
-            <a href="/" class="btn btn-outline-secondary">Volver</a>
+            <a href="{{ url_for('auth.inicio') }}" class="btn btn-outline-secondary">Volver</a>
           </div>
         </div>
       </div>

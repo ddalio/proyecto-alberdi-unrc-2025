@@ -21,6 +21,19 @@
         <p>No hay clientes registrados.</p>
     {% endif %}
 
+     {% if eventos %}
+        <ul>
+            {% for evento in eventos %}
+            <li>
+                <strong>{{ evento.descripcion }} {{ evento.id_evento }}</strong>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay clientes registrados.</p>
+    {% endif %}
+
+
 
 {% endblock %}
 
