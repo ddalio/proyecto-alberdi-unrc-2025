@@ -9,7 +9,6 @@ from datetime import datetime
 from app import db 
 import re
 
-
 cuentas_bp = Blueprint('cuentas', __name__, url_prefix='/cuentas')
 
 # Configuración de seguridad para el hash
@@ -371,7 +370,7 @@ def verificar_email(token):
         db.session.commit()
 
         return """
-            <h2>Email verificado correctamente 🎉</h2>
+            <h2>Email verificado correctamente</h2>
             <p>Tu cuenta ya está activa. Ya podés iniciar sesión.</p>
             <a href="/login">Ir al login</a>
         """

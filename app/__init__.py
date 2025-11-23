@@ -4,6 +4,23 @@ from flask_migrate import Migrate
 from flask_mail import Mail
 from werkzeug.security import generate_password_hash
 from datetime import datetime
+from flask import make_response
+from reportlab.pdfgen import canvas
+from io import BytesIO
+
+db = SQLAlchemy()
+migrate = Migrate()
+mail = Mail()
+
+from flask import Flask, session
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_mail import Mail
+from werkzeug.security import generate_password_hash
+from datetime import datetime
+from flask import make_response
+from reportlab.pdfgen import canvas
+from io import BytesIO
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -24,7 +41,6 @@ def create_app():
     app.config["MAIL_USERNAME"] = "ago.chazon@gmail.com"
     app.config["MAIL_PASSWORD"] = "auax bssu wzjl xolx"
 
-
     # Inicializar extensiones
     db.init_app(app)
     migrate.init_app(app, db)
@@ -44,14 +60,12 @@ def create_app():
 
         return dict(current_user=current_user, es_admin=es_admin)
 
-    # Registrar blueprints y crear tablas
     with app.app_context():
         from .routes import register_blueprints
         register_blueprints(app)
 
         db.create_all()
 
-        # Crear admin por defecto
         from app.models import Cuenta, Administrador
 
         cuenta = Cuenta.query.filter_by(nombre_usuario='admin1').first()
@@ -72,16 +86,7 @@ def create_app():
                 db.session.add(admin)
 
                 db.session.commit()
-
-                print("✅ USUARIO ADMIN CREADO:")
-                print("   Usuario: admin1")
-                print("   Contraseña: Admin1231!")
-                print("   Email: admin1@alberdi.com")
-
-            except Exception as e:
+            except Exception:
                 db.session.rollback()
-                print(f"❌ Error creando admin: {e}")
-        else:
-            print("✅ Usuario admin ya existe")
 
     return app

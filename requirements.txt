@@ -5,3 +5,4 @@ cryptography>=41.0.7
 Werkzeug==3.0.0
 Flask-Migrate
 flask-mail
+reportlab

@@ -38,10 +38,8 @@ def login():
                 session['es_admin'] = cuenta.es_administrador()
                 return redirect(url_for("auth.inicio"))
             else:
-                print("❌ Contraseña incorrecta")
                 flash("Contraseña incorrecta", "error")
         else:
-            print("❌ Cuenta no encontrada")
             flash("Email o usuario no encontrado", "error")
 
     return render_template("login.html")
