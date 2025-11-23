@@ -1,14 +1,12 @@
 import re
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from app.models import Cuenta, Administrador
+from app.utils.def_cuentas import *
 from werkzeug.security import generate_password_hash
 from app import db
 from app.decorators import admin_required, login_required
 from datetime import datetime
 from app import db 
-from itsdangerous import URLSafeTimedSerializer
-from app.utils.email_utils import send_email
-from flask import current_app
 import re
 
 
@@ -18,7 +16,6 @@ cuentas_bp = Blueprint('cuentas', __name__, url_prefix='/cuentas')
 HASH_METHOD = 'pbkdf2:sha256'
 SALT_LENGTH = 16
 MIN_PASSWORD_LENGTH = 8
-
 
 @cuentas_bp.route("/")
 @login_required
@@ -45,9 +42,10 @@ def cuentas():
 @cuentas_bp.route("/crear", methods=['POST'])
 @admin_required 
 def crear_cuenta():
-    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
-
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    URL_CUENTAS = url_for('cuentas.cuentas') 
+    
     nombre_usuario = request.form.get('usuario', '').strip()
     contraseña = request.form.get('password', '').strip()
     repetir_contraseña = request.form.get('password2', '').strip()
@@ -56,39 +54,40 @@ def crear_cuenta():
     email = request.form.get('email', '').strip().lower()
     rol = request.form.get('rol', '').strip()
 
-    # Validaciones básicas
     campos_obligatorios = [nombre_usuario, contraseña, repetir_contraseña, nombre, apellido, email, rol]
+    
     if not all(campos_obligatorios):
         mensaje = 'Todos los campos son obligatorios'
-        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(mensaje, es_ajax, URL_CUENTAS)
 
     if not validar_email(email):
         mensaje = 'El formato del email no es válido'
-        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(mensaje, es_ajax, URL_CUENTAS)
 
     if contraseña != repetir_contraseña:
         mensaje = 'Las contraseñas no coinciden'
-        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(mensaje, es_ajax, URL_CUENTAS)
 
     error_contraseña = validar_contraseña(contraseña)
     if error_contraseña:
-        return jsonify({'success': False, 'error': error_contraseña}) if es_ajax else (flash(error_contraseña, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(error_contraseña, es_ajax, URL_CUENTAS)
 
-    if Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first():
+    cuenta = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
+    if cuenta:
         mensaje = 'El nombre de usuario ya existe'
-        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(mensaje, es_ajax, URL_CUENTAS)
 
-    if Cuenta.query.filter_by(email=email).first():
+    cuenta_con_email = Cuenta.query.filter_by(email=email).first(); 
+    if cuenta_con_email:
         mensaje = 'El email ya está registrado'
-        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(mensaje, es_ajax, URL_CUENTAS)
 
     roles_validos = ['administrador', 'usuario']
     if rol.lower() not in roles_validos:
         mensaje = 'Rol no válido'
-        return jsonify({'success': False, 'error': mensaje}) if es_ajax else (flash(mensaje, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(mensaje, es_ajax, URL_CUENTAS)
 
     try:
-        # Crear nueva cuenta
         nueva_cuenta = Cuenta(
             nombre_usuario=nombre_usuario,
             email=email,
@@ -98,13 +97,12 @@ def crear_cuenta():
         nueva_cuenta.password_hash = generate_password_hash(contraseña)
 
         db.session.add(nueva_cuenta)
-        db.session.flush()  # Para tener el ID y poder generar el token antes del commit
+        db.session.flush()
 
         # Generar token y enviar email de verificación
         token = generar_token_verificacion(nueva_cuenta.nombre_usuario)
         enviar_email_verificacion(nueva_cuenta.email, token, nueva_cuenta.nombre)
 
-        # Si es administrador, agregar a tabla Administrador
         if rol.lower() == "administrador":
             nuevo_admin = Administrador(nombre_usuario=nombre_usuario)
             db.session.add(nuevo_admin)
@@ -119,12 +117,12 @@ def crear_cuenta():
             })
         else:
             flash("Cuenta creada exitosamente y email de verificación enviado", "success")
-            return redirect(url_for("cuentas.cuentas"))
+            return redirect(URL_CUENTAS)
 
     except Exception as e:
         db.session.rollback()
         error_msg = f"Error al crear la cuenta: {str(e)}"
-        return jsonify({'success': False, 'error': error_msg}) if es_ajax else (flash(error_msg, "error"), redirect(url_for('cuentas.cuentas')))[1]
+        return responder_error(error_msg, es_ajax, URL_CUENTAS)
 
 
 @cuentas_bp.route("/editar/<nombre_usuario>", methods=['POST'])
@@ -382,58 +380,3 @@ def verificar_email(token):
     except Exception as e:
         return f"Error verificando token: {e}", 400
 
-
-def formatear_fecha(fecha):
-    if fecha:
-        return fecha.strftime("%d/%m/%Y %H:%M")
-    return "No disponible"
-
-def generar_token_verificacion(nombre_usuario):
-    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    return s.dumps(nombre_usuario, salt='email-verification')
-
-def enviar_email_verificacion(email, token, nombre):
-    subject = "Verifica tu cuenta"
-    verification_url = url_for('cuentas.verificar_email', token=token, _external=True)
-    
-    html_body = f"""
-    <h2>Verifica tu cuenta</h2>
-    <p>Hola {nombre},</p>
-    <p>Por favor haz clic en el siguiente enlace para verificar tu cuenta:</p>
-    <a href="{verification_url}">Verificar mi cuenta</a>
-    <p>Este enlace expirará en 24 horas.</p>
-    """
-    
-    send_email(subject, email, html_body)
-
-def validar_email(email):
-    patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-    return re.match(patron, email) is not None
-
-import re
-
-def validar_contraseña(password):
-    """
-    Reglas:
-    - mínimo 8 caracteres
-    - al menos una mayúscula
-    - al menos una minúscula
-    - al menos un número
-    - al menos un símbolo
-    """
-    if len(password) < 8:
-        return "La contraseña debe tener al menos 8 caracteres."
-
-    if not re.search(r"[A-Z]", password):
-        return "La contraseña debe contener al menos una letra mayúscula."
-
-    if not re.search(r"[a-z]", password):
-        return "La contraseña debe contener al menos una letra minúscula."
-
-    if not re.search(r"[0-9]", password):
-        return "La contraseña debe contener al menos un número."
-
-    if not re.search(r"[@$!%*?&#]", password):
-        return "La contraseña debe contener al menos un símbolo (@$!%*?&#)."
-
-    return None  # Si no hay errores
