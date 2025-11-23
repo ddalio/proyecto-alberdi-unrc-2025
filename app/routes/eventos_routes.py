@@ -1,9 +1,68 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from datetime import datetime, timedelta
 from app.models import db, Evento, Cliente, ResponsableLlave, Pago, Cuenta
-#from app.routes import ingresos_bp
+from flask import Blueprint, make_response
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import locale
+
 
 eventos_bp = Blueprint('eventos_bp', __name__, url_prefix='/eventos')
+
+@eventos_bp.route("/pdf", methods=["GET"])
+def eventos_pdf():
+    campo = request.args.get("campo")
+    valor = request.args.get("valor")
+
+    query = Evento.query
+
+    if campo and valor:
+
+        if campo == "dni":
+            query = query.filter(Evento.dni.ilike(f"%{valor}%"))
+
+        elif campo == "descripcion":
+            query = query.filter(Evento.descripcion.ilike(f"%{valor}%"))
+
+        elif campo == "nombre":
+            query = query.filter(Cliente.nombre.ilike(f"%{valor}%"))
+
+    eventos = query.all()
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+    
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, 820, f"Listado de eventos")
+
+    p.setFont("Helvetica", 12)
+    y = 790
+
+    for e in eventos:
+        texto = (
+            f"Descripción: {e.descripcion} | Fecha: {e.fecha_inicio.strftime('%d-%m-%Y')} "
+            f"| Cliente: {e.cliente.nombre} {e.cliente.apellido} "
+            f'| Hora: {e.fecha_inicio.strftime("%H:%M")} a {e.fecha_fin.strftime("%H:%M")}'
+
+        )
+
+        p.drawString(50, y, texto)
+        y -= 20
+
+        if y < 50:
+            p.showPage()
+            p.setFont("Helvetica", 12)
+            y = 800
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = "attachment; filename=eventos.pdf"
+
+    return response
 
 # Listado de eventos
 @eventos_bp.route("/", methods=["GET"])
@@ -11,13 +70,11 @@ def eventos():
     try:
         # todos los eventos
         eventos = Evento.query.all()
-        return render_template('eventos.html', eventos = eventos)
+        return render_template('eventos.html', eventos = eventos,  campo=campo, valor=valor)
     except Exception as e:
         # si no hay eventos disponibles
         print(f"Error al cargar eventos: {str(e)}")
         return render_template("eventos.html", mensaje="Error al cargar eventos")
-
-
 
 # Crear un nuevo evento
 @eventos_bp.route("/agregar_evento", methods =["GET","POST"])
@@ -69,7 +126,6 @@ def agregar_evento():
             flash(f"Error al crear evento: {str(e)}")
             return redirect(url_for('eventos_bp.agregar_evento'))
     return render_template("agregar_evento.html")
-
 
 def agregar_pago(id_evento, nombre_usuario, monto):
     monto_inicial = monto
@@ -315,7 +371,7 @@ def buscar_evento_campo():
         if not resultados:
             flash("No se encontraron eventos con esos criterios.", "info")
 
-        return render_template("eventos.html", eventos=resultados)
+        return render_template("eventos.html", eventos=resultados, campo=campo, valor=valor)
 
     except Exception as e:
         flash(f" Error al buscar eventos: {str(e)}", "danger")
@@ -337,9 +393,6 @@ def eliminar_evento(id_evento):
 # Funcion para actualizar el estado de pago de un evento
 # def actualizar_pago_evento(evento):
 #     ingresos_bp.actualizar_pago_evento(evento)
-
-
-
 @eventos_bp.route("/events-json", methods=["GET"])
 def eventos_json():
     eventos = Evento.query.all()
@@ -347,9 +400,6 @@ def eventos_json():
     return jsonify([
         {
             "title": e.descripcion,
-            #"start": e.fecha_inicio.strftime("%Y-%m-%d"),
-            #"end": (e.fecha_fin + timedelta(days=1)).strftime("%Y-%m-%d"),
-            #"allDay": True,
             "start": e.fecha_inicio.isoformat(),  # → incluye fecha y hora
             "end": e.fecha_fin.isoformat(),       # → incluye fecha y hora
             "allDay": False,  
@@ -364,22 +414,3 @@ def eventos_json():
         }
         for e in eventos
         ])
-
-class ValidationError(Exception):
-    """Excepción para errores de validación de datos."""
-    pass
-
-
-
-
-# ---------------------Metodos que no sabemos si agregar todavia-----------------------------------
-
-# Esto es para debug nomas, en realidad no tenemos pensado poner una pagina solo para clientes/responsables de eventos
-# Lo podriamos agregar si nos hace falta
-@eventos_bp.route("/clientes")
-def clientes():
-    clientes = Cliente.query.all()
-    eventos = Evento.query.all()
-    return render_template('clientes.html', clientes=clientes, eventos=eventos)
-
-
