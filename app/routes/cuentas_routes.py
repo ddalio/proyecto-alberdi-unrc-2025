@@ -222,8 +222,8 @@ def eliminar_cuenta(nombre_usuario):
     flash(f"La cuenta '{nombre_usuario}' fue eliminada correctamente.", "success")
     return redirect(url_for('cuentas.cuentas'))
 
-@cuentas_bp.route("/detalles-json/<nombre_usuario>")
-def detalles_cuenta_json(nombre_usuario):
+@cuentas_bp.route("/detalles/<nombre_usuario>")
+def detalles_cuenta(nombre_usuario):
     try:
         cuenta = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
         
@@ -280,15 +280,14 @@ def verificar_password():
         return jsonify({'success': False, 'error': str(e)})
 
 
-@cuentas_bp.route("/buscar-ajax", methods=['POST'])
+@cuentas_bp.route("/buscar", methods=['POST'])
 @admin_required 
-def buscar_cuenta_ajax():
+def buscar_cuenta():
     try:
         data = request.get_json()
         termino_busqueda = data.get('busqueda', '').strip()
         
         if not termino_busqueda:
-            # Si búsqueda vacía, devolver todas las cuentas
             cuentas = Cuenta.query.all()
         else:
             # Buscar en múltiples campos

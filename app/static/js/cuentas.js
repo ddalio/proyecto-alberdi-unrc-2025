@@ -343,7 +343,7 @@
     loadingBusqueda.classList.remove("d-none");
     btnBuscar.classList.add("d-none");
 
-    fetch('{{ url_for("cuentas.buscar_cuenta_ajax") }}', {
+    fetch('{{ url_for("cuentas.buscar_cuenta") }}', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -510,7 +510,7 @@
 
   // Cargar datos en el modal de edición
   function cargarDatosEdicion(nombreUsuario) {
-    fetch(`/cuentas/detalles-json/${nombreUsuario}`)
+    fetch(`/cuentas/detalles/${nombreUsuario}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -556,7 +556,7 @@
   };
 
   function cargarDetallesUsuario(nombreUsuario) {
-    fetch(`/cuentas/detalles-json/${nombreUsuario}`)
+    fetch(`/cuentas/detalles/${nombreUsuario}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {

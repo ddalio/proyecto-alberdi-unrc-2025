@@ -6,8 +6,6 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-
-    <!-- Bootstrap Icons -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
       rel="stylesheet"
@@ -38,7 +36,8 @@
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
-    <!-- Html2Canva-->>
+    <!-- Html2Canva-->
+    >
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     {% endblock %}
   </head>
@@ -51,11 +50,6 @@
       <nav class="sidebar bg-pry p-3" aria-label="Barra lateral">
         <ul class="nav flex-column align-items-center h-100" style="gap: 1rem">
           <!--Este icono no se que onda-->
-          <li class="nav-item">
-            <a class="nav-link p-0" href="#" aria-label="Menu">
-              <i class="bi bi-list text-white" style="font-size: 1.8rem"></i>
-            </a>
-          </li>
           <li
             class="nav-item {% if active_page == 'inicio' %}active-nav{% endif %}"
           >
