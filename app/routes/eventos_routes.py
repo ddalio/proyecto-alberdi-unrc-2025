@@ -70,7 +70,7 @@ def eventos():
     try:
         # todos los eventos
         eventos = Evento.query.all()
-        return render_template('eventos.html', eventos = eventos,  campo=campo, valor=valor)
+        return render_template('eventos.html', eventos = eventos)
     except Exception as e:
         # si no hay eventos disponibles
         print(f"Error al cargar eventos: {str(e)}")
