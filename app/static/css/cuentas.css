@@ -1,0 +1,46 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 40px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.acciones .btn-link:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s;
+  color: #1b1c1d !important;
+}
+
+#loadingBusqueda .spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+.toast {
+  margin-bottom: 10px;
+}
+
+.bi {
+  font-size: 1.1rem;
+}
+
+/* Estilos para los mensajes de error de contraseña */
+.alert-danger {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+#btnActualizar:disabled,
+#btnCrearUsuario:disabled,
+#btnReenviarVerificacion:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.badge {
+  font-size: 0.75em;
+}

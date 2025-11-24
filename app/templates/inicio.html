@@ -5,7 +5,8 @@ block content %}
     <!-- Row superior -->
     <div class="top-buttons">
       <div class="d-flex flex-column flex-md-row justify-content-md-end gap-2">
-        <button id="btnDescargarImagen"
+        <button
+          id="btnDescargarImagen"
           class="btn btn-custom d-flex align-items-center justify-content-center"
         >
           <i class="bi bi-image me-2"></i> <span>Descargar como imagen</span>
@@ -23,10 +24,10 @@ block content %}
       </div>
     </div>
 
-    <!-- REEMPLAZO: antes era [Aquí irá el calendario] -->
-
-      <div id="calendar"></div>
-
+    <div
+      id="calendar"
+      data-url-eventos="{{ url_for('eventos_bp.eventos_json') }}"
+    ></div>
 
     <!-- Row inferior -->
     <div class="bottom-buttons">
@@ -97,215 +98,6 @@ block content %}
     </div>
   </div>
 </div>
-<script>
-  let calendar;
-  let vistaActual = "dayGridMonth"; // Vista inicial es mes
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const calendarEl = document.getElementById("calendar");
-
-    calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: "dayGridMonth",
-      height: "100%",
-      contentHeight: "100%",
-      locale: "es",
-      fixedWeekCount: false,
-      selectable: true,
-      editable: true,
-      events: "{{ url_for('eventos_bp.eventos_json') }}",
-      eventDisplay: "block",
-      displayEventTime: false,
-
-      /*dayCellContent: (arg) => {
-        // deja el número del día nomás
-        return { html: arg.date.getDate() };
-      },*/
-
-      views: {
-        //Vista mes
-        dayGridMonth: {
-          displayEventTime: false,
-        },
-        timeGridWeek: {
-          allDaySlot: false, // no queremos la fila "Todo el día"
-          slotMinTime: "08:00:00",
-          slotMaxTime: "24:00:00",
-          slotDuration: "02:00:00",
-          displayEventTime: true,
-          nowIndicator: false,
-          expandRows: true,
-        },
-      },
-
-      buttonText: {
-        today: "Hoy",
-        month: "Mes",
-        week: "Semana",
-      },
-
-      /*eventClick: function (info) {
-        console.log("✅ eventClick ejecutándose");
-        console.log("Evento:", info.event);
-        console.log("ExtendedProps:", info.event.extendedProps);
-
-        const evento = info.event;
-        const props = evento.extendedProps || {};
-
-        // Verificar que el modal existe
-        const modalElement = document.getElementById("eventoModal");
-        console.log("Modal element:", modalElement);
-
-        if (!modalElement) {
-          console.error("❌ No se encontró el elemento eventoModal");
-          return;
-        }
-
-        // Llenar el modal
-        document.getElementById("modalDescripcion").textContent =
-          evento.title || "Sin descripción";
-        document.getElementById("modalInicio").textContent = evento.start
-          ? evento.start.toLocaleDateString("es-ES")
-          : "No especificada";
-        document.getElementById("modalFin").textContent = evento.end
-          ? new Date(evento.end.getTime() - 86400000).toLocaleDateString(
-              "es-ES"
-            )
-          : "No especificada";
-        document.getElementById("modalObservaciones").textContent =
-          props.observaciones || "Sin observaciones";
-        document.getElementById("modalMonto").textContent =
-          props.monto_total?.toLocaleString("es-ES") || "0";
-        document.getElementById("modalAdeuda").textContent = props.adeuda
-          ? "Sí"
-          : "No";
-        document.getElementById("modalDni").textContent =
-          props.dni || "No especificado";
-        document.getElementById("modalResponsableApertura").textContent =
-          props.responsable_apertura || "No especificado";
-        document.getElementById("modalResponsableCierre").textContent =
-          props.responsable_cierre || "No especificado";
-
-        // Mostrar el modal
-        console.log("Intentando abrir modal...");
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-        console.log("Modal.show() ejecutado");
-
-        info.jsEvent.preventDefault();
-      },*/
-
-      eventClick: function (info) {
-        console.log("🎯 EVENTO CLICKEADO");
-
-        const evento = info.event;
-        const props = evento.extendedProps || {};
-
-        // Llenar el modal con los datos del evento
-        document.getElementById("modalDescripcion").textContent =
-          evento.title || "Sin descripción";
-
-        // Formatear fechas en español
-        document.getElementById("modalInicio").textContent = evento.start
-          ? evento.start.toLocaleDateString("es-ES")
-          : "No especificada";
-
-        document.getElementById("modalFin").textContent = evento.end
-          ? new Date(evento.end.getTime() - 86400000).toLocaleDateString(
-              "es-ES"
-            )
-          : "No especificada";
-
-        document.getElementById("modalObservaciones").textContent =
-          props.observaciones || "Sin observaciones";
-
-        document.getElementById("modalMonto").textContent =
-          props.monto_total?.toLocaleString("es-ES") || "0";
-
-        document.getElementById("modalAdeuda").textContent = props.adeuda
-          ? "Sí"
-          : "No";
-
-        document.getElementById("modalDni").textContent =
-          props.dni || "No especificado";
-        document.getElementById("modalResponsableApertura").textContent =
-          props.responsable_apertura || "No especificado";
-        document.getElementById("modalResponsableCierre").textContent =
-          props.responsable_cierre || "No especificado";
-
-        // Mostrar el modal
-        const modalElement = document.getElementById("eventoModal");
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-
-        console.log("✅ Modal abierto correctamente");
-
-        info.jsEvent.preventDefault();
-        return false;
-      },
-    });
-
-    calendar.render();
-  });
-
-  function toggleVista() {
-    if (!calendar) return;
-
-    const iconoVista = document.getElementById("iconoVista");
-    const textoVista = document.getElementById("textoVista");
-
-    if (vistaActual === "dayGridMonth") {
-      calendar.changeView("timeGridWeek");
-      vistaActual = "timeGridWeek";
-
-      iconoVista.className = "bi bi-calendar-month me-2";
-      textoVista.textContent = "Mes";
-    } else {
-      calendar.changeView("dayGridMonth");
-      vistaActual = "dayGridMonth";
-
-      iconoVista.className = "bi bi-calendar-week me-2";
-      textoVista.textContent = "Semana";
-    }
-  }
-
-
-  /*descargar imagen de  calendario*/
-  document.getElementById("btnDescargarImagen").addEventListener("click", () => {
-    const element = document.getElementById("calendar"); // Cambiar aquí
-    
-    html2canvas(element, {
-      backgroundColor: "#ffffff", // Fondo blanco
-      scale: 2, // Mejor calidad
-    }).then(function (canvas) {
-      const link = document.createElement("a");
-      link.download = "calendario.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    });
-  });
-  /*select: function (info) {
-        const title = prompt("Título del evento:");
-        if (title) {
-          fetch("/events", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title: title,
-              start: info.startStr,
-              end: info.endStr,
-            }),
-          }).then(() => calendar.refetchEvents());
-        }
-      },*/
-
-  /*eventClick: function (info) {
-        if (confirm("¿Eliminar este evento?")) {
-          fetch("/delete/" + info.event.id, { method: "DELETE" }).then(() =>
-            calendar.refetchEvents()
-          );
-        }
-      },
-    });*/
-</script>
+<script src="{{ url_for('static', filename='js/inicio.js') }}"></script>
 
 {% endblock %}
