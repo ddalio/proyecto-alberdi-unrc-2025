@@ -218,14 +218,13 @@ def editar_responsable_llave(responsable_llave, nombre_form, apellido_form) -> R
     return responsable_llave
 
 
-#Combina los valores de fecha y hora obtenidos del formulario en un objeto datetime.
 def combinar_fecha_hora(request, campo_fecha: str, campo_hora: str = None) -> datetime:
     fecha_str = request.form.get(campo_fecha)
     hora_str = request.form.get(campo_hora) if campo_hora else None
     hora_str = hora_str or "00:00"
 
     if not fecha_str:
-        raise flash(f"El campo '{campo_fecha}' es obligatorio.")
+        raise ValueError(f"El campo '{campo_fecha}' es obligatorio.")
 
     try:
         return datetime.strptime(f"{fecha_str} {hora_str}", "%Y-%m-%d %H:%M")
@@ -283,7 +282,10 @@ def editar_evento(id_evento):
 def detalles_evento(id_evento):
     evento = Evento.query.get_or_404(id_evento)  
 
-    return render_template("detalles_evento.html", evento=evento)
+    return render_template("detalles_evento.html", 
+                         evento=evento,
+                         start_dt=evento.fecha_inicio,
+                         end_dt=evento.fecha_fin)
 
 # Listado de eventos Desde: fecha - Hasta: fecha
 @eventos_bp.route("/filtrar", methods=["GET"])

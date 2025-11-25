@@ -92,15 +92,25 @@
   }
 
   function enviarEmailVerificacion(usuarioId) {
-    return fetch('{{ url_for("cuentas.enviar_verificacion") }}', {
+    return fetch("/cuentas/verificar-email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        usuario_id: usuarioId,
+        usuario: usuarioId,
       }),
-    }).then((response) => response.json());
+    }).then((response) => {
+      console.log("Status:", response.status);
+      return response.text().then((text) => {
+        console.log("Raw response:", text);
+        try {
+          return JSON.parse(text);
+        } catch {
+          throw new Error(`Invalid JSON: ${text}`);
+        }
+      });
+    });
   }
 
   function mostrarMensajeExito(mensaje) {
@@ -228,26 +238,24 @@
     const reenviarContenido = document.getElementById("reenviarContenido");
     const btnReenviar = document.getElementById("btnReenviarVerificacion");
 
-    // Mostrar modal de confirmación
     reenviarContenido.innerHTML = `
-            <div class="text-center">
-                <i class="bi bi-envelope-check display-4 text-primary mb-3"></i>
-                <h6>Reenviar email de verificación</h6>
-                <p>¿Estás seguro de que querés reenviar el email de verificación a <strong>${email}</strong>?</p>
-                <small class="text-muted">El usuario recibirá un enlace para verificar su cuenta.</small>
-            </div>
-        `;
+    <div class="text-center">
+      <i class="bi bi-envelope-check display-4 text-primary mb-3"></i>
+      <h6>Reenviar email de verificación</h6>
+      <p>¿Estás seguro de que querés reenviar el email de verificación a <strong>${email}</strong>?</p>
+      <small class="text-muted">El usuario recibirá un enlace para verificar su cuenta.</small>
+    </div>
+  `;
 
     modalReenviar.classList.remove("d-none");
     document.body.style.overflow = "hidden";
 
-    // Configurar el botón de reenvío
     btnReenviar.onclick = function () {
       btnReenviar.disabled = true;
       btnReenviar.innerHTML =
         '<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...';
 
-      fetch('{{ url_for("cuentas.enviar_verificacion") }}', {
+      fetch("/cuentas/verificar-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -256,19 +264,27 @@
           usuario: usuario,
         }),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          console.log("Status:", response.status);
+          return response.text().then((text) => {
+            console.log("Raw response:", text);
+            try {
+              return JSON.parse(text);
+            } catch {
+              throw new Error(`Invalid JSON: ${text}`);
+            }
+          });
+        })
         .then((data) => {
           if (data.success) {
             reenviarContenido.innerHTML = `
-                        <div class="text-center">
-                            <i class="bi bi-check-circle display-4 text-success mb-3"></i>
-                            <h6>¡Email enviado!</h6>
-                            <p>El email de verificación fue enviado exitosamente a <strong>${email}</strong>.</p>
-                        </div>
-                    `;
+          <div class="text-center">
+            <i class="bi bi-check-circle display-4 text-success mb-3"></i>
+            <h6>¡Email enviado!</h6>
+            <p>El email de verificación fue enviado exitosamente a <strong>${email}</strong>.</p>
+          </div>
+        `;
             btnReenviar.classList.add("d-none");
-
-            // Cerrar automáticamente después de 2 segundos
             setTimeout(() => {
               closeReenviarModal();
               window.location.reload();
@@ -279,12 +295,12 @@
         })
         .catch((error) => {
           reenviarContenido.innerHTML = `
-                    <div class="text-center">
-                        <i class="bi bi-exclamation-triangle display-4 text-danger mb-3"></i>
-                        <h6>Error</h6>
-                        <p>No se pudo enviar el email de verificación: ${error.message}</p>
-                    </div>
-                `;
+        <div class="text-center">
+          <i class="bi bi-exclamation-triangle display-4 text-danger mb-3"></i>
+          <h6>Error</h6>
+          <p>No se pudo enviar el email de verificación: ${error.message}</p>
+        </div>
+      `;
           btnReenviar.disabled = false;
           btnReenviar.innerHTML = '<i class="bi bi-send me-2"></i>Reenviar';
         });
@@ -344,7 +360,8 @@
     loadingBusqueda.classList.remove("d-none");
     btnBuscar.classList.add("d-none");
 
-    fetch('{{ url_for("cuentas.buscar_cuenta") }}', {
+    fetch("/cuentas/buscar", {
+      // ← Esta línea
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -353,7 +370,17 @@
         busqueda: termino,
       }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        console.log("Status buscar:", response.status);
+        return response.text().then((text) => {
+          console.log("Respuesta buscar:", text);
+          try {
+            return JSON.parse(text);
+          } catch {
+            throw new Error("Invalid JSON: " + text.substring(0, 100));
+          }
+        });
+      })
       .then((data) => {
         if (data.success) {
           actualizarTabla(data.resultados);
@@ -366,8 +393,8 @@
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
-        contadorResultados.textContent = "Error de conexión";
+        console.error("Error completo:", error);
+        contadorResultados.textContent = "Error de conexión: " + error.message;
       })
       .finally(() => {
         loadingBusqueda.classList.add("d-none");
@@ -396,13 +423,6 @@
             <td>${cuenta.apellido}</td>
             <td>${cuenta.email}</td>
             <td>${cuenta.rol}</td>
-            <td>
-              ${
-                cuenta.email_verificado
-                  ? '<span class="badge bg-success">Sí</span>'
-                  : '<span class="badge bg-warning">No</span>'
-              }
-            </td>
             <td class="acciones">
               <button type="button" 
                       class="btn btn-link p-0 text-decoration-none ver-detalles-btn"

@@ -5,24 +5,28 @@ styles %}
   href="{{ url_for('static', filename='css/cuentas.css') }}"
 />
 {% endblock %} {% block content %}
-<div
-  class="position-fixed top-50 start-50 translate-middle"
-  style="z-index: 2000"
->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 2000">
   {% with messages = get_flashed_messages(with_categories=true) %} {% if
   messages %} {% for category, message in messages %} {% if
   category.startswith("cuentas_") %}
   <div
-    class="toast custom-toast {{ category.replace('cuentas_', '') }}"
+    class="toast show align-items-center text-bg-{{ category.replace('cuentas_', '') }} border-0 mb-2"
     role="alert"
     data-bs-autohide="true"
+    data-bs-delay="5000"
   >
-    <div class="d-flex justify-content-between align-items-center">
-      <div>{{ message }}</div>
+    <div class="d-flex">
+      <div class="toast-body">
+        <i
+          class="bi {% if category == 'cuentas_success' %}bi-check-circle-fill {% elif category == 'cuentas_danger' %}bi-exclamation-triangle-fill {% elif category == 'cuentas_warning' %}bi-exclamation-triangle-fill {% elif category == 'cuentas_info' %}bi-info-circle-fill {% else %}bi-bell-fill{% endif %} me-2"
+        ></i>
+        {{ message }}
+      </div>
       <button
         type="button"
-        class="btn-close ms-3"
+        class="btn-close btn-close-white me-2 m-auto"
         data-bs-dismiss="toast"
+        aria-label="Cerrar"
       ></button>
     </div>
   </div>

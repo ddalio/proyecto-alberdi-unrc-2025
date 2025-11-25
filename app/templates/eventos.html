@@ -3,22 +3,27 @@ content %}
 
 <!-- Toast para mensajes flash -->
 <div
-  class="toast-container position-fixed top-50 start-50 translate-middle p-3"
+  class="toast-container position-fixed top-0 end-0 p-3"
   style="z-index: 1100"
 >
   {% with mensajes = get_flashed_messages(with_categories=true) %} {% if
   mensajes %} {% for categoria, mensaje in mensajes %}
   <div
-    class="toast align-items-center text-bg-{{ categoria }} border-0 mb-2"
+    class="toast show align-items-center text-bg-{{ categoria }} border-0 mb-2"
     role="alert"
     aria-live="assertive"
     aria-atomic="true"
   >
     <div class="d-flex">
-      <div class="toast-body">{{ mensaje }}</div>
+      <div class="toast-body">
+        <i
+          class="bi {% if categoria == 'success' %}bi-check-circle-fill {% elif categoria == 'danger' %}bi-exclamation-triangle-fill {% elif categoria == 'warning' %}bi-exclamation-triangle-fill {% elif categoria == 'info' %}bi-info-circle-fill {% else %}bi-bell-fill{% endif %} me-2"
+        ></i>
+        {{ mensaje }}
+      </div>
       <button
         type="button"
-        class="btn-close btn-close-white me-2 m-auto"
+        class="btn-close btn-close-black me-2 m-auto"
         data-bs-dismiss="toast"
         aria-label="Cerrar"
       ></button>
@@ -26,7 +31,6 @@ content %}
   </div>
   {% endfor %} {% endif %} {% endwith %}
 </div>
-
 <!-- Modal overlay para "Agregar Pago" (todo inline en esta plantilla) -->
 <div
   id="paymentModalOverlay"
@@ -149,6 +153,33 @@ content %}
         </div>
       </aside>
     </form>
+    <div id="montoError" class="alert alert-danger d-none mt-2 mx-3">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      El monto a pagar no puede ser mayor al monto que se adeuda del evento
+    </div>
+    <script>
+      document
+        .getElementById("paymentForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const montoPago = parseFloat(
+            document.getElementById("modal_monto_pago").value
+          );
+          const montoDeuda = parseFloat(
+            document.getElementById("modal_event_monto_deuda").textContent
+          );
+          const errorDiv = document.getElementById("montoError");
+
+          if (montoPago > montoDeuda) {
+            errorDiv.classList.remove("d-none");
+            return false; // No envía el formulario, se queda en el modal
+          }
+
+          errorDiv.classList.add("d-none");
+          this.submit(); // Envía el formulario normalmente
+        });
+    </script>
   </div>
 </div>
 
@@ -291,16 +322,19 @@ content %}
                     <td>
                       {{ evento.cliente.nombre }} {{ evento.cliente.apellido }}
                     </td>
-                     <td class="acciones">
+                    <td class="acciones">
                       <a
                         href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}"
                         class="me-2"
                         title="Ver detalles"
-                        ><i class="bi bi-file-text"></i></a
-                      >
+                        ><i class="bi bi-file-text"></i
+                      ></a>
 
                       {% if current_user.es_administrador() %}
                       <!-- botón que abre el modal para agregar pago (no navega) -->
+                      {% set deuda = evento.monto_total - (evento.pagos |
+                      map(attribute='monto_pago') | sum) %} {% if evento.adeuda
+                      and deuda > 0 %}
                       <button
                         type="button"
                         class="me-2 btn btn-link p-0 openAddPaymentBtn"
@@ -309,7 +343,7 @@ content %}
                         data-id="{{ evento.id_evento }}"
                         data-descripcion="{{ evento.descripcion | e }}"
                         data-monto="{{ evento.monto_total }}"
-                        data-monto-deuda="{{ (evento.monto_deuda if evento.monto_deuda is defined else (evento.monto_total - (evento.pagos | map(attribute='monto_pago') | sum))) }}"
+                        data-monto-deuda="{{ deuda }}"
                         data-adeuda="{{ '1' if evento.adeuda else '0' }}"
                         data-cliente-nombre="{{ evento.cliente.nombre if evento.cliente is defined else '' }}"
                         data-cliente-apellido="{{ evento.cliente.apellido if evento.cliente is defined else '' }}"
@@ -319,14 +353,25 @@ content %}
                       >
                         <i class="bi bi-credit-card"></i>
                       </button>
+                      {% else %}
+                      <button
+                        type="button"
+                        class="me-2 btn btn-link p-0"
+                        title="Pago completo"
+                        disabled
+                        style="opacity: 0.5; cursor: not-allowed"
+                      >
+                        <i class="bi bi-credit-card text-muted"></i>
+                      </button>
+                      {% endif %}
 
                       <a
                         href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}"
                         class="me-2"
                         title="Editar evento"
-                        ><i class="bi bi-pencil"></i></a
-                      >
-                      
+                        ><i class="bi bi-pencil"></i
+                      ></a>
+
                       <form
                         action="{{ url_for('eventos_bp.eliminar_evento', id_evento=evento.id_evento) }}"
                         method="POST"
@@ -383,7 +428,6 @@ content %}
             </a>
           </div>
         </div>
-        >
       </div>
     </div>
   </div>
