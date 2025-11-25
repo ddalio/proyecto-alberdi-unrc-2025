@@ -12,20 +12,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 mail = Mail()
 
-from flask import Flask, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_mail import Mail
-from werkzeug.security import generate_password_hash
-from datetime import datetime
-from flask import make_response
-from reportlab.pdfgen import canvas
-from io import BytesIO
-
-db = SQLAlchemy()
-migrate = Migrate()
-mail = Mail()
-
 def create_app():
     app = Flask(__name__)
     
@@ -41,7 +27,7 @@ def create_app():
     app.config["MAIL_USERNAME"] = "ago.chazon@gmail.com"
     app.config["MAIL_PASSWORD"] = "auax bssu wzjl xolx"
 
-    # Inicializar extensiones
+    # Inicializar extensiones y vincularlas a la app (Patrón Factory)
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)

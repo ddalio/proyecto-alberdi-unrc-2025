@@ -184,6 +184,9 @@ class AuditoriaPago(db.Model):
     id_pago = db.Column(db.Integer, db.ForeignKey('pago.id_pago'), primary_key=True)
     nombre_usuario = db.Column(db.String(10), db.ForeignKey('cuenta.nombre_usuario'), primary_key=True)
     fecha_auditoria = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    email_verificado = db.Column(db.Boolean, nullable=False, default=False)
+    fecha_verificacion = db.Column(db.DateTime, nullable=True)
 
     # Relaciones
     pago = db.relationship('Pago', back_populates='auditorias_pago')

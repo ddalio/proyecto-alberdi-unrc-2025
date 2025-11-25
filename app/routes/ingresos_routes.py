@@ -91,6 +91,9 @@ def agregar_pago(id_evento):
                             fecha = datetime.utcnow(),
                             usuario_creacion = usuario_creacion)
                 db.session.add(pago)
+                db.session.commit()
+                if evento.total_pagado == evento.monto_total:
+                    evento.adeuda = False
                 # Actualizar el estado de pago del evento
                 actualizar_pago_evento(evento)
                 db.session.commit()

@@ -98,7 +98,7 @@ def agregar_evento():
             fecha_fin = combinar_fecha_hora(request, "fecha_fin", "hora_fin")
 
             if fecha_inicio >= fecha_fin:
-                return
+                flash("Horario de inicio NO puede ser mayor a horario de finalización")
 
             evento = Evento(
                 descripcion = request.form.get("descripcion"),
@@ -149,11 +149,11 @@ def agregar_cliente(form) -> Cliente:
     institucion_cliente = form.get("institucion")
 
     if not dni_cliente:
-        raise ValidationError("El campo DNI del cliente es obligatorio.")
+        raise flash("El campo DNI del cliente es obligatorio.")
     if not dni_valido(dni_cliente):
-        raise ValidationError("El DNI debe tener al menos 8 dígitos y contener solo números.")
+        raise flash("El DNI debe tener al menos 8 dígitos y contener solo números.")
     if not nombre_cliente or not apellido_cliente:
-        raise ValidationError("El nombre y apellido del cliente son obligatorios.")
+        raise flash("El nombre y apellido del cliente son obligatorios.")
     
     cliente = Cliente.query.get(dni_cliente)
 
@@ -175,7 +175,7 @@ def dni_valido(dni: str) -> bool:
 
 def editar_cliente(cliente, nombre, apellido, telefono, institucion) -> Cliente:
     if not cliente:
-        raise ValidationError("Cliente no encontrado.")
+        raise flash("Cliente no encontrado.")
     
     cliente.nombre = nombre
     cliente.apellido = apellido
@@ -213,6 +213,7 @@ def editar_responsable_llave(responsable_llave, nombre_form, apellido_form) -> R
         #si sí existe, edito los campos
         responsable_llave.nombre=nombre_form
         responsable_llave.apellido=apellido_form
+        db.session.commit() 
     
     return responsable_llave
 
@@ -224,12 +225,12 @@ def combinar_fecha_hora(request, campo_fecha: str, campo_hora: str = None) -> da
     hora_str = hora_str or "00:00"
 
     if not fecha_str:
-        raise ValueError(f"El campo '{campo_fecha}' es obligatorio.")
+        raise flash(f"El campo '{campo_fecha}' es obligatorio.")
 
     try:
         return datetime.strptime(f"{fecha_str} {hora_str}", "%Y-%m-%d %H:%M")
     except ValueError:
-        raise ValidationError(f"La fecha u hora ingresada en '{campo_fecha}' no tiene el formato correcto.")
+        raise ValueError(f"La fecha u hora ingresada en '{campo_fecha}' no tiene el formato correcto.")
 
 @eventos_bp.route("/editar_evento/<int:id_evento>", methods=["GET", "POST"])
 def editar_evento(id_evento):
@@ -242,7 +243,7 @@ def editar_evento(id_evento):
             fecha_fin = combinar_fecha_hora(request, "fecha_fin", "hora_fin")
 
             if fecha_inicio >= fecha_fin:
-                raise ValidationError("La fecha de inicio debe ser anterior a la fecha de fin.")
+                flash("Horario de inicio NO puede ser mayor a horario de finalización")
     
             # Actualizar datos del evento
             evento.descripcion = request.form.get("descripcion")
