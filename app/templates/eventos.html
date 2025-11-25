@@ -1,8 +1,31 @@
 {% extends 'base.html' %} {% block title %} Eventos {% endblock %} {% block
-content %} {% with mensajes = get_flashed_messages(with_categories=true) %} {%
-if mensajes %} {% for categoria, mensaje in mensajes %}
-<div class="alert alert-{{ categoria }}">{{ mensaje }}</div>
-{% endfor %} {% endif %} {% endwith %}
+content %}
+
+<!-- Toast para mensajes flash -->
+<div
+  class="toast-container position-fixed top-50 start-50 translate-middle p-3"
+  style="z-index: 1100"
+>
+  {% with mensajes = get_flashed_messages(with_categories=true) %} {% if
+  mensajes %} {% for categoria, mensaje in mensajes %}
+  <div
+    class="toast align-items-center text-bg-{{ categoria }} border-0 mb-2"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">{{ mensaje }}</div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Cerrar"
+      ></button>
+    </div>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
+</div>
 
 <!-- Modal overlay para "Agregar Pago" (todo inline en esta plantilla) -->
 <div
@@ -161,7 +184,6 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
                   <option value="dni" selected>DNI del cliente</option>
                   <option value="nombre">Nombre del cliente</option>
                   <option value="descripcion">Descripción del evento</option>
-                  <option value="id_evento">ID del evento</option>
                 </select>
               </div>
 
@@ -330,20 +352,33 @@ if mensajes %} {% for categoria, mensaje in mensajes %}
           </div>
         </div>
 
-        <!-- Row 4: resumen y volver -->
         <div class="row">
           <div class="col-md-8 d-flex flex-column justify-content-center">
             <!-- Resumen opcional -->
           </div>
 
-          <div class="col-md-4 d-flex justify-content-end align-items-center">
+          <div
+            class="col-md-4 d-flex justify-content-end align-items-center gap-2"
+          >
+            <!-- Botón Agregar con color personalizado -->
             <a
-              href="{{ url_for('auth.inicio') }}"
-              class="btn btn-outline-secondary"
-              >Volver</a
+              href="{{ url_for('eventos_bp.agregar_evento') }}"
+              class="btn px-4"
+              style="background-color: #b90603; color: white; border: none"
             >
+              Agregar
+            </a>
+
+            <!-- Botón Volver -->
+            <a
+              href="{{ url_for('eventos_bp.eventos') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="bi bi-arrow-left me-2"></i>Volver
+            </a>
           </div>
         </div>
+        >
       </div>
     </div>
   </div>

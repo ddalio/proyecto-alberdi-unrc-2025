@@ -115,7 +115,7 @@ def crear_cuenta():
                 'message': 'Usuario creado exitosamente y email de verificación enviado'
             })
         else:
-            flash("Cuenta creada exitosamente y email de verificación enviado", "success")
+            flash("Cuenta creada exitosamente y email de verificación enviado", "cuentas_success")
             return redirect(URL_CUENTAS)
 
     except Exception as e:
@@ -130,7 +130,7 @@ def editar_cuenta(nombre_usuario):
     # Buscar la cuenta a editar
     cuenta = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
     if not cuenta:
-        flash("La cuenta no existe", "error")
+        flash("La cuenta no existe", "cuentas_error")
         return redirect(url_for('cuentas.cuentas'))
     
     # Procesar formulario POST (actualizar)
@@ -144,24 +144,24 @@ def editar_cuenta(nombre_usuario):
     try:
         # Validaciones básicas
         if not all([nuevo_nombre, nuevo_apellido, nuevo_email, nuevo_rol]):
-            flash("Todos los campos excepto contraseña son obligatorios", "error")
+            flash("Todos los campos excepto contraseña son obligatorios", "cuentas_error")
             return redirect(url_for('cuentas.cuentas'))
         
         # Validar email
         if not validar_email(nuevo_email):
-            flash("El formato del email no es válido", "error")
+            flash("El formato del email no es válido", "cuentas_error")
             return redirect(url_for('cuentas.cuentas'))
         
         # Validar que el email no esté en uso por otra cuenta
         cuenta_existente = Cuenta.query.filter_by(email=nuevo_email).first()
         if cuenta_existente and cuenta_existente.nombre_usuario != nombre_usuario:
-            flash("El email ya está en uso por otra cuenta", "error")
+            flash("El email ya está en uso por otra cuenta", "cuentas_error")
             return redirect(url_for('cuentas.cuentas'))
         
         # Validar rol
         roles_validos = ['administrador', 'usuario', 'empleado']
         if nuevo_rol.lower() not in roles_validos:
-            flash("Rol no válido", "error")
+            flash("Rol no válido", "cuentas_error")
             return redirect(url_for('cuentas.cuentas'))
         
         # Actualizar datos básicos
@@ -172,7 +172,7 @@ def editar_cuenta(nombre_usuario):
         # Manejar cambio de contraseña (si se proporcionó)
         if nueva_contraseña:
             if nueva_contraseña != repetir_contraseña:
-                flash("Las contraseñas no coinciden", "error")
+                flash("Las contraseñas no coinciden", "cuentas_error")
                 return redirect(url_for('cuentas.cuentas'))
             
             error_contraseña = validar_contraseña(nueva_contraseña)
@@ -196,12 +196,12 @@ def editar_cuenta(nombre_usuario):
             db.session.delete(admin_actual)
         
         db.session.commit()
-        flash(f"Cuenta de {nombre_usuario} actualizada exitosamente ✅", "success")
+        flash(f"Cuenta de {nombre_usuario} actualizada exitosamente ✅", "cuentas_success")
         return redirect(url_for("cuentas.cuentas"))
         
     except Exception as e:
         db.session.rollback()
-        flash(f"Error al actualizar la cuenta: {str(e)}", "error")
+        flash(f"Error al actualizar la cuenta: {str(e)}", "cuentas_error")
         return redirect(url_for('cuentas.cuentas'))
 
 
@@ -219,7 +219,7 @@ def eliminar_cuenta(nombre_usuario):
 
     db.session.delete(cuenta)
     db.session.commit()
-    flash(f"La cuenta '{nombre_usuario}' fue eliminada correctamente.", "success")
+    flash(f"La cuenta '{nombre_usuario}' fue eliminada correctamente.", "cuentas_success")
     return redirect(url_for('cuentas.cuentas'))
 
 @cuentas_bp.route("/detalles/<nombre_usuario>")

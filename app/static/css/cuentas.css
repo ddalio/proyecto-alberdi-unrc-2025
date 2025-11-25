@@ -3,9 +3,8 @@
   inset: 0;
   z-index: 1050;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: 40px;
   background: rgba(0, 0, 0, 0.5);
 }
 
@@ -28,6 +27,7 @@
   font-size: 1.1rem;
 }
 
+/* Estilos para los mensajes de error de contraseña */
 .alert-danger {
   margin-top: 10px;
   margin-bottom: 0;
@@ -44,11 +44,6 @@
   font-size: 0.75em;
 }
 
-html,
-body {
-  overflow-x: hidden !important;
-}
-
 .btn-custom {
   background-color: #b90603;
   color: white;
@@ -58,38 +53,64 @@ body {
 .btn-custom:hover {
   background-color: #b90603;
 }
-
-#calendar {
-  min-height: 400px;
-  width: 100%;
-  overflow: hidden;
+/* --- BOTONES DE ACCIÓN MÁS CHICOS Y ORDENADOS --- */
+.acciones button,
+.acciones form button {
+  font-size: 0.85rem !important;
+  padding: 0 !important;
+  margin: 0 4px !important;
+  color: #495057 !important;
 }
 
-.modal-card {
-  width: 95vw !important;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 1rem;
+.acciones i {
+  font-size: 1rem !important;
 }
 
-.calendar-page {
-  width: 100%;
-  padding-bottom: 2rem;
+.acciones button:hover i {
+  color: #0d6efd !important;
 }
 
-@media (max-width: 576px) {
-  .btn {
-    font-size: 0.85rem;
-    padding: 0.45rem 0.7rem;
-  }
+/* ===== TOAST CLÁSICA RECTANGULAR ===== */
+.custom-toast {
+  border-radius: 6px !important;
+  padding: 12px 18px;
+  font-size: 15px;
+  border-left: 5px solid;
+  min-width: 300px;
+  max-width: 400px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  background: #fff !important;
+}
 
-  .modal-header h5 {
-    font-size: 1rem;
-  }
+/* Éxito */
+.custom-toast.success {
+  border-left-color: #2e7d32 !important;
+  background-color: #918886 !important;
+  color: #1b5e20 !important;
+}
 
-  .modal-body p {
-    font-size: 0.9rem;
-    word-wrap: break-word;
-  }
+/* Error */
+.custom-toast.error {
+  border-left-color: #c62828 !important;
+  background-color: #ffebee !important;
+  color: #8e0000 !important;
+}
+
+/* Información */
+.custom-toast.info {
+  border-left-color: #1565c0 !important;
+  background-color: #e3f2fd !important;
+  color: #0d47a1 !important;
+}
+
+/* Advertencia */
+.custom-toast.warning {
+  border-left-color: #ff8f00 !important;
+  background-color: #fff8e1 !important;
+  color: #e65100 !important;
+}
+
+/* Botón cerrar */
+.custom-toast .btn-close {
+  filter: invert(30%) !important;
 }

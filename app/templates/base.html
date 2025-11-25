@@ -111,6 +111,21 @@
           </li>
           {% endif %}
 
+          <li
+            class="nav-item {% if active_page == 'eventos' %}active-nav{% endif %}"
+          >
+            <a
+              class="nav-link p-0"
+              href="{{ url_for('eventos_bp.eventos') }}"
+              title="Eventos"
+            >
+              <i
+                class="bi bi-calendar-event {% if active_page == 'eventos' %}text-secondary{% else %}text-white{% endif %}"
+                style="font-size: 1.8rem"
+              ></i>
+            </a>
+          </li>
+
           <!-- Logout -->
           <li class="nav-item mt-auto">
             <a

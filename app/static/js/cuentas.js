@@ -7,6 +7,7 @@
       bsToast.show();
     });
   }
+  document.addEventListener("DOMContentLoaded", mostrarToasts);
 
   // ===== VALIDACIÓN PARA CREACIÓN DE USUARIO =====
   function validarYEnviarCreacion(event) {
@@ -583,18 +584,6 @@
                             : "bg-secondary"
                         }">
                           ${data.cuenta.rol}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td><strong>Email verificado:</strong></td>
-                      <td>
-                        <span class="badge ${
-                          data.cuenta.email_verificado
-                            ? "bg-success"
-                            : "bg-warning"
-                        }">
-                          ${data.cuenta.email_verificado ? "Sí" : "No"}
                         </span>
                       </td>
                     </tr>

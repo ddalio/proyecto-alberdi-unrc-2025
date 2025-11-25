@@ -1,566 +1,581 @@
-{% extends 'base.html' %} {% block title %}Cuentas{% endblock %} {% block styles
-%}
+{% extends 'base.html' %} {% block title %} Cuentas {% endblock %} {% block
+styles %}
 <link
   rel="stylesheet"
   href="{{ url_for('static', filename='css/cuentas.css') }}"
 />
 {% endblock %} {% block content %}
+<div
+  class="position-fixed top-50 start-50 translate-middle"
+  style="z-index: 2000"
+>
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %} {% if
+  category.startswith("cuentas_") %}
+  <div
+    class="toast custom-toast {{ category.replace('cuentas_', '') }}"
+    role="alert"
+    data-bs-autohide="true"
+  >
+    <div class="d-flex justify-content-between align-items-center">
+      <div>{{ message }}</div>
+      <button
+        type="button"
+        class="btn-close ms-3"
+        data-bs-dismiss="toast"
+      ></button>
+    </div>
+  </div>
+  {% endif %} {% endfor %} {% endif %} {% endwith %}
+</div>
 
-<div class="container py-3">
-  <div class="d-flex align-items-center mb-4">
-    <a href="/" class="text-muted me-3" aria-label="Volver">
+<!-- Modal para Crear Usuario -->
+<div id="modalCrearOverlay" class="modal-overlay d-none">
+  <div
+    class="card shadow p-4"
+    style="width: 90vw; max-width: 700px; max-height: 90vh; overflow: auto"
+  >
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="m-0">Crear Usuario</h5>
+      <button
+        type="button"
+        class="btn btn-close close-crear-modal"
+        aria-label="Cerrar"
+      ></button>
+    </div>
+
+    <form
+      action="{{ url_for('cuentas.crear_cuenta') }}"
+      method="post"
+      id="formCrearUsuario"
+      onsubmit="return validarYEnviarCreacion(event)"
+    >
+      <div class="mb-2">
+        <label class="form-label">Nombre de usuario*</label>
+        <input
+          name="usuario"
+          class="form-control"
+          required
+          maxlength="10"
+          id="crearUsuario"
+        />
+        <small class="text-muted">Máximo 10 caracteres</small>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Rol*</label>
+        <select name="rol" class="form-select" required id="crearRol">
+          <option value="">Seleccioná un rol</option>
+          <option value="usuario">Usuario</option>
+          <option value="administrador">Administrador</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col mb-2">
+          <label class="form-label">Nombre*</label>
+          <input
+            name="nombre"
+            class="form-control"
+            required
+            maxlength="20"
+            id="crearNombre"
+          />
+          <small class="text-muted">Máximo 20 caracteres</small>
+        </div>
+        <div class="col mb-2">
+          <label class="form-label">Apellido*</label>
+          <input
+            name="apellido"
+            class="form-control"
+            required
+            maxlength="20"
+            id="crearApellido"
+          />
+          <small class="text-muted">Máximo 20 caracteres</small>
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Email*</label>
+        <input
+          name="email"
+          type="email"
+          class="form-control"
+          required
+          maxlength="50"
+          id="crearEmail"
+        />
+        <small class="text-muted"
+          >Máximo 50 caracteres. Se enviará un email de verificación.</small
+        >
+      </div>
+
+      <div class="row">
+        <div class="col mb-2">
+          <label class="form-label">Contraseña*</label>
+          <div class="input-group">
+            <input
+              name="password"
+              type="password"
+              class="form-control"
+              id="crearPassword"
+              required
+              minlength="8"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary toggle-password"
+              data-target="crearPassword"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          <small class="text-muted"
+            >Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1
+            carácter especial</small
+          >
+        </div>
+        <div class="col mb-2">
+          <label class="form-label">Repetir contraseña*</label>
+          <div class="input-group">
+            <input
+              name="password2"
+              type="password"
+              class="form-control"
+              id="crearPassword2"
+              required
+              minlength="8"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary toggle-password"
+              data-target="crearPassword2"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensajes de error para creación -->
+      <div
+        id="crearPasswordMismatch"
+        class="alert alert-danger d-none"
+        role="alert"
+      >
+        Las contraseñas no coinciden.
+      </div>
+
+      <div
+        id="crearPasswordRequirements"
+        class="alert alert-danger d-none"
+        role="alert"
+      >
+        La contraseña debe tener al menos 8 caracteres, incluyendo 1 mayúscula,
+        1 minúscula, 1 número y 1 carácter especial.
+      </div>
+
+      <div id="crearEmailError" class="alert alert-danger d-none" role="alert">
+        Error al verificar el email. Por favor, intentá nuevamente.
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary close-crear-modal"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-custom" id="btnCrearUsuario">
+          <i class="bi bi-send me-2"></i>Crear y Enviar Verificación
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para Editar Usuario -->
+<div id="modalEditarOverlay" class="modal-overlay d-none">
+  <div
+    class="card shadow p-4"
+    style="width: 90vw; max-width: 700px; max-height: 90vh; overflow: auto"
+  >
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="m-0">Editar Usuario</h5>
+      <button
+        type="button"
+        class="btn btn-close close-editar-modal"
+        aria-label="Cerrar"
+      ></button>
+    </div>
+
+    <form
+      id="formEditarUsuario"
+      method="post"
+      onsubmit="return validarCambioPassword(event)"
+    >
+      <input type="hidden" name="usuario" id="editarUsuario" />
+      <input type="hidden" id="passwordAnteriorHash" value="" />
+
+      <div class="mb-2">
+        <label class="form-label">Nombre de usuario</label>
+        <input class="form-control" id="editarUsuarioDisplay" readonly />
+        <small class="text-muted"
+          >El nombre de usuario no se puede modificar</small
+        >
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Rol*</label>
+        <select name="rol" class="form-select" required id="editarRol">
+          <option value="">Seleccioná un rol</option>
+          <option value="usuario">Usuario</option>
+          <option value="administrador">Administrador</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col mb-2">
+          <label class="form-label">Nombre*</label>
+          <input
+            name="nombre"
+            class="form-control"
+            required
+            maxlength="20"
+            id="editarNombre"
+          />
+          <small class="text-muted">Máximo 20 caracteres</small>
+        </div>
+        <div class="col mb-2">
+          <label class="form-label">Apellido*</label>
+          <input
+            name="apellido"
+            class="form-control"
+            required
+            maxlength="20"
+            id="editarApellido"
+          />
+          <small class="text-muted">Máximo 20 caracteres</small>
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label">Email*</label>
+        <input
+          name="email"
+          type="email"
+          class="form-control"
+          required
+          maxlength="50"
+          id="editarEmail"
+        />
+        <small class="text-muted">Máximo 50 caracteres</small>
+      </div>
+
+      <div class="row">
+        <div class="col mb-2">
+          <label class="form-label">Nueva contraseña</label>
+          <div class="input-group">
+            <input
+              name="password"
+              type="password"
+              class="form-control"
+              id="editarPassword"
+              placeholder="Dejar vacío para mantener la actual"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary toggle-password"
+              data-target="editarPassword"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          <small class="text-muted"
+            >Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1
+            carácter especial</small
+          >
+        </div>
+        <div class="col mb-2">
+          <label class="form-label">Repetir contraseña</label>
+          <div class="input-group">
+            <input
+              name="password2"
+              type="password"
+              class="form-control"
+              id="editarPassword2"
+              placeholder="Repetir nueva contraseña"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary toggle-password"
+              data-target="editarPassword2"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensajes de error para contraseñas -->
+      <div id="passwordError" class="alert alert-danger d-none" role="alert">
+        La nueva contraseña no puede ser igual a la anterior.
+      </div>
+
+      <div id="passwordMismatch" class="alert alert-danger d-none" role="alert">
+        Las contraseñas no coinciden.
+      </div>
+
+      <div
+        id="passwordRequirements"
+        class="alert alert-danger d-none"
+        role="alert"
+      >
+        La contraseña debe tener al menos 8 caracteres, incluyendo 1 mayúscula,
+        1 minúscula, 1 número y 1 carácter especial.
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button
+          type="button"
+          class="btn btn-outline-secondary close-editar-modal"
+        >
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-custom" id="btnActualizar">
+          Actualizar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal para Detalles de Usuario -->
+<div id="modalDetallesOverlay" class="modal-overlay d-none">
+  <div
+    class="card shadow p-4"
+    style="width: 90vw; max-width: 750px; max-height: 90vh; overflow: auto"
+  >
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="m-0">Detalles de Usuario</h5>
+      <button
+        type="button"
+        class="btn btn-close close-detalles-modal"
+        aria-label="Cerrar"
+      ></button>
+    </div>
+
+    <div id="detallesContenido">
+      <div class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Cargando detalles...</p>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary close-detalles-modal"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Reenviar Verificación -->
+<div id="modalReenviarOverlay" class="modal-overlay d-none">
+  <div
+    class="card shadow p-4"
+    style="width: 90vw; max-width: 500px; max-height: 90vh; overflow: auto"
+  >
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="m-0">Reenviar Email de Verificación</h5>
+      <button
+        type="button"
+        class="btn btn-close close-reenviar-modal"
+        aria-label="Cerrar"
+      ></button>
+    </div>
+
+    <div id="reenviarContenido">
+      <div class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Preparando envío...</p>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary close-reenviar-modal"
+      >
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-custom" id="btnReenviarVerificacion">
+        <i class="bi bi-send me-2"></i>Reenviar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container py-3" style="min-height: 90vh">
+  <!-- Encabezado -->
+  <div class="d-flex align-items-center mb-3">
+    <a
+      href="{{ url_for('auth.inicio') }}"
+      class="text-muted me-3"
+      aria-label="Volver"
+    >
       <i class="bi bi-arrow-left fs-4"></i>
     </a>
     <h3 class="m-0">Cuentas</h3>
   </div>
 
-  <!-- Toasts -->
+  <!-- Card principal más arriba -->
   <div
-    class="toast-container position-fixed top-0 end-0 p-3"
-    style="z-index: 1100"
+    class="card shadow p-4 w-100 mx-auto"
+    style="max-width: 1100px; min-height: 85vh"
   >
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %} {% for category, message in messages %}
-    <div
-      class="toast align-items-center text-white bg-{{ 'danger' if category == 'error' else 'success' }} border-0"
-      role="alert"
-      aria-live="assertive"
-      aria-atomic="true"
-    >
-      <div class="d-flex">
-        <div class="toast-body">{{ message }}</div>
-        <button
-          type="button"
-          class="btn-close btn-close-white me-2 m-auto"
-          data-bs-dismiss="toast"
-          aria-label="Close"
-        ></button>
-      </div>
-    </div>
-    {% endfor %} {% endif %} {% endwith %}
-  </div>
-
-  <!-- Modal para Crear Usuario -->
-  <div id="modalCrearOverlay" class="modal-overlay d-none">
-    <div
-      class="card shadow p-4"
-      style="width: 90vw; max-width: 700px; max-height: 90vh; overflow: auto"
-    >
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="m-0">Crear Usuario</h5>
-        <button
-          type="button"
-          class="btn btn-close close-crear-modal"
-          aria-label="Cerrar"
-        ></button>
-      </div>
-      <form
-        action="{{ url_for('cuentas.crear_cuenta') }}"
-        method="post"
-        id="formCrearUsuario"
-        onsubmit="return validarYEnviarCreacion(event)"
-      >
-        <div class="mb-2">
-          <label class="form-label">Nombre de usuario*</label>
+    <!-- Búsqueda Mejorada -->
+    <div class="row">
+      <div class="mb-4 w-100">
+        <div class="position-relative w-100" style="max-width: 400px">
           <input
-            name="usuario"
-            class="form-control"
-            required
-            maxlength="10"
-            id="crearUsuario"
+            type="search"
+            id="inputBusqueda"
+            class="form-control pe-5"
+            placeholder="Buscar por usuario, nombre, apellido o email..."
+            autocomplete="off"
           />
-          <small class="text-muted">Máximo 10 caracteres</small>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Rol*</label>
-          <select name="rol" class="form-select" required id="crearRol">
-            <option value="">Seleccioná un rol</option>
-            <option value="usuario">Usuario</option>
-            <option value="administrador">Administrador</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="col mb-2">
-            <label class="form-label">Nombre*</label>
-            <input
-              name="nombre"
-              class="form-control"
-              required
-              maxlength="20"
-              id="crearNombre"
-            />
-            <small class="text-muted">Máximo 20 caracteres</small>
-          </div>
-          <div class="col mb-2">
-            <label class="form-label">Apellido*</label>
-            <input
-              name="apellido"
-              class="form-control"
-              required
-              maxlength="20"
-              id="crearApellido"
-            />
-            <small class="text-muted">Máximo 20 caracteres</small>
-          </div>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Email*</label>
-          <input
-            name="email"
-            type="email"
-            class="form-control"
-            required
-            maxlength="50"
-            id="crearEmail"
-          />
-          <small class="text-muted"
-            >Máximo 50 caracteres. Se enviará un email de verificación.</small
-          >
-        </div>
-        <div class="row">
-          <div class="col mb-2">
-            <label class="form-label">Contraseña*</label>
-            <div class="input-group">
-              <input
-                name="password"
-                type="password"
-                class="form-control"
-                id="crearPassword"
-                required
-                minlength="8"
-              />
-              <button
-                type="button"
-                class="btn btn-outline-secondary toggle-password"
-                data-target="crearPassword"
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </div>
-            <small class="text-muted"
-              >Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1
-              carácter especial</small
-            >
-          </div>
-          <div class="col mb-2">
-            <label class="form-label">Repetir contraseña*</label>
-            <div class="input-group">
-              <input
-                name="password2"
-                type="password"
-                class="form-control"
-                id="crearPassword2"
-                required
-                minlength="8"
-              />
-              <button
-                type="button"
-                class="btn btn-outline-secondary toggle-password"
-                data-target="crearPassword2"
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mensajes de error -->
-        <div
-          id="crearPasswordMismatch"
-          class="alert alert-danger d-none"
-          role="alert"
-        >
-          Las contraseñas no coinciden.
-        </div>
-        <div
-          id="crearPasswordRequirements"
-          class="alert alert-danger d-none"
-          role="alert"
-        >
-          La contraseña debe tener al menos 8 caracteres, incluyendo 1
-          mayúscula, 1 minúscula, 1 número y 1 carácter especial.
-        </div>
-        <div
-          id="crearEmailError"
-          class="alert alert-danger d-none"
-          role="alert"
-        >
-          Error al verificar el email. Por favor, intentá nuevamente.
-        </div>
-
-        <div class="d-flex justify-content-end gap-2 mt-3">
           <button
             type="button"
-            class="btn btn-outline-secondary close-crear-modal"
+            id="btnBuscar"
+            class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-muted"
           >
-            Cancelar
+            <i class="bi bi-search"></i>
           </button>
-          <button type="submit" class="btn btn-custom" id="btnCrearUsuario">
-            <i class="bi bi-send me-2"></i>Crear y Enviar Verificación
-          </button>
+          <div
+            id="loadingBusqueda"
+            class="position-absolute top-50 end-0 translate-middle-y me-2 d-none"
+          >
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="visually-hidden">Buscando...</span>
+            </div>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal para Editar Usuario -->
-  <div id="modalEditarOverlay" class="modal-overlay d-none">
-    <div
-      class="card shadow p-4"
-      style="width: 90vw; max-width: 700px; max-height: 90vh; overflow: auto"
-    >
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="m-0">Editar Usuario</h5>
-        <button
-          type="button"
-          class="btn btn-close close-editar-modal"
-          aria-label="Cerrar"
-        ></button>
+        <small class="text-muted" id="contadorResultados">
+          Mostrando {{ list_cuentas|length }} cuentas
+        </small>
       </div>
-      <form
-        id="formEditarUsuario"
-        method="post"
-        onsubmit="return validarCambioPassword(event)"
-      >
-        <input type="hidden" name="usuario" id="editarUsuario" />
-        <input type="hidden" id="passwordAnteriorHash" value="" />
-        <div class="mb-2">
-          <label class="form-label">Nombre de usuario</label>
-          <input class="form-control" id="editarUsuarioDisplay" readonly />
-          <small class="text-muted"
-            >El nombre de usuario no se puede modificar</small
-          >
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Rol*</label>
-          <select name="rol" class="form-select" required id="editarRol">
-            <option value="">Seleccioná un rol</option>
-            <option value="usuario">Usuario</option>
-            <option value="administrador">Administrador</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="col mb-2">
-            <label class="form-label">Nombre*</label>
-            <input
-              name="nombre"
-              class="form-control"
-              required
-              maxlength="20"
-              id="editarNombre"
-            />
-            <small class="text-muted">Máximo 20 caracteres</small>
-          </div>
-          <div class="col mb-2">
-            <label class="form-label">Apellido*</label>
-            <input
-              name="apellido"
-              class="form-control"
-              required
-              maxlength="20"
-              id="editarApellido"
-            />
-            <small class="text-muted">Máximo 20 caracteres</small>
-          </div>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Email*</label>
-          <input
-            name="email"
-            type="email"
-            class="form-control"
-            required
-            maxlength="50"
-            id="editarEmail"
-          />
-          <small class="text-muted">Máximo 50 caracteres</small>
-        </div>
-        <div class="row">
-          <div class="col mb-2">
-            <label class="form-label">Nueva contraseña</label>
-            <div class="input-group">
-              <input
-                name="password"
-                type="password"
-                class="form-control"
-                id="editarPassword"
-                placeholder="Dejar vacío para mantener la actual"
-              />
-              <button
-                type="button"
-                class="btn btn-outline-secondary toggle-password"
-                data-target="editarPassword"
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </div>
-            <small class="text-muted"
-              >Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1
-              carácter especial</small
-            >
-          </div>
-          <div class="col mb-2">
-            <label class="form-label">Repetir contraseña</label>
-            <div class="input-group">
-              <input
-                name="password2"
-                type="password"
-                class="form-control"
-                id="editarPassword2"
-                placeholder="Repetir nueva contraseña"
-              />
-              <button
-                type="button"
-                class="btn btn-outline-secondary toggle-password"
-                data-target="editarPassword2"
-              >
-                <i class="bi bi-eye"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div id="passwordError" class="alert alert-danger d-none" role="alert">
-          La nueva contraseña no puede ser igual a la anterior.
-        </div>
-        <div
-          id="passwordMismatch"
-          class="alert alert-danger d-none"
-          role="alert"
-        >
-          Las contraseñas no coinciden.
-        </div>
-        <div
-          id="passwordRequirements"
-          class="alert alert-danger d-none"
-          role="alert"
-        >
-          La contraseña debe tener al menos 8 caracteres, incluyendo 1
-          mayúscula, 1 minúscula, 1 número y 1 carácter especial.
-        </div>
+    </div>
 
-        <div class="d-flex justify-content-end gap-2 mt-3">
+    <!-- Tabla de Cuentas -->
+    <div class="row flex-grow-1 overflow-auto">
+      <div class="col-12">
+        <table class="table table-striped table-hover w-100">
+          <thead>
+            <tr>
+              <th>Nombre Usuario</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyCuentas">
+            {% if list_cuentas %} {% for cuenta in list_cuentas %}
+            <tr>
+              <td>{{ cuenta.nombre_usuario }}</td>
+              <td>{{ cuenta.nombre }}</td>
+              <td>{{ cuenta.apellido }}</td>
+              <td>{{ cuenta.email }}</td>
+              <td>{{ cuenta.rol }}</td>
+              <td class="acciones">
+                <!-- Botón Ver Detalles -->
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none ver-detalles-btn"
+                  data-usuario="{{ cuenta.nombre_usuario }}"
+                  title="Ver detalles"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+
+                <!-- Botón Editar -->
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none ms-2 editar-cuenta-btn"
+                  data-usuario="{{ cuenta.nombre_usuario }}"
+                  title="Editar"
+                >
+                  <i class="bi bi-pencil"></i>
+                </button>
+
+                <!-- Botón Reenviar Verificación -->
+                {% if not cuenta.email_verificado %}
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none ms-2 reenviar-verificacion-btn"
+                  data-usuario="{{ cuenta.nombre_usuario }}"
+                  data-email="{{ cuenta.email }}"
+                  title="Reenviar verificación"
+                >
+                  <i class="bi bi-send"></i>
+                </button>
+                {% endif %}
+
+                <!-- Botón Eliminar -->
+                <form
+                  action="{{ url_for('cuentas.eliminar_cuenta', nombre_usuario=cuenta.nombre_usuario) }}"
+                  method="POST"
+                  style="display: inline"
+                  class="ms-2"
+                  onsubmit="return confirm('¿Estás seguro de eliminar la cuenta de {{ cuenta.nombre_usuario }}?');"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-link p-0 text-decoration-none"
+                    title="Eliminar"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %} {% else %}
+            <tr>
+              <td colspan="7" class="text-center">No hay usuarios cargados</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="row">
+      <div class="col-12 d-flex justify-content-center align-items-center mt-3">
+        <div class="d-flex flex-row gap-4">
           <button
             type="button"
-            class="btn btn-outline-secondary close-editar-modal"
+            id="openCrearModalBtn"
+            class="btn btn-custom px-4 py-2"
           >
-            Cancelar
+            <i class="bi bi-plus-circle me-2"></i>Añadir Usuario
           </button>
-          <button type="submit" class="btn btn-custom" id="btnActualizar">
-            Actualizar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal para Detalles de Usuario -->
-  <div id="modalDetallesOverlay" class="modal-overlay d-none">
-    <div
-      class="card shadow p-4"
-      style="width: 90vw; max-width: 600px; max-height: 90vh; overflow: auto"
-    >
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="m-0">Detalles de Usuario</h5>
-        <button
-          type="button"
-          class="btn btn-close close-detalles-modal"
-          aria-label="Cerrar"
-        ></button>
-      </div>
-      <div id="detallesContenido">
-        <div class="text-center">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-2">Cargando detalles...</p>
-        </div>
-      </div>
-      <div class="d-flex justify-content-end gap-2 mt-3">
-        <button
-          type="button"
-          class="btn btn-outline-secondary close-detalles-modal"
-        >
-          Cerrar
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal para Reenviar Verificación -->
-  <div id="modalReenviarOverlay" class="modal-overlay d-none">
-    <div
-      class="card shadow p-4"
-      style="width: 90vw; max-width: 500px; max-height: 90vh; overflow: auto"
-    >
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="m-0">Reenviar Email de Verificación</h5>
-        <button
-          type="button"
-          class="btn btn-close close-reenviar-modal"
-          aria-label="Cerrar"
-        ></button>
-      </div>
-      <div id="reenviarContenido">
-        <div class="text-center">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-2">Preparando envío...</p>
-        </div>
-      </div>
-      <div class="d-flex justify-content-end gap-2 mt-3">
-        <button
-          type="button"
-          class="btn btn-outline-secondary close-reenviar-modal"
-        >
-          Cancelar
-        </button>
-        <button
-          type="button"
-          class="btn btn-custom"
-          id="btnReenviarVerificacion"
-        >
-          <i class="bi bi-send me-2"></i>Reenviar
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Card principal con tabla -->
-  <div class="d-flex justify-content-center align-items-center">
-    <div
-      class="card d-flex flex-column shadow p-4 w-100"
-      style="width: 80vw; max-width: 1100px; height: 90vh"
-    >
-      <!-- Búsqueda Mejorada -->
-      <div class="row">
-        <div class="mb-4 w-100">
-          <div class="position-relative w-100" style="max-width: 400px">
-            <input
-              type="search"
-              id="inputBusqueda"
-              class="form-control pe-5"
-              placeholder="Buscar por usuario, nombre, apellido o email..."
-              autocomplete="off"
-            />
-            <button
-              type="button"
-              id="btnBuscar"
-              class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-0 text-muted"
-            >
-              <i class="bi bi-search"></i>
-            </button>
-            <div
-              id="loadingBusqueda"
-              class="position-absolute top-50 end-0 translate-middle-y me-2 d-none"
-            >
-              <div class="spinner-border spinner-border-sm" role="status">
-                <span class="visually-hidden">Buscando...</span>
-              </div>
-            </div>
-          </div>
-          <small class="text-muted" id="contadorResultados"
-            >Mostrando {{ list_cuentas|length }} cuentas</small
+          <a
+            href="{{url_for('cuentas.cuentas') }}"
+            class="btn btn-outline-secondary px-4 py-2"
           >
-        </div>
-      </div>
-
-      <!-- Tabla de Cuentas -->
-      <div class="row flex-grow-1 overflow-auto">
-        <div class="col-12">
-          <table class="table table-striped table-hover w-100">
-            <thead>
-              <tr>
-                <th>Nombre Usuario</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyCuentas">
-              {% if list_cuentas %} {% for cuenta in list_cuentas %}
-              <tr>
-                <td>{{ cuenta.nombre_usuario }}</td>
-                <td>{{ cuenta.nombre }}</td>
-                <td>{{ cuenta.apellido }}</td>
-                <td>{{ cuenta.email }}</td>
-                <td>{{ cuenta.rol }}</td>
-                <td class="acciones">
-                  <button
-                    type="button"
-                    class="btn btn-link p-0 text-decoration-none ver-detalles-btn"
-                    data-usuario="{{ cuenta.nombre_usuario }}"
-                    title="Ver detalles"
-                  >
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-link p-0 text-decoration-none ms-2 editar-cuenta-btn"
-                    data-usuario="{{ cuenta.nombre_usuario }}"
-                    title="Editar"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  {% if not cuenta.email_verificado %}
-                  <button
-                    type="button"
-                    class="btn btn-link p-0 text-decoration-none ms-2 reenviar-verificacion-btn"
-                    data-usuario="{{ cuenta.nombre_usuario }}"
-                    data-email="{{ cuenta.email }}"
-                    title="Reenviar verificación"
-                  >
-                    <i class="bi bi-send"></i>
-                  </button>
-                  {% endif %}
-                  <form
-                    action="{{ url_for('cuentas.eliminar_cuenta', nombre_usuario=cuenta.nombre_usuario) }}"
-                    method="POST"
-                    style="display: inline"
-                    class="ms-2"
-                    onsubmit="return confirm('¿Estás seguro de eliminar la cuenta de {{ cuenta.nombre_usuario }}?');"
-                  >
-                    <button
-                      type="submit"
-                      class="btn btn-link p-0 text-decoration-none"
-                      title="Eliminar"
-                    >
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </form>
-                </td>
-              </tr>
-              {% endfor %} {% else %}
-              <tr>
-                <td colspan="7" class="text-center">
-                  No hay usuarios cargados
-                </td>
-              </tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Botones inferiores -->
-      <div class="row">
-        <div
-          class="col-12 d-flex justify-content-center align-items-center mt-3"
-        >
-          <div class="d-flex flex-row gap-4">
-            <button
-              type="button"
-              id="openCrearModalBtn"
-              class="btn btn-custom px-4 py-2"
-            >
-              <i class="bi bi-plus-circle me-2"></i>Añadir Usuario
-            </button>
-            <a href="/" class="btn btn-outline-secondary px-4 py-2">
-              <i class="bi bi-arrow-left me-2"></i>Volver
-            </a>
-          </div>
+            <i class="bi bi-arrow-left me-2"></i>Volver
+          </a>
         </div>
       </div>
     </div>

@@ -23,3 +23,8 @@
   min-height: 0; /* permite que flex haga su trabajo */
   overflow: hidden;
 }
+.btn-custom {
+  background-color: #b90603;
+  color: white;
+  border-radius: 6px;
+}

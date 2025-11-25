@@ -193,7 +193,7 @@ class AuditoriaPago(db.Model):
         return f'<AuditoriaPago Pago {self.id_pago} - Usuario {self.nombre_usuario}>'
 
 # Agregar estos campos después de password_hash en la clase Cuenta
-    rol = db.Column(db.String(20), nullable=False, default='usuario')
+   # rol = db.Column(db.String(20), nullable=False, default='usuario')
     email_verificado = db.Column(db.Boolean, nullable=False, default=False)
     fecha_verificacion = db.Column(db.DateTime, nullable=True)
 

@@ -114,21 +114,34 @@ def pagos(id_evento):
         return render_template("pagos.html", mensaje=f"Error al cargar eventos {str(e)}")
 
 
-@ingresos_bp.route("/pagos/eliminar/<int:id_pago>", methods = ["GET","POST"])
+@ingresos_bp.route("/pagos/eliminar/<int:id_pago>", methods=["GET","POST"])
 def eliminar_pago(id_pago):
     try:
-        pago = Pago.query.get(id_pago)
+        # Solo seleccionar columnas existentes
+        pago = db.session.query(
+            Pago.id_pago,
+            Pago.id_evento,
+            Pago.monto_pago,
+            Pago.fecha,
+            Pago.usuario_creacion
+        ).filter(Pago.id_pago == id_pago).first()
+
         if not pago:
-            flash("No se encontro el pago")
-            return redirect(url_for("ingresos.html"))
+            flash("No se encontró el pago")
+            return redirect(url_for("ingresos.ingresos"))
 
-        db.session.delete(pago)
-        db.session.commit()
+        # Para borrar, necesitamos un objeto 'Pago' real, así que:
+        pago_obj = Pago.query.get(id_pago)
+        if pago_obj:
+            db.session.delete(pago_obj)
+            db.session.commit()
+            flash("Pago eliminado correctamente")
+        else:
+            flash("No se pudo eliminar el pago")
 
-        flash("Pago eliminado correctamente")
         return redirect(url_for("ingresos.ingresos"))
 
     except Exception as e:
         db.session.rollback()
         flash(f"Error al eliminar pago: {str(e)}")
-        return redirect(url_for("ingresos.html"))
+        return redirect(url_for("ingresos.ingresos"))
