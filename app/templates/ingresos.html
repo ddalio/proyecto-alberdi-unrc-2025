@@ -63,8 +63,9 @@
                     <td class="text-end">{{ evento.monto_total | float | round(2) }}</td>
                     <td class="text-end">{{ evento.total_pagado | float | round(2) }}</td>
                     <td class="acciones">
-                      <a href="{{ url_for('ingresos.pagos', id_evento=evento.id_evento) }}" class="me-2">💰</a>
-                      </form>
+                      <a href="{{ url_for('ingresos.pagos', id_evento=evento.id_evento) }}" class="me-2" title="Ver pagos">
+                        <i class="bi bi-cash-coin"></i>
+                      </a>
                     </td>
                   </tr>
                   {% else %}
