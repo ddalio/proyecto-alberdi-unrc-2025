@@ -291,11 +291,12 @@ content %}
                     <td>
                       {{ evento.cliente.nombre }} {{ evento.cliente.apellido }}
                     </td>
-                    <td class="acciones">
+                     <td class="acciones">
                       <a
                         href="{{ url_for('eventos_bp.detalles_evento', id_evento=evento.id_evento) }}"
                         class="me-2"
-                        >📄</a
+                        title="Ver detalles"
+                        ><i class="bi bi-file-text"></i></a
                       >
 
                       {% if current_user.es_administrador() %}
@@ -303,6 +304,7 @@ content %}
                       <button
                         type="button"
                         class="me-2 btn btn-link p-0 openAddPaymentBtn"
+                        title="Agregar pago"
                         data-action="{{ url_for('ingresos.agregar_pago', id_evento=evento.id_evento) }}"
                         data-id="{{ evento.id_evento }}"
                         data-descripcion="{{ evento.descripcion | e }}"
@@ -315,14 +317,16 @@ content %}
                         data-responsable-nombre="{{ evento.responsable_apertura.nombre if evento.responsable_apertura is defined else '' }}"
                         data-responsable-apellido="{{ evento.responsable_apertura.apellido if evento.responsable_apertura is defined else '' }}"
                       >
-                        💳
+                        <i class="bi bi-credit-card"></i>
                       </button>
 
                       <a
                         href="{{ url_for('eventos_bp.editar_evento', id_evento=evento.id_evento) }}"
                         class="me-2"
-                        >✏️</a
+                        title="Editar evento"
+                        ><i class="bi bi-pencil"></i></a
                       >
+                      
                       <form
                         action="{{ url_for('eventos_bp.eliminar_evento', id_evento=evento.id_evento) }}"
                         method="POST"
@@ -331,9 +335,10 @@ content %}
                         <button
                           type="submit"
                           class="btn btn-link p-0 text-danger"
+                          title="Eliminar evento"
                           onclick="return confirm('¿Seguro que querés eliminar este evento?')"
                         >
-                          🗑️
+                          <i class="bi bi-trash"></i>
                         </button>
                       </form>
                       {% endif %}
