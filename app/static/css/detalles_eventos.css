@@ -1,0 +1,64 @@
+body,
+html {
+  height: 100%;
+  overflow: hidden; /* evita scroll general */
+}
+
+.container {
+  padding-top: 5px !important;
+}
+
+h2 {
+  font-size: 1.3rem !important;
+  margin: 0 !important;
+}
+
+h5 {
+  font-size: 1rem !important;
+  margin-bottom: 5px !important;
+}
+
+label {
+  font-size: 0.75rem !important;
+  margin-bottom: 2px !important;
+}
+
+input.form-control,
+textarea.form-control,
+select.form-control {
+  padding: 2px 6px !important;
+  height: 28px !important;
+  font-size: 0.8rem !important;
+}
+
+textarea.form-control {
+  height: 40px !important;
+}
+
+.section-card {
+  padding: 8px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 6px !important;
+  margin-bottom: 6px !important;
+}
+
+.row.g-4,
+.row.g-3,
+.row.g-2 {
+  --bs-gutter-y: 0.3rem !important;
+  --bs-gutter-x: 0.3rem !important;
+}
+
+.card-body {
+  padding: 10px !important;
+}
+
+.btn-lg {
+  padding: 4px 10px !important;
+  font-size: 0.9rem !important;
+}
+
+.card-main {
+  max-height: 85vh;
+  overflow: hidden;
+}

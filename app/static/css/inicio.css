@@ -1,0 +1,25 @@
+.calendar-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.calendar-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.top-buttons,
+.bottom-buttons {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem; /* reducimos padding para evitar que ocupen demasiado */
+}
+
+#calendar {
+  flex: 1;
+  min-height: 0; /* permite que flex haga su trabajo */
+  overflow: hidden;
+}

@@ -1,145 +1,252 @@
-{% extends 'base.html' %}
-{% block title %} Crear Nuevo Evento {% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %} Crear Nuevo Evento {% endblock %} {%
+block content %}
 
-<div class="container py-3">
-  <div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('eventos_bp.eventos') }}" class="text-muted me-3" aria-label="Volver">
+<div class="container-fluid py-4" style="max-width: 1100px; margin: 0 auto">
+  <div class="d-flex align-items-center mb-2">
+    <a
+      href="{{ url_for('eventos_bp.eventos') }}"
+      class="text-muted me-3"
+      aria-label="Volver"
+    >
       <i class="bi bi-arrow-left fs-4"></i>
     </a>
-    <h2 class="m-0">Crear Nuevo Evento</h2>
+    <h3 class="m-0">Crear Nuevo Evento</h3>
   </div>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} mt-2">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div class="alert alert-{{ category }} mt-2 py-2">{{ message }}</div>
+  {% endfor %} {% endif %} {% endwith %}
 
   <div class="d-flex justify-content-center">
-    <div class="card card-main w-100" style="max-width: 1100px">
-      <div class="card-body">
-        <form action="{{ url_for('eventos_bp.agregar_evento') }}" method="POST" class="row g-4">
-
-          <!-- COLUMNA PRINCIPAL IZQUIERDA -->
+    <div class="card card-main w-100 mt-2">
+      <div class="card-body p-3">
+        <form
+          action="{{ url_for('eventos_bp.agregar_evento') }}"
+          method="POST"
+          class="row gx-3 gy-2"
+        >
+          <!-- IZQUIERDA -->
           <div class="col-md-7">
-            <div class="section-card">
-              <h5 class="mb-3">Datos del Evento</h5>
+            <div class="section-card p-3">
+              <h5 class="mb-2 fs-5">Datos del Evento</h5>
 
-              <div class="row g-3">
+              <div class="row gx-2 gy-2">
                 <div class="col-12">
-                  <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
-                  <input id="descripcion" type="text" name="descripcion" class="form-control" required />
+                  <label for="descripcion" class="form-label mb-1"
+                    >Descripción <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="descripcion"
+                    type="text"
+                    name="descripcion"
+                    class="form-control form-control-sm"
+                    required
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="fecha_inicio" class="form-label">Fecha Inicio <span class="text-danger">*</span></label>
-                  <input id="fecha_inicio" type="date" name="fecha_inicio" class="form-control" required />
+                  <label for="fecha_inicio" class="form-label mb-1"
+                    >Fecha Inicio <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="fecha_inicio"
+                    type="date"
+                    name="fecha_inicio"
+                    class="form-control form-control-sm"
+                    required
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="hora_inicio" class="form-label">Hora Inicio</label>
-                  <input id="hora_inicio" type="time" name="hora_inicio" class="form-control" />
+                  <label for="hora_inicio" class="form-label mb-1"
+                    >Hora Inicio</label
+                  >
+                  <input
+                    id="hora_inicio"
+                    type="time"
+                    name="hora_inicio"
+                    class="form-control form-control-sm"
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="fecha_fin" class="form-label">Fecha Fin <span class="text-danger">*</span></label>
-                  <input id="fecha_fin" type="date" name="fecha_fin" class="form-control" required />
+                  <label for="fecha_fin" class="form-label mb-1"
+                    >Fecha Fin <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="fecha_fin"
+                    type="date"
+                    name="fecha_fin"
+                    class="form-control form-control-sm"
+                    required
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="hora_fin" class="form-label">Hora Final</label>
-                  <input id="hora_fin" type="time" name="hora_fin" class="form-control" />
+                  <label for="hora_fin" class="form-label mb-1"
+                    >Hora Final</label
+                  >
+                  <input
+                    id="hora_fin"
+                    type="time"
+                    name="hora_fin"
+                    class="form-control form-control-sm"
+                  />
                 </div>
 
                 <div class="col-12">
-                  <label for="observaciones" class="form-label">Observaciones</label>
-                  <textarea id="observaciones" name="observaciones" class="form-control" rows="3"></textarea>
+                  <label for="observaciones" class="form-label mb-1"
+                    >Observaciones</label
+                  >
+                  <textarea
+                    id="observaciones"
+                    name="observaciones"
+                    class="form-control form-control-sm"
+                    rows="2"
+                  ></textarea>
                 </div>
 
                 <div class="col-md-6">
-                  <label for="monto_total" class="form-label">Monto Total <span class="text-danger">*</span></label>
-                  <input id="monto_total" type="number" step="0.01" name="monto_total" class="form-control" required />
+                  <label for="monto_total" class="form-label mb-1"
+                    >Monto Total <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="monto_total"
+                    type="number"
+                    step="0.01"
+                    name="monto_total"
+                    class="form-control form-control-sm"
+                    required
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          
-         <div class="col-md-5">
+          <!-- DERECHA -->
+          <div class="col-md-5">
+            <div class="section-card p-3">
+              <h5 class="mb-2 fs-5">Datos del Cliente</h5>
 
-            
-            <div class="section-card pb-2">
-              <h5 class="mb-3">Datos del Cliente</h5>
-
-              <div class="row g-3">
+              <div class="row gx-2 gy-2">
                 <div class="col-md-4">
-                  <label for="dni" class="form-label">DNI <span class="text-danger">*</span></label>
-                  <input id="dni" type="text" name="dni" class="form-control" required />
+                  <label for="dni" class="form-label mb-1"
+                    >DNI <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="dni"
+                    type="text"
+                    name="dni"
+                    class="form-control form-control-sm"
+                    required
+                  />
                 </div>
 
                 <div class="col-md-4">
-                  <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
-                  <input id="nombre" type="text" name="nombre" class="form-control" required />
+                  <label for="nombre" class="form-label mb-1"
+                    >Nombre <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="nombre"
+                    type="text"
+                    name="nombre"
+                    class="form-control form-control-sm"
+                    required
+                  />
                 </div>
 
                 <div class="col-md-4">
-                  <label for="apellido" class="form-label">Apellido <span class="text-danger">*</span></label>
-                  <input id="apellido" type="text" name="apellido" class="form-control" required />
+                  <label for="apellido" class="form-label mb-1"
+                    >Apellido <span class="text-danger">*</span></label
+                  >
+                  <input
+                    id="apellido"
+                    type="text"
+                    name="apellido"
+                    class="form-control form-control-sm"
+                    required
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="telefono" class="form-label">Teléfono</label>
-                  <input id="telefono" type="text" name="telefono" class="form-control" />
+                  <label for="telefono" class="form-label mb-1">Teléfono</label>
+                  <input
+                    id="telefono"
+                    type="text"
+                    name="telefono"
+                    class="form-control form-control-sm"
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label for="institucion" class="form-label">Institución</label>
-                  <input id="institucion" type="text" name="institucion" class="form-control" />
+                  <label for="institucion" class="form-label mb-1"
+                    >Institución</label
+                  >
+                  <input
+                    id="institucion"
+                    type="text"
+                    name="institucion"
+                    class="form-control form-control-sm"
+                  />
                 </div>
               </div>
             </div>
 
-            
-            <div class="mt-4"></div>
+            <div class="section-card p-3 mt-3">
+              <h5 class="mb-2 fs-5">Responsables de la Llave</h5>
 
-            
-            <div class="section-card">
-              <h5 class="mb-3">Responsables de la Llave</h5>
-
-              <div class="row g-3">
+              <div class="row gx-2 gy-2">
                 <div class="col-md-6">
-                  <label class="form-label">Nombre (Apertura)</label>
-                  <input type="text" name="nombre_apertura" class="form-control">
+                  <label class="form-label mb-1">Nombre (Apertura)</label>
+                  <input
+                    type="text"
+                    name="nombre_apertura"
+                    class="form-control form-control-sm"
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Apellido (Apertura)</label>
-                  <input type="text" name="apellido_apertura" class="form-control">
+                  <label class="form-label mb-1">Apellido (Apertura)</label>
+                  <input
+                    type="text"
+                    name="apellido_apertura"
+                    class="form-control form-control-sm"
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Nombre (Cierre)</label>
-                  <input type="text" name="nombre_cierre" class="form-control">
+                  <label class="form-label mb-1">Nombre (Cierre)</label>
+                  <input
+                    type="text"
+                    name="nombre_cierre"
+                    class="form-control form-control-sm"
+                  />
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Apellido (Cierre)</label>
-                  <input type="text" name="apellido_cierre" class="form-control">
+                  <label class="form-label mb-1">Apellido (Cierre)</label>
+                  <input
+                    type="text"
+                    name="apellido_cierre"
+                    class="form-control form-control-sm"
+                  />
                 </div>
               </div>
             </div>
-
           </div>
 
-          
-          <div class="col-12 d-flex justify-content-end gap-2 mt-2">
-            <a href="{{ url_for('eventos_bp.eventos') }}" class="btn btn-outline-secondary btn-lg">Cancelar</a>
-            <button type="submit" class="btn btn-custom btn-lg">Aceptar</button>
+          <!-- BOTONES -->
+          <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+            <a
+              href="{{ url_for('eventos_bp.eventos') }}"
+              class="btn btn-outline-secondary btn-sm px-4"
+              >Cancelar</a
+            >
+            <button type="submit" class="btn btn-custom btn-sm px-4">
+              Aceptar
+            </button>
           </div>
-
         </form>
       </div>
     </div>

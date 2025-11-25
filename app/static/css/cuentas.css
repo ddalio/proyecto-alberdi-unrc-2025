@@ -28,7 +28,6 @@
   font-size: 1.1rem;
 }
 
-/* Estilos para los mensajes de error de contraseña */
 .alert-danger {
   margin-top: 10px;
   margin-bottom: 0;
@@ -43,4 +42,54 @@
 
 .badge {
   font-size: 0.75em;
+}
+
+html,
+body {
+  overflow-x: hidden !important;
+}
+
+.btn-custom {
+  background-color: #b90603;
+  color: white;
+  border-radius: 6px;
+}
+
+.btn-custom:hover {
+  background-color: #b90603;
+}
+
+#calendar {
+  min-height: 400px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.modal-card {
+  width: 95vw !important;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.calendar-page {
+  width: 100%;
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 576px) {
+  .btn {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .modal-header h5 {
+    font-size: 1rem;
+  }
+
+  .modal-body p {
+    font-size: 0.9rem;
+    word-wrap: break-word;
+  }
 }

@@ -1,5 +1,10 @@
 {% extends 'base.html' %} {% block title %} Pagina de inicio {% endblock %} {%
-block content %}
+block styles %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/inicio.css') }}"
+/>
+{% endblock %} {%block content %}
 <div class="calendar-page">
   <div class="calendar-container">
     <!-- Row superior -->
@@ -98,6 +103,7 @@ block content %}
     </div>
   </div>
 </div>
-<script src="{{ url_for('static', filename='js/inicio.js') }}"></script>
 
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='js/inicio.js') }}"></script>
 {% endblock %}

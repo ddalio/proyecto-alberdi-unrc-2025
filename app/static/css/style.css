@@ -4,10 +4,6 @@
   --color-btn: #ec221f;
 }
 
-h1 {
-  color: var(--color-primario);
-}
-
 html,
 body {
   height: 100%;
@@ -23,34 +19,34 @@ body {
   padding: 0;
 }
 
-/* Layout wrapper that controla la altura de la vista */
+/* Layout principal con sidebar */
 .layout-with-sidebar {
   display: flex;
-  align-items: stretch; /* hace que sidebar y main tengan la misma altura disponible */
-  min-height: 100vh; /* ocupa al menos la altura de la ventana */
+  align-items: stretch;
+  min-height: 100vh;
 }
 
-/* Sidebar: no forzar más altura, permitir scroll interno si hace falta */
+/* Sidebar */
 .sidebar {
-  width: 70px; /* ancho fijo, antes estaba inline */
+  width: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  height: auto; /* no forzar 100vh aquí */
-  overflow-y: auto; /* solo hace scroll si el contenido excede la altura del viewport */
+  height: auto;
+  overflow-y: auto;
 }
 
-/* Main content (flex child) */
+/* Main content */
 .main-content {
   flex: 1;
-  min-height: 0; /* importante para que los hijos con overflow funcionen correctamente */
+  min-height: 0;
   background: transparent;
   padding: 0;
 }
 
-/* botones y estilos existentes */
+/* Botones */
 .btn-custom {
   background-color: var(--color-btn);
   color: var(--color-hover);
@@ -60,7 +56,7 @@ body {
 
 .btn-custom:hover,
 .btn-custom:focus {
-  background-color: #a00502; /* tono más oscuro al hacer hover */
+  background-color: #a00502;
   color: var(--color-hover);
 }
 
@@ -74,7 +70,7 @@ body {
   padding: 8px 8px;
 }
 
-/* Estilos para detalles_evento */
+/* Estilos usados en varios módulos (no exclusivos de Inicio) */
 .detalle-label {
   font-weight: 600;
   color: #555;
@@ -90,37 +86,20 @@ body {
   color: #222;
 }
 
-/* Ajustes para la tarjeta principal en detalles */
 .card-main {
-  /* ya existe; refinar espacio interno para esta vista */
   padding: 1rem;
 }
 
-/* Badges en botones */
 .btn .badge {
   font-weight: 600;
   font-size: 0.82rem;
 }
 
-/* Asegurar consistencia en móviles */
-@media (max-width: 767.98px) {
-  .detalle-value {
-    padding: 0.5rem;
-  }
-  .card-main {
-    padding: 0.75rem;
-  }
-  .d-flex.justify-content-end {
-    flex-direction: column-reverse;
-    gap: 0.5rem;
-  }
-}
-
 /* ============================================
-   RESPONSIVE LAYOUT - MOBILE
+   RESPONSIVE LAYOUT
    ============================================ */
 
-/* Mobile: Sidebar se convierte en bottom navbar */
+/* Mobile: Sidebar como navbar inferior */
 @media (max-width: 768px) {
   .layout-with-sidebar {
     flex-direction: column;
@@ -151,21 +130,15 @@ body {
     justify-content: center;
   }
 
-  .sidebar .nav-item.mt-auto {
-    margin-top: 0 !important;
-  }
-
-  /* Ocultar el icono de menú hamburguesa en mobile */
   .sidebar .nav-item:first-child {
     display: none;
   }
 
   .main-content {
-    margin-bottom: 70px; /* Espacio para el navbar inferior */
+    margin-bottom: 70px;
     padding-bottom: 1rem;
   }
 
-  /* Active nav en mobile: borde superior */
   .active-nav {
     background: transparent;
     border-radius: 0;
@@ -174,50 +147,25 @@ body {
   }
 }
 
-/* Grid de formularios en mobile */
+/* Tablas responsive */
 @media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto !important;
-    gap: 1rem !important;
-  }
-
-  .form-grid > div:first-child {
-    grid-row: auto !important;
-  }
-
-  /* Cards con menos padding en mobile */
-  .card-body.p-4 {
-    padding: 1rem !important;
-  }
-
-  /* Botones más pequeños en mobile */
-  .btn.px-5 {
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-  }
-}
-
-@media (max-width: 768px) {
-  /* Hacer scroll horizontal en tablas */
   .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Reducir padding de celdas */
   .table td,
   .table th {
     padding: 0.5rem;
     font-size: 0.875rem;
   }
 
-  /* Ocultar columnas menos importantes en mobile si hace falta */
   .table .d-none-mobile {
     display: none;
   }
 }
 
+/* Modal responsive */
 @media (max-width: 768px) {
   #modalOverlay .card {
     width: 95vw !important;
@@ -230,7 +178,7 @@ body {
   }
 }
 
-/* Espaciado más compacto en mobile */
+/* Espaciados responsive */
 @media (max-width: 768px) {
   .container {
     padding-left: 1rem;
@@ -248,7 +196,6 @@ body {
     font-size: 1.1rem;
   }
 
-  /* Gap más pequeño en flex containers */
   .gap-3 {
     gap: 0.75rem !important;
   }
