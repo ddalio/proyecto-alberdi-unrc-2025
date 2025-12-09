@@ -1,0 +1,23 @@
+Proyecto Alberdi – Instrucciones de deploy
+
+1. Requisitos
+   - Tener Docker y Docker Compose instalados.
+
+2. Inicio rápido
+   docker compose up --build
+   La aplicación quedará disponible en:
+   http://localhost:5000
+
+3. Credenciales
+   Usuario: admin1@alberdi.com
+   Contraseña: Admin1231!
+
+4. Estructura
+   - run.py → entrypoint (archivo “index” solicitado)
+   - docker-compose.yml → configuración del servicio
+   - Dockerfile → construcción de la imagen
+   - instance/alberdi.db → base de datos SQLite
+   - app/ → aplicación Flask completa
+
+5. Para detener la app
+   Ctrl + C
