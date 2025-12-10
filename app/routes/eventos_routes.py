@@ -14,45 +14,59 @@ def eventos_pdf():
     campo = request.args.get("campo")
     valor = request.args.get("valor")
 
-    query = Evento.query
-
-    if campo and valor:
-
-        if campo == "dni":
-            query = query.filter(Evento.dni.ilike(f"%{valor}%"))
-
-        elif campo == "descripcion":
-            query = query.filter(Evento.descripcion.ilike(f"%{valor}%"))
-
-        elif campo == "nombre":
-            query = query.filter(Cliente.nombre.ilike(f"%{valor}%"))
-
-    eventos = query.all()
+    eventos = busqueda_por_campo(campo, valor)
 
     buffer = BytesIO()
     p = canvas.Canvas(buffer)
     
+    # --- CONFIGURACIÓN DE ESPACIOS ---
+    MARGEN_IZQUIERDO = 50
+    UMBRAL_NUEVA_PAGINA = 80  # Si 'y' está por debajo de 80, salta de página.
+    SALTO_LINEA = 15          # Espacio vertical entre líneas del mismo evento
+    ESPACIO_ENTRE_EVENTOS = 20 # Espacio vertical entre eventos diferentes
+    SALTO_TOTAL_EVENTO = SALTO_LINEA + ESPACIO_ENTRE_EVENTOS # 35
+    # ---------------------------------
+
     p.setFont("Helvetica-Bold", 14)
-    p.drawString(50, 820, f"Listado de eventos")
+    p.drawString(MARGEN_IZQUIERDO, 820, f"Listado de eventos")
 
     p.setFont("Helvetica", 12)
-    y = 790
+    y = 790 # Comienza el contenido aquí
 
     for e in eventos:
-        texto = (
-            f"Descripción: {e.descripcion} | Fecha: {e.fecha_inicio.strftime('%d-%m-%Y')} "
-            f"| Vecino: {e.cliente.nombre} {e.cliente.apellido} "
-            f'| Hora: {e.fecha_inicio.strftime("%H:%M")} a {e.fecha_fin.strftime("%H:%M")}'
+        
+        # 1. VERIFICAR SALTO DE PÁGINA ANTES DE DIBUJAR
+        # Se asegura de que haya espacio suficiente para las dos líneas del evento.
+        if y < UMBRAL_NUEVA_PAGINA: 
+            p.showPage()
+            p.setFont("Helvetica-Bold", 14)
+            p.drawString(MARGEN_IZQUIERDO, 820, f"Listado de eventos (Continuación)")
+            p.setFont("Helvetica", 12)
+            y = 790
 
+        # --- LÍNEA 1 (Información principal) ---
+        # Separamos la información más extensa en la primera línea.
+        texto1 = (
+            f"Descripción: {e.descripcion} | "
+            f"Vecino: {e.cliente.nombre} {e.cliente.apellido}"
+        )
+        
+        p.drawString(MARGEN_IZQUIERDO, y, texto1)
+
+        # Mover la posición Y para la segunda línea
+        y -= SALTO_LINEA
+
+        # --- LÍNEA 2 (Detalles de tiempo y monto) ---
+        texto2 = (
+            f"Fecha: {e.fecha_inicio.strftime('%d-%m-%Y')} | "
+            f'Hora: {e.fecha_inicio.strftime("%H:%M")} a {e.fecha_fin.strftime("%H:%M")} | '
+            f'Monto: ${e.monto_total}' # Asumiendo que existe el campo monto_total
         )
 
-        p.drawString(50, y, texto)
-        y -= 20
+        p.drawString(MARGEN_IZQUIERDO, y, texto2)
 
-        if y < 50:
-            p.showPage()
-            p.setFont("Helvetica", 12)
-            y = 800
+        # Mover la posición Y para el ESPACIO entre este evento y el siguiente
+        y -= ESPACIO_ENTRE_EVENTOS
 
     p.showPage()
     p.save()
@@ -341,33 +355,9 @@ def buscar_evento_campo():
         valor = request.form.get("valor")
 
         if not campo or not valor:
-            flash("Por favor, completá un campo y un valor de búsqueda.", "warning")
-            return redirect(url_for("eventos_bp.eventos"))
+            raise Exception("Por favor, completá un campo y un valor de búsqueda.", "warning")
 
-        query = Evento.query
-
-        # Unimos Evento con Cliente solo si la búsqueda lo necesita
-        if campo == "nombre":
-            query = query.join(Cliente)
-
-        # --- Filtros según el campo elegido ---
-        if campo == "dni":
-            query = query.filter(Evento.dni.ilike(f"%{valor}%"))
-
-        elif campo == "descripcion":
-            query = query.filter(Evento.descripcion.ilike(f"%{valor}%"))
-
-        elif campo == "nombre":
-            query = query.filter(Cliente.nombre.ilike(f"%{valor}%"))
-
-        elif campo == "id_evento":
-            # Si se ingresa un ID, buscamos por coincidencia exacta
-            query = query.filter(Evento.id_evento == valor)
-
-        else:
-            raise Exception("Campo de búsqueda no válido.")
-
-        resultados = query.all()
+        resultados = busqueda_por_campo(campo, valor)
 
         if not resultados:
             flash("No se encontraron eventos con esos criterios.", "info")
@@ -377,6 +367,31 @@ def buscar_evento_campo():
     except Exception as e:
         flash(f" Error al buscar eventos: {str(e)}", "danger")
         return redirect(url_for("eventos_bp.eventos"))
+    
+def busqueda_por_campo(campo, valor):
+    query = Evento.query
+
+    # Unimos Evento con Cliente solo si la búsqueda lo necesita
+    if campo == "nombre":
+        query = query.join(Cliente)
+
+    # --- Filtros según el campo elegido ---
+    if campo == "dni":
+        query = query.filter(Evento.dni.ilike(f"%{valor}%"))
+
+    elif campo == "descripcion":
+        query = query.filter(Evento.descripcion.ilike(f"%{valor}%"))
+
+    elif campo == "nombre":
+        query = query.filter(Cliente.nombre.ilike(f"%{valor}%"))
+
+    elif campo == "id_evento":
+        # Si se ingresa un ID, buscamos por coincidencia exacta
+        query = query.filter(Evento.id_evento == valor)
+    else:
+        raise Exception("Campo de búsqueda no válido.")
+     
+    return query.all()
         
 @eventos_bp.route("/eliminar/<int:id_evento>", methods=["POST"])
 def eliminar_evento(id_evento):
