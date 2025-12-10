@@ -140,7 +140,7 @@ content %}
         </div>
 
         <div class="section-card p-3 mt-3">
-          <h6 class="mb-2">Cliente / Responsable</h6>
+          <h6 class="mb-2">Vecino</h6>
           <p class="mb-1">
             <strong>Nombre:</strong> <span id="modal_cliente_nombre">-</span>
           </p>
@@ -148,7 +148,7 @@ content %}
             <strong>DNI:</strong> <span id="modal_cliente_dni">-</span>
           </p>
           <p class="mb-1">
-            <strong>Responsable:</strong> <span id="modal_responsable">-</span>
+            <strong>Responsable Apertura:</strong> <span id="modal_responsable">-</span>
           </p>
         </div>
       </aside>
@@ -212,9 +212,9 @@ content %}
                   >Campo</label
                 >
                 <select name="campo" id="campo" class="form-select">
-                  <option value="dni" selected>DNI del cliente</option>
-                  <option value="nombre">Nombre del cliente</option>
-                  <option value="descripcion">Descripción del evento</option>
+                  <option value="dni" selected>DNI del Vecino</option>
+                  <option value="nombre">Nombre del Vecino</option>
+                  <option value="descripcion">Descripción del Evento</option>
                 </select>
               </div>
 
@@ -268,29 +268,7 @@ content %}
               <div class="align-self-end">
                 <button type="submit" class="btn btn-custom">Filtrar</button>
               </div>
-            </form>
-              <div>
-                <label class="form-label mb-1">Desde:</label>
-                <input
-                  type="date"
-                  id="desde"
-                  name="desde"
-                  class="form-control"
-                />
-              </div>
-              <div>
-                <label class="form-label mb-1">Hasta:</label>
-                <input
-                  type="date"
-                  id="hasta"
-                  name="hasta"
-                  class="form-control"
-                />
-              </div>
-              <div class="align-self-end">
-                <button type="submit" class="btn btn-custom">Filtrar</button>
-              </div>
-            </form>
+
           </div>
         </div>
 
@@ -309,7 +287,7 @@ content %}
                     <th>Fecha</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
-                    <th>Cliente</th>
+                    <th>Vecino</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>

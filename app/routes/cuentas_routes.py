@@ -196,7 +196,7 @@ def editar_cuenta(nombre_usuario):
             db.session.delete(admin_actual)
         
         db.session.commit()
-        flash(f"Cuenta de {nombre_usuario} actualizada exitosamente ✅", "cuentas_success")
+        flash(f"Cuenta de {nombre_usuario} actualizada exitosamente ", "cuentas_success")
         return redirect(url_for("cuentas.cuentas"))
         
     except Exception as e:

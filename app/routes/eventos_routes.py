@@ -41,7 +41,7 @@ def eventos_pdf():
     for e in eventos:
         texto = (
             f"Descripción: {e.descripcion} | Fecha: {e.fecha_inicio.strftime('%d-%m-%Y')} "
-            f"| Cliente: {e.cliente.nombre} {e.cliente.apellido} "
+            f"| Vecino: {e.cliente.nombre} {e.cliente.apellido} "
             f'| Hora: {e.fecha_inicio.strftime("%H:%M")} a {e.fecha_fin.strftime("%H:%M")}'
 
         )
@@ -149,11 +149,11 @@ def agregar_cliente(form) -> Cliente:
     institucion_cliente = form.get("institucion")
 
     if not dni_cliente:
-        raise flash("El campo DNI del cliente es obligatorio.")
+        raise ValueError("El campo DNI del cliente es obligatorio.")
     if not dni_valido(dni_cliente):
-        raise flash("El DNI debe tener al menos 8 dígitos y contener solo números.")
+        raise ValueError("El DNI debe tener al menos 8 dígitos y contener solo números.")
     if not nombre_cliente or not apellido_cliente:
-        raise flash("El nombre y apellido del cliente son obligatorios.")
+        raise ValueError("El nombre y apellido del cliente son obligatorios.")
     
     cliente = Cliente.query.get(dni_cliente)
 
@@ -242,7 +242,7 @@ def editar_evento(id_evento):
             fecha_fin = combinar_fecha_hora(request, "fecha_fin", "hora_fin")
 
             if fecha_inicio >= fecha_fin:
-                flash("Horario de inicio NO puede ser mayor a horario de finalización")
+                raise Exception("Horario de inicio NO puede ser mayor a horario de finalización")
     
             # Actualizar datos del evento
             evento.descripcion = request.form.get("descripcion")
@@ -306,8 +306,7 @@ def rango_eventos_por_fecha():
 
         # Validación de rango
         if desde and hasta and desde > hasta:
-            flash(" La fecha 'Desde' no puede ser mayor que 'Hasta'.", "warning")
-            return redirect(url_for("eventos_bp.eventos"))
+            raise Exception(" La fecha 'Desde' no puede ser mayor que la fecha 'Hasta'.")
 
         # Construir la query dinámicamente
         query = Evento.query
@@ -366,8 +365,7 @@ def buscar_evento_campo():
             query = query.filter(Evento.id_evento == valor)
 
         else:
-            flash("Campo de búsqueda no válido.", "danger")
-            return redirect(url_for("eventos_bp.eventos"))
+            raise Exception("Campo de búsqueda no válido.")
 
         resultados = query.all()
 
