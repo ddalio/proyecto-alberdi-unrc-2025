@@ -107,7 +107,6 @@ def agregar_evento():
                 fecha_fin = fecha_fin,
                 observaciones = request.form.get("observaciones"),
                 monto_total = float(request.form.get("monto_total")),
-                adeuda = True,
                 nro_recibo = None,
                 dni = cliente.dni,
                 id_responsable_apertura = responsable_llave_apertura.id_responsable,
