@@ -17,8 +17,7 @@ def eventos_pdf():
     try:
         eventos = busqueda_por_campo(campo, valor)
     except Exception as e:
-        # si no hay eventos disponibles
-        print(f"Error al cargar eventos: {str(e)}")
+        flash(f"Error al descargar eventos: {str(e)}")
         return render_template("eventos.html", mensaje="Error al descargar eventos")
 
     buffer = BytesIO()
@@ -117,8 +116,10 @@ def agregar_evento():
             fecha_fin = combinar_fecha_hora(request, "fecha_fin", "hora_fin")
 
             if fecha_inicio >= fecha_fin:
-                flash("Horario de inicio NO puede ser mayor a horario de finalización")
-                return redirect(url_for("eventos_bp.eventos"))
+                raise Exception("Horario de inicio NO puede ser mayor a horario de finalización")
+
+            if float(request.form.get("monto_total")) <= 0:
+                raise Exception("El monto inicial NO pude ser negativo o 0")
 
             evento = Evento(
                 descripcion = request.form.get("descripcion"),
@@ -145,19 +146,6 @@ def agregar_evento():
             flash(f"Error al crear evento: {str(e)}")
             return redirect(url_for('eventos_bp.agregar_evento'))
     return render_template("agregar_evento.html")
-
-def agregar_pago(id_evento, nombre_usuario, monto):
-    monto_inicial = monto
-    if monto_inicial and float(monto_inicial) > 0:
-        # Registro de un pago
-        pago = Pago(id_evento = id_evento,
-                    monto_pago = float(monto_inicial),
-                    fecha = datetime.utcnow(),
-                    usuario_creacion = nombre_usuario)
-        db.session.add(pago)
-
-    # Actualizar el estado de pago del evento
-    db.session.commit()
 
 
 def agregar_cliente(form) -> Cliente:
@@ -262,6 +250,9 @@ def editar_evento(id_evento):
 
             if fecha_inicio >= fecha_fin:
                 raise Exception("Horario de inicio NO puede ser mayor a horario de finalización")
+            
+            if float(request.form.get("monto_total")) <= 0:
+                raise Exception("El monto inicial NO pude ser negativo o 0")
     
             # Actualizar datos del evento
             evento.descripcion = request.form.get("descripcion")
@@ -293,6 +284,7 @@ def editar_evento(id_evento):
         except Exception as e:
             db.session.rollback()
             flash(f"Error al editar el evento: {str(e)}", "error")
+            return render_template("editar_evento.html", evento=evento)
 
     return render_template("editar_evento.html", evento=evento)
 
@@ -359,9 +351,6 @@ def buscar_evento_campo():
         campo = request.form.get("campo")
         valor = request.form.get("valor")
 
-        if not campo or not valor:
-            raise Exception("Por favor, completá un campo y un valor de búsqueda.", "warning")
-
         resultados = busqueda_por_campo(campo, valor)
 
         if not resultados:
@@ -375,6 +364,9 @@ def buscar_evento_campo():
     
 def busqueda_por_campo(campo, valor):
     query = Evento.query
+
+    if not campo or not valor:
+        raise Exception("Por favor, completá un campo y un valor de búsqueda.")
 
     if campo == "nombre":
         query = query.join(Cliente)
