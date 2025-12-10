@@ -118,8 +118,8 @@ def agregar_evento():
             if fecha_inicio >= fecha_fin:
                 raise Exception("Horario de inicio NO puede ser mayor a horario de finalización")
 
-            if float(request.form.get("monto_total")) <= 0:
-                raise Exception("El monto inicial NO pude ser negativo o 0")
+            if float(request.form.get("monto_total")) < 0:
+                raise Exception("El monto inicial NO pude ser negativo")
 
             evento = Evento(
                 descripcion = request.form.get("descripcion"),
@@ -251,8 +251,8 @@ def editar_evento(id_evento):
             if fecha_inicio >= fecha_fin:
                 raise Exception("Horario de inicio NO puede ser mayor a horario de finalización")
             
-            if float(request.form.get("monto_total")) <= 0:
-                raise Exception("El monto inicial NO pude ser negativo o 0")
+            if float(request.form.get("monto_total")) < 0:
+                raise Exception("El monto inicial NO pude ser negativo")
     
             # Actualizar datos del evento
             evento.descripcion = request.form.get("descripcion")
