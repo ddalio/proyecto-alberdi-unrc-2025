@@ -1,15 +1,22 @@
 from app import mail
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
-from flask import jsonify, flash, redirect, url_for
+from flask import jsonify, flash, redirect, url_for,render_template
 from flask import current_app
+from app.models import Cuenta
 
-def responder_error(mensaje, es_ajax, url_redireccion):
+def responder_error(mensaje, es_ajax, datos_form):
     if es_ajax:
-        return jsonify({'success': False, 'error': mensaje})
+        return jsonify({'success': False, 'message': mensaje, 'datos_form': datos_form})
     else:
-        flash(mensaje, "error")
-        return redirect(url_redireccion)
+        # Re-renderizamos la misma página, pasando los datos ingresados
+        cuentas_con_rol = Cuenta.query.all()
+        return render_template(
+            'cuentas.html',
+            list_cuentas=cuentas_con_rol,
+            datos_form=datos_form,   # <-- pasamos los datos que ya ingresó el usuario
+            mensaje_error=mensaje    # <-- pasamos el mensaje de error
+        )
 
 def formatear_fecha(fecha):
     if fecha:

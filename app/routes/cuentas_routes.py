@@ -36,55 +36,48 @@ def cuentas():
             "email": cuenta.email,
             "rol": rol
         })
-    return render_template('cuentas.html', list_cuentas=cuentas_con_rol)
+    return render_template('cuentas.html', list_cuentas=cuentas_con_rol, datos_form={}, mensaje_error=None)
 
 @cuentas_bp.route("/crear", methods=['POST'])
 @admin_required 
 def crear_cuenta():
     
     es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-    URL_CUENTAS = url_for('cuentas.cuentas') 
-    
-    nombre_usuario = request.form.get('usuario', '').strip()
-    contraseña = request.form.get('password', '').strip()
-    repetir_contraseña = request.form.get('password2', '').strip()
-    nombre = request.form.get('nombre', '').strip()
-    apellido = request.form.get('apellido', '').strip()
-    email = request.form.get('email', '').strip().lower()
-    rol = request.form.get('rol', '').strip()
+    datos_form = request.form.to_dict()  # Guardamos los datos ingresados por el usuario
+
+    nombre_usuario = datos_form.get('usuario', '').strip()
+    contraseña = datos_form.get('password', '').strip()
+    repetir_contraseña = datos_form.get('password2', '').strip()
+    nombre = datos_form.get('nombre', '').strip()
+    apellido = datos_form.get('apellido', '').strip()
+    email = datos_form.get('email', '').strip().lower()
+    rol = datos_form.get('rol', '').strip()
 
     campos_obligatorios = [nombre_usuario, contraseña, repetir_contraseña, nombre, apellido, email, rol]
     
     if not all(campos_obligatorios):
         mensaje = 'Todos los campos son obligatorios'
-        return responder_error(mensaje, es_ajax, URL_CUENTAS)
+        return responder_error(mensaje, es_ajax, datos_form)
 
     if not validar_email(email):
         mensaje = 'El formato del email no es válido'
-        return responder_error(mensaje, es_ajax, URL_CUENTAS)
+        return responder_error('El formato del email no es válido', es_ajax, datos_form)
 
     if contraseña != repetir_contraseña:
-        mensaje = 'Las contraseñas no coinciden'
-        return responder_error(mensaje, es_ajax, URL_CUENTAS)
+        return responder_error('Las contraseñas no coinciden', es_ajax, datos_form)
 
     error_contraseña = validar_contraseña(contraseña)
     if error_contraseña:
-        return responder_error(error_contraseña, es_ajax, URL_CUENTAS)
+        return responder_error(error_contraseña, es_ajax, datos_form)
 
-    cuenta = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
-    if cuenta:
-        mensaje = 'El nombre de usuario ya existe'
-        return responder_error(mensaje, es_ajax, URL_CUENTAS)
+    if Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first():
+        return responder_error('El nombre de usuario ya existe', es_ajax, datos_form)
 
-    cuenta_con_email = Cuenta.query.filter_by(email=email).first(); 
-    if cuenta_con_email:
-        mensaje = 'El email ya está registrado'
-        return responder_error(mensaje, es_ajax, URL_CUENTAS)
+    if Cuenta.query.filter_by(email=email).first():
+        return responder_error('El email ya está registrado', es_ajax, datos_form)
 
-    roles_validos = ['administrador', 'usuario']
-    if rol.lower() not in roles_validos:
-        mensaje = 'Rol no válido'
-        return responder_error(mensaje, es_ajax, URL_CUENTAS)
+    if rol.lower() not in ['administrador', 'usuario']:
+        return responder_error('Rol no válido', es_ajax, datos_form)
 
     try:
         nueva_cuenta = Cuenta(
@@ -103,8 +96,7 @@ def crear_cuenta():
         enviar_email_verificacion(nueva_cuenta.email, token, nueva_cuenta.nombre)
 
         if rol.lower() == "administrador":
-            nuevo_admin = Administrador(nombre_usuario=nombre_usuario)
-            db.session.add(nuevo_admin)
+            db.session.add(Administrador(nombre_usuario=nombre_usuario))
 
         db.session.commit()
 
@@ -116,93 +108,106 @@ def crear_cuenta():
             })
         else:
             flash("Cuenta creada exitosamente y email de verificación enviado", "cuentas_success")
-            return redirect(URL_CUENTAS)
+            return redirect(url_for('cuentas.cuentas'))
 
     except Exception as e:
         db.session.rollback()
-        error_msg = f"Error al crear la cuenta: {str(e)}"
-        return responder_error(error_msg, es_ajax, URL_CUENTAS)
+        return responder_error(f"Error al crear la cuenta: {str(e)}", es_ajax, datos_form)
 
 
 @cuentas_bp.route("/editar/<nombre_usuario>", methods=['POST'])
-@admin_required 
+@admin_required
 def editar_cuenta(nombre_usuario):
-    # Buscar la cuenta a editar
+    es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    datos_form = request.form.to_dict()
+
+    # Buscar la cuenta
     cuenta = Cuenta.query.filter_by(nombre_usuario=nombre_usuario).first()
     if not cuenta:
-        flash("La cuenta no existe", "cuentas_error")
+        msg = "La cuenta no existe"
+        if es_ajax:
+            return jsonify({'success': False, 'message': msg})
+        flash(msg, "cuentas_error")
         return redirect(url_for('cuentas.cuentas'))
-    
-    # Procesar formulario POST (actualizar)
-    nuevo_nombre = request.form.get('nombre', '').strip()
-    nuevo_apellido = request.form.get('apellido', '').strip()
-    nuevo_email = request.form.get('email', '').strip().lower()
-    nuevo_rol = request.form.get('rol', '').strip()
-    nueva_contraseña = request.form.get('password', '').strip()
-    repetir_contraseña = request.form.get('password2', '').strip()
 
+    # Campos del formulario
+    nuevo_nombre = datos_form.get('nombre', '').strip()
+    nuevo_apellido = datos_form.get('apellido', '').strip()
+    nuevo_email = datos_form.get('email', '').strip().lower()
+    nuevo_rol = datos_form.get('rol', '').strip()
+    nueva_contraseña = datos_form.get('password', '').strip()
+    repetir_contraseña = datos_form.get('password2', '').strip()
+
+    # Validaciones
+    if not all([nuevo_nombre, nuevo_apellido, nuevo_email, nuevo_rol]):
+        msg = "Todos los campos excepto contraseña son obligatorios"
+        if es_ajax:
+            return jsonify({'success': False, 'message': msg})
+        return render_template('cuentas.html', datos_form=datos_form, mensaje_error=msg, editar_cuenta=cuenta, list_cuentas=Cuenta.query.all())
+
+    if not validar_email(nuevo_email):
+        msg = "El email no tiene formato válido"
+        if es_ajax:
+            return jsonify({'success': False, 'message': msg})
+        return render_template('cuentas.html', datos_form=datos_form, mensaje_error=msg, editar_cuenta=cuenta, list_cuentas=Cuenta.query.all())
+
+    cuenta_existente = Cuenta.query.filter_by(email=nuevo_email).first()
+    if cuenta_existente and cuenta_existente.nombre_usuario != nombre_usuario:
+        msg = "El email ya está en uso por otra cuenta"
+        if es_ajax:
+            return jsonify({'success': False, 'message': msg})
+        return render_template('cuentas.html', datos_form=datos_form, mensaje_error=msg, editar_cuenta=cuenta, list_cuentas=Cuenta.query.all())
+
+    roles_validos = ['administrador', 'usuario']
+    if nuevo_rol.lower() not in roles_validos:
+        msg = "Rol no válido"
+        if es_ajax:
+            return jsonify({'success': False, 'message': msg})
+        return render_template('cuentas.html', datos_form=datos_form, mensaje_error=msg, editar_cuenta=cuenta, list_cuentas=Cuenta.query.all())
+
+    # Actualización de datos
     try:
-        # Validaciones básicas
-        if not all([nuevo_nombre, nuevo_apellido, nuevo_email, nuevo_rol]):
-            flash("Todos los campos excepto contraseña son obligatorios", "cuentas_error")
-            return redirect(url_for('cuentas.cuentas'))
-        
-        # Validar email
-        if not validar_email(nuevo_email):
-            flash("El formato del email no es válido", "cuentas_error")
-            return redirect(url_for('cuentas.cuentas'))
-        
-        # Validar que el email no esté en uso por otra cuenta
-        cuenta_existente = Cuenta.query.filter_by(email=nuevo_email).first()
-        if cuenta_existente and cuenta_existente.nombre_usuario != nombre_usuario:
-            flash("El email ya está en uso por otra cuenta", "cuentas_error")
-            return redirect(url_for('cuentas.cuentas'))
-        
-        # Validar rol
-        roles_validos = ['administrador', 'usuario', 'empleado']
-        if nuevo_rol.lower() not in roles_validos:
-            flash("Rol no válido", "cuentas_error")
-            return redirect(url_for('cuentas.cuentas'))
-        
-        # Actualizar datos básicos
         cuenta.nombre = nuevo_nombre
         cuenta.apellido = nuevo_apellido
         cuenta.email = nuevo_email
-        
-        # Manejar cambio de contraseña (si se proporcionó)
+
+        # Contraseña opcional
         if nueva_contraseña:
             if nueva_contraseña != repetir_contraseña:
-                flash("Las contraseñas no coinciden", "cuentas_error")
-                return redirect(url_for('cuentas.cuentas'))
-            
+                msg = "Las contraseñas no coinciden"
+                if es_ajax:
+                    return jsonify({'success': False, 'message': msg})
+                return render_template('cuentas.html', datos_form=datos_form, mensaje_error=msg, editar_cuenta=cuenta, list_cuentas=Cuenta.query.all())
+
             error_contraseña = validar_contraseña(nueva_contraseña)
             if error_contraseña:
-                flash(error_contraseña, "error")
-                return redirect(url_for('cuentas.cuentas'))
-            
-            # Encriptar nueva contraseña
-            cuenta.password_hash = generate_password_hash(
-                nueva_contraseña, 
-                method=HASH_METHOD, 
-                salt_length=SALT_LENGTH
-            )
-        
+                if es_ajax:
+                    return jsonify({'success': False, 'message': error_contraseña})
+                return render_template('cuentas.html', datos_form=datos_form, mensaje_error=error_contraseña, editar_cuenta=cuenta, list_cuentas=Cuenta.query.all())
+
+            cuenta.password_hash = generate_password_hash(nueva_contraseña, method=HASH_METHOD, salt_length=SALT_LENGTH)
+
+        # Manejo de rol administrador
         admin_actual = Administrador.query.filter_by(nombre_usuario=nombre_usuario).first()
-        
         if nuevo_rol.lower() == "administrador" and not admin_actual:
-            nuevo_admin = Administrador(nombre_usuario=nombre_usuario)
-            db.session.add(nuevo_admin)
+            db.session.add(Administrador(nombre_usuario=nombre_usuario))
         elif nuevo_rol.lower() != "administrador" and admin_actual:
             db.session.delete(admin_actual)
-        
+
         db.session.commit()
-        flash(f"Cuenta de {nombre_usuario} actualizada exitosamente ✅", "cuentas_success")
-        return redirect(url_for("cuentas.cuentas"))
-        
+
+        msg = f"Cuenta de {nombre_usuario} actualizada exitosamente"
+        if es_ajax:
+            return jsonify({'success': True, 'message': msg})
+        flash(msg, "cuentas_success")
+        return redirect(url_for('cuentas.cuentas'))
+
     except Exception as e:
         db.session.rollback()
-        flash(f"Error al actualizar la cuenta: {str(e)}", "cuentas_error")
-        return redirect(url_for('cuentas.cuentas'))
+        msg = f"Error al actualizar la cuenta: {str(e)}"
+        if es_ajax:
+            return jsonify({'success': False, 'message': msg})
+        return render_template('cuentas.html', datos_form=datos_form, mensaje_error=msg, editar_cuenta=cuenta, list_cuentas=Cuenta.query.all())
 
 
 @cuentas_bp.route("/eliminar/<nombre_usuario>", methods=['POST'])

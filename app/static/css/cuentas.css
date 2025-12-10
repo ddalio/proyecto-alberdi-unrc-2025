@@ -69,3 +69,19 @@
 .acciones button:hover i {
   color: #0d6efd !important;
 }
+
+.alert {
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.alert.error {
+  background: #ffdddd;
+  color: #b30000;
+}
+
+.alert.cuentas_success {
+  background: #ddffdd;
+  color: #006600;
+}

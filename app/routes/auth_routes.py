@@ -38,9 +38,9 @@ def login():
                 session['es_admin'] = cuenta.es_administrador()
                 return redirect(url_for("auth.inicio"))
             else:
-                flash("Contraseña incorrecta", "error")
+                flash("Contraseña incorrecta", "danger")
         else:
-            flash("Email o usuario no encontrado", "error")
+            flash("Email o usuario no encontrado", "danger")
 
     return render_template("login.html")
 
@@ -48,7 +48,6 @@ def login():
 @auth_bp.route("/logout")
 def salir():
     session.clear()
-    flash("Has cerrado sesión correctamente", "success")
     return redirect(url_for("auth.login"))
 
 # Manejo de errores
