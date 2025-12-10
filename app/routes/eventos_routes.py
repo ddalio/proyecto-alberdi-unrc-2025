@@ -99,6 +99,7 @@ def agregar_evento():
 
             if fecha_inicio >= fecha_fin:
                 flash("Horario de inicio NO puede ser mayor a horario de finalización")
+                return redirect(url_for("eventos_bp.eventos"))
 
             evento = Evento(
                 descripcion = request.form.get("descripcion"),
