@@ -31,8 +31,7 @@ def rango_eventos_por_fecha():
 
         # Si no se ingresó ninguna fecha, mostrar todos
         if not desde_str and not hasta_str:
-            eventos = Evento.query.all()
-            return render_template("eventos.html", eventos_list=eventos)
+            return redirect(url_for("ingresos.ingresos"))
 
         # Parsear las fechas
         desde = datetime.strptime(desde_str, "%Y-%m-%d") if desde_str else None
@@ -41,7 +40,7 @@ def rango_eventos_por_fecha():
         # Validación de rango
         if desde and hasta and desde > hasta:
             flash("La fecha 'Desde' no puede ser mayor que 'Hasta'.", "warning")
-            return redirect(url_for("eventos_bp.eventos"))
+            return redirect(url_for("ingresos.ingresos"))
 
         # Construir la query dinámicamente
         query = Evento.query
