@@ -51,102 +51,104 @@
   </head>
 
   <body>
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <div class="layout-with-sidebar">
-      <!-- Sidebar vertical -->
-      <nav class="sidebar bg-pry p-3" aria-label="Barra lateral">
-        <ul class="nav flex-column align-items-center h-100" style="gap: 1rem">
-          <!-- Inicio -->
-          <li
-            class="nav-item {% if active_page == 'inicio' %}active-nav{% endif %}"
-          >
-            <a
-              class="nav-link p-0"
-              href="{{ url_for('auth.inicio') }}"
-              title="Inicio"
-            >
-              <i
-                class="bi bi-house-door {% if active_page == 'inicio' %}text-secondary{% else %}text-white{% endif %}"
-                style="font-size: 1.8rem"
-              >
-              </i>
-            </a>
-          </li>
+    <div class="layout-with-sidebar" id="layoutContainer">
+        <nav class="sidebar bg-pry p-3" aria-label="Barra lateral">
+            <ul class="nav flex-column h-100" style="gap: 1rem">
+                <li class="nav-item mb-4">
+                    <button class="btn btn-outline-light d-flex justify-content-center align-items-center" id="toggleSidebarBtn" title="Expandir/Colapsar">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                </li>
 
-          {% if current_user.es_administrador() %}
-          <!-- Ingresos -->
-          <li
-            class="nav-item {% if active_page == 'ingresos' %}active-nav{% endif %}"
-          >
-            <a
-              class="nav-link p-0"
-              href="{{ url_for('ingresos.ingresos') }}"
-              title="Ingresos"
-            >
-              <i
-                class="bi bi-bar-chart {% if active_page == 'ingresos' %}text-secondary{% else %}text-white{% endif %}"
-                style="font-size: 1.8rem"
-              >
-              </i>
-            </a>
-          </li>
+                <li class="nav-item {% if active_page == 'inicio' %}active-nav{% endif %}">
+                    <a
+                        class="nav-link p-2 d-flex align-items-center"
+                        href="{{ url_for('auth.inicio') }}"
+                        title="Inicio"
+                    >
+                        <i
+                            class="bi bi-house-door {% if active_page == 'inicio' %}text-secondary{% else %}text-white{% endif %}"
+                            style="font-size: 1.8rem"
+                        ></i>
+                        <span class="nav-text text-white ms-3">Inicio</span>
+                    </a>
+                </li>
 
-          <!-- Cuentas -->
-          <li
-            class="nav-item {% if active_page == 'cuentas' %}active-nav{% endif %}"
-          >
-            <a
-              class="nav-link p-0"
-              href="{{ url_for('cuentas.cuentas') }}"
-              title="Cuentas"
-            >
-              <i
-                class="bi bi-person-lines-fill {% if active_page == 'cuentas' %}text-secondary{% else %}text-white{% endif %}"
-                style="font-size: 1.8rem"
-              >
-              </i>
-            </a>
-          </li>
-          {% endif %}
+                
+                <li class="nav-item {% if active_page == 'eventos' %}active-nav{% endif %}">
+                    <a
+                        class="nav-link p-2 d-flex align-items-center"
+                        href="{{ url_for('eventos_bp.eventos') }}"
+                        title="Eventos"
+                    >
+                        <i
+                            class="bi bi-calendar-event {% if active_page == 'eventos' %}text-secondary{% else %}text-white{% endif %}"
+                            style="font-size: 1.8rem"
+                        ></i>
+                        <span class="nav-text text-white ms-3">Eventos</span>
+                    </a>
+                </li>
 
-          <li
-            class="nav-item {% if active_page == 'eventos' %}active-nav{% endif %}"
-          >
-            <a
-              class="nav-link p-0"
-              href="{{ url_for('eventos_bp.eventos') }}"
-              title="Eventos"
-            >
-              <i
-                class="bi bi-calendar-event {% if active_page == 'eventos' %}text-secondary{% else %}text-white{% endif %}"
-                style="font-size: 1.8rem"
-              ></i>
-            </a>
-          </li>
+                {% if current_user.es_administrador() %}
+                <li class="nav-item {% if active_page == 'ingresos' %}active-nav{% endif %}">
+                    <a
+                        class="nav-link p-2 d-flex align-items-center"
+                        href="{{ url_for('ingresos.ingresos') }}"
+                        title="Ingresos"
+                    >
+                        <i
+                            class="bi bi-bar-chart {% if active_page == 'ingresos' %}text-secondary{% else %}text-white{% endif %}"
+                            style="font-size: 1.8rem"
+                        ></i>
+                        <span class="nav-text text-white ms-3">Ingresos</span>
+                    </a>
+                </li>
 
-          <!-- Logout -->
-          <li class="nav-item mt-auto">
-            <a
-              class="nav-link p-0 text-white"
-              href="{{ url_for('auth.salir') }}"
-              title="Cerrar sesión"
-            >
-              <i
-                class="bi bi-box-arrow-right text-white"
-                style="font-size: 1.8rem"
-              ></i>
-            </a>
-          </li>
-        </ul>
-      </nav>
+                <li class="nav-item {% if active_page == 'cuentas' %}active-nav{% endif %}">
+                    <a
+                        class="nav-link p-2 d-flex align-items-center"
+                        href="{{ url_for('cuentas.cuentas') }}"
+                        title="Cuentas"
+                    >
+                        <i
+                            class="bi bi-person-lines-fill {% if active_page == 'cuentas' %}text-secondary{% else %}text-white{% endif %}"
+                            style="font-size: 1.8rem"
+                        ></i>
+                        <span class="nav-text text-white ms-3">Cuentas</span>
+                    </a>
+                </li>
+                {% endif %}
 
-      <!-- Main content -->
-      <main class="main-content flex-grow-1">
-        {% block content %}{% endblock %}
-      </main>
+                <li class="nav-item mt-auto">
+                    <a
+                        class="nav-link p-2 d-flex align-items-center"
+                        href="{{ url_for('auth.salir') }}"
+                        title="Cerrar sesión"
+                    >
+                        <i
+                            class="bi bi-box-arrow-right text-white"
+                            style="font-size: 1.8rem"
+                        ></i>
+                        <span class="nav-text text-white ms-3">Cerrar sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content flex-grow-1">
+            {% block content %}{% endblock %}
+        </main>
     </div>
     {% block scripts %}{% endblock %}
-  </body>
+
+    <script>
+        document.getElementById('toggleSidebarBtn').addEventListener('click', function() {
+            const container = document.getElementById('layoutContainer');
+            // Alternar la clase 'sidebar-collapsed' en el contenedor principal
+            container.classList.toggle('sidebar-collapsed');
+        });
+    </script>
+</body>
 </html>
