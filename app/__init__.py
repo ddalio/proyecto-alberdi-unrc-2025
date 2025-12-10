@@ -1,4 +1,4 @@
-from flask import Flask, session
+from flask import Flask, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail
@@ -74,5 +74,9 @@ def create_app():
                 db.session.commit()
             except Exception:
                 db.session.rollback()
+    @app.errorhandler(404)
+    def page_not_found(e):
+        # Ahora 'app' está definido, y render_template está importado
+        return render_template('404.html'), 404
 
     return app

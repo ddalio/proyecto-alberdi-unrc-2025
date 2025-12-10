@@ -1,0 +1,26 @@
+{% extends 'base.html' %} 
+
+{% block title %} 
+    Error 404 - Página no encontrada 
+{% endblock %} 
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center align-items-center text-center py-5" style="min-height: 80vh;">
+    <h1 class="display-1 text-danger">404</h1>
+    
+    <h2 class="mb-4">¡Ups! Parece que te has perdido.</h2>
+    
+    <p class="lead mb-4">
+        La página que estás buscando no existe o ha sido movida.
+    </p>
+    
+    <a 
+        href="{{ url_for('auth.inicio') }}" 
+        class="btn btn-custom btn-lg px-5 py-3"
+    >
+        <i class="bi bi-house-door-fill me-2"></i> 
+        Volver a Inicio
+    </a>
+
+    </div>
+{% endblock %}
