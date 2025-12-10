@@ -14,7 +14,12 @@ def eventos_pdf():
     campo = request.args.get("campo")
     valor = request.args.get("valor")
 
-    eventos = busqueda_por_campo(campo, valor)
+    try:
+        eventos = busqueda_por_campo(campo, valor)
+    except Exception as e:
+        # si no hay eventos disponibles
+        print(f"Error al cargar eventos: {str(e)}")
+        return render_template("eventos.html", mensaje="Error al descargar eventos")
 
     buffer = BytesIO()
     p = canvas.Canvas(buffer)
@@ -371,10 +376,8 @@ def buscar_evento_campo():
 def busqueda_por_campo(campo, valor):
     query = Evento.query
 
-    # Unimos Evento con Cliente solo si la búsqueda lo necesita
     if campo == "nombre":
         query = query.join(Cliente)
-
     # --- Filtros según el campo elegido ---
     if campo == "dni":
         query = query.filter(Evento.dni.ilike(f"%{valor}%"))
@@ -388,6 +391,8 @@ def busqueda_por_campo(campo, valor):
     elif campo == "id_evento":
         # Si se ingresa un ID, buscamos por coincidencia exacta
         query = query.filter(Evento.id_evento == valor)
+    elif not campo:
+        query = query
     else:
         raise Exception("Campo de búsqueda no válido.")
      

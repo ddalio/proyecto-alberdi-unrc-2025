@@ -212,9 +212,18 @@ content %}
                   >Campo</label
                 >
                 <select name="campo" id="campo" class="form-select">
-                  <option value="dni" selected>DNI del Vecino</option>
-                  <option value="nombre">Nombre del Vecino</option>
-                  <option value="descripcion">Descripción del Evento</option>
+                  <option value="dni" 
+                          {% if campo == 'dni' %} selected {% endif %}
+                  >DNI del Vecino</option>
+                  
+                  <option value="nombre" 
+                          {% if campo == 'nombre' %} selected {% endif %}
+                  >Nombre del Vecino</option>
+                  
+                  <option value="descripcion" 
+                          {% if campo == 'descripcion' %} selected {% endif %}
+                  >Descripción del Evento</option>
+                  
                 </select>
               </div>
 
