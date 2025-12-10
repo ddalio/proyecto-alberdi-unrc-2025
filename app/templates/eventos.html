@@ -173,11 +173,11 @@ content %}
 
           if (montoPago > montoDeuda) {
             errorDiv.classList.remove("d-none");
-            return false; // No envía el formulario, se queda en el modal
+            return false;
           }
 
           errorDiv.classList.add("d-none");
-          this.submit(); // Envía el formulario normalmente
+          this.submit(); 
         });
     </script>
   </div>
@@ -421,7 +421,7 @@ content %}
 
             <!-- Botón Volver -->
             <a
-              href="{{ url_for('eventos_bp.eventos') }}"
+              href="{{ url_for('auth.inicio') }}"
               class="btn btn-outline-secondary"
             >
               <i class="bi bi-arrow-left me-2"></i>Volver
