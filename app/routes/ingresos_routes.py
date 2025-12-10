@@ -76,8 +76,8 @@ def agregar_pago(id_evento):
             # Usuario logueado
             usuario_creacion = session.get("username")
             
-            if float(monto_pago) < 0:
-                raise ValueError("El monto debe ser positivo")
+            if float(monto_pago) <= 0:
+                raise ValueError("El monto debe ser positivo y NO nulo")
             
             
             if float(monto_pago) > evento.monto_total or float(monto_pago) + evento.total_pagado > evento.monto_total:
@@ -96,10 +96,10 @@ def agregar_pago(id_evento):
                 # Actualizar el estado de pago del evento
                 actualizar_pago_evento(evento)
                 db.session.commit()
-            return redirect(url_for('ingresos.ingresos'))
+            return redirect(url_for("eventos_bp.eventos"))
         except ValueError as e:
             flash(f"Error al agregar pago: {str(e)}")
-            return redirect(url_for("ingresos.ingresos"))
+            return redirect(url_for("eventos_bp.eventos"))
     return render_template("agregar_pago.html", evento=evento)
 
 @ingresos_bp.route("pagos/<int:id_evento>")
