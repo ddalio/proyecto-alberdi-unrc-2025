@@ -253,11 +253,22 @@ content %}
         <!-- Row 2: filtros por fecha -->
         <div class="row mb-3">
           <div class="col-12">
-            <form
-              action="{{ url_for('eventos_bp.rango_eventos_por_fecha') }}"
-              method="GET"
-              class="d-flex gap-2 align-items-end"
+            <form 
+              action="/eventos/filtrar" method="GET" 
+              class="d-flex flex-column flex-sm-row gap-2 "
             >
+              <div>
+                <label class="form-label mb-1">Desde:</label>
+                <input type="date" id="desde" name="desde" class="form-control">
+              </div>
+              <div>
+                <label class="form-label mb-1">Hasta:</label>
+                <input type="date" id="hasta" name="hasta" class="form-control">
+              </div>
+              <div class="align-self-end">
+                <button type="submit" class="btn btn-custom">Filtrar</button>
+              </div>
+            </form>
               <div>
                 <label class="form-label mb-1">Desde:</label>
                 <input
