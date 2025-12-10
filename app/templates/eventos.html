@@ -332,9 +332,7 @@ content %}
 
                       {% if current_user.es_administrador() %}
                       <!-- botón que abre el modal para agregar pago (no navega) -->
-                      {% set deuda = evento.monto_total - (evento.pagos |
-                      map(attribute='monto_pago') | sum) %} {% if evento.adeuda
-                      and deuda > 0 %}
+                      {% if evento.adeuda %}
                       <button
                         type="button"
                         class="me-2 btn btn-link p-0 openAddPaymentBtn"
@@ -343,7 +341,7 @@ content %}
                         data-id="{{ evento.id_evento }}"
                         data-descripcion="{{ evento.descripcion | e }}"
                         data-monto="{{ evento.monto_total }}"
-                        data-monto-deuda="{{ deuda }}"
+                        data-monto-deuda="{{ evento.monto_deuda }}"
                         data-adeuda="{{ '1' if evento.adeuda else '0' }}"
                         data-cliente-nombre="{{ evento.cliente.nombre if evento.cliente is defined else '' }}"
                         data-cliente-apellido="{{ evento.cliente.apellido if evento.cliente is defined else '' }}"

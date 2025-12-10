@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 from app.models import Evento, Cliente, ResponsableLlave, Pago, Cuenta, db
+from app.routes import eventos_routes
 
 ingresos_bp = Blueprint('ingresos', __name__, url_prefix='/ingresos')
 
@@ -14,12 +15,6 @@ def ingresos():
     except Exception as e:
         print(f"Error al cargar los ingresos eventos: {str(e)}")
         return render_template("ingresos.html", mensaje="Error al cargar ingresos")
-
-# Funcion para actualizar el estado de pago de un evento
-def actualizar_pago_evento(evento):
-    if evento.total_pagado >= float(evento.monto_total):
-        evento.adeuda = False
-        flash("Se completo el pago del evento")
 
 # Listado de eventos Desde: fecha - Hasta: fecha
 @ingresos_bp.route("/filtrar", methods=["GET"])
@@ -53,14 +48,11 @@ def rango_eventos_por_fecha():
 
         if not eventos:
             flash("No se encontraron eventos en ese rango de fechas.", "info")
-
-        return render_template("ingresos.html", eventos=eventos)
-
-    except ValueError:
-        flash("⚠️ Formato de fecha inválido. Usa el formato YYYY-MM-DD.", "danger")
-        return redirect(url_for("ingresos.ingresos"))
+            return redirect(url_for("ingresos.ingresos"))
+        
+        return render_template("ingresos.html", eventos=eventos)    
     except Exception as e:
-        flash(f"⚠️ Error al filtrar eventos: {str(e)}", "danger")
+        flash(f"Error al filtrar eventos: {str(e)}", "danger")
         return redirect(url_for("ingresos.ingresos"))
 
 @ingresos_bp.route("/agregar_pago/<int:id_evento>", methods =["GET","POST"])
@@ -83,18 +75,16 @@ def agregar_pago(id_evento):
             if float(monto_pago) > evento.monto_total or float(monto_pago) + evento.total_pagado > evento.monto_total:
                 raise ValueError("El monto es mayor a lo necesario")
             
+            fecha = eventos_routes.combinar_fecha_hora(request, "fecha_inicio", None)
+
             if monto_pago:
                 # Registro de un pago
                 pago = Pago(id_evento = id_evento,
                             monto_pago = float(monto_pago),
-                            fecha = datetime.utcnow(),
+                            fecha = fecha,
                             usuario_creacion = usuario_creacion)
                 db.session.add(pago)
                 db.session.commit()
-                if evento.total_pagado == evento.monto_total:
-                    evento.adeuda = False
-                # Actualizar el estado de pago del evento
-                actualizar_pago_evento(evento)
                 db.session.commit()
             return redirect(url_for("eventos_bp.eventos"))
         except ValueError as e:
@@ -119,29 +109,21 @@ def pagos(id_evento):
 @ingresos_bp.route("/pagos/eliminar/<int:id_pago>", methods=["GET","POST"])
 def eliminar_pago(id_pago):
     try:
-        # Solo seleccionar columnas existentes
-        pago = db.session.query(
-            Pago.id_pago,
-            Pago.id_evento,
-            Pago.monto_pago,
-            Pago.fecha,
-            Pago.usuario_creacion
-        ).filter(Pago.id_pago == id_pago).first()
+        pago = Pago.query.get(id_pago)
 
         if not pago:
             flash("No se encontró el pago")
             return redirect(url_for("ingresos.ingresos"))
 
-        # Para borrar, necesitamos un objeto 'Pago' real, así que:
-        pago_obj = Pago.query.get(id_pago)
-        if pago_obj:
-            db.session.delete(pago_obj)
+        evento = Evento.query.get_or_404(pago.id_evento)
+        if pago:
+            db.session.delete(pago)
             db.session.commit()
             flash("Pago eliminado correctamente")
         else:
             flash("No se pudo eliminar el pago")
 
-        return redirect(url_for("ingresos.ingresos"))
+        return redirect(url_for("ingresos.pagos", id_evento=evento.id_evento))
 
     except Exception as e:
         db.session.rollback()

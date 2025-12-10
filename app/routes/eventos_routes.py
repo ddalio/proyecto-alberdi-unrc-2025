@@ -394,9 +394,6 @@ def eliminar_evento(id_evento):
         flash(f"Error al eliminar el evento: {str(e)}", "error")
         return redirect(url_for("eventos_bp.eventos"))
 
-# Funcion para actualizar el estado de pago de un evento
-# def actualizar_pago_evento(evento):
-#     ingresos_bp.actualizar_pago_evento(evento)
 @eventos_bp.route("/events-json", methods=["GET"])
 def eventos_json():
     eventos = Evento.query.all()

@@ -99,6 +99,22 @@ block content %}
                       {{ pago.observaciones if pago.observaciones is defined
                       else '' }}
                     </td>
+                    <td style="padding: 12px 20px">
+                       <form
+                        action="{{ url_for('ingresos.eliminar_pago', id_pago=pago.id_pago) }}"
+                        method="POST"
+                        style="display: inline"
+                      >
+                        <button
+                          type="submit"
+                          class="btn btn-link p-0 text-danger"
+                          title="Eliminar evento"
+                          onclick="return confirm('¿Seguro que querés eliminar este evento?')"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </td>
                   </tr>
                   {% endfor %} {% else %}
                   <tr>

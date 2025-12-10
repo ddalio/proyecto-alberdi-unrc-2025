@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
         : "No especificada";
 
       document.getElementById("modalFin").textContent = evento.end
-        ? new Date(evento.end.getTime() - 86400000).toLocaleDateString("es-ES")
+        ? evento.end.toLocaleDateString("es-ES")
         : "No especificada";
 
       document.getElementById("modalObservaciones").textContent =

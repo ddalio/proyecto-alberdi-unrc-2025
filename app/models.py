@@ -101,6 +101,11 @@ class Evento(db.Model):
     @property
     def monto_deuda(self):
         return float(self.monto_total) - sum(float(p.monto_pago) for p in self.pagos)
+    
+    @property
+    def adeuda(self):   
+        adeuda = self.total_pagado < self.monto_total
+        return adeuda
 
     # FKs
     dni = db.Column(db.String(20), db.ForeignKey('cliente.dni'), nullable=False)
