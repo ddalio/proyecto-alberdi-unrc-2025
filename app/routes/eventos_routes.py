@@ -133,8 +133,7 @@ def agregar_evento():
             ).first()
 
             if evento_solapado:
-                flash("El evento se solapa con otro evento existente o no cumple con la separación mínima de 1 hora.")
-                return redirect(url_for('eventos_bp.agregar_evento'))
+                raise Exception("El evento se solapa con otro evento existente o no cumple con la separación mínima de 1 hora.")
 
             evento = Evento(
                 descripcion = request.form.get("descripcion"),
@@ -308,10 +307,24 @@ def editar_evento(id_evento):
 def detalles_evento(id_evento):
     evento = Evento.query.get_or_404(id_evento)  
 
+    # 2. Inicializar la hora de fin de limpieza
+    hora_fin_limpieza_str = None
+    
+    # 3. Calcular la hora de fin con la limpieza (si existe fecha de fin)
+    if evento.fecha_fin:
+        # Asumiendo que evento.fecha_fin es un objeto datetime.
+        # Sumamos una hora (60 minutos) de limpieza.
+        fecha_fin_con_limpieza = evento.fecha_fin + timedelta(hours=1)
+        
+        # Formateamos solo la hora para pasarla a la plantilla
+        hora_fin_limpieza_str = fecha_fin_con_limpieza.strftime('%H:%M') 
+        # Si quisieras la fecha completa, usa: fecha_fin_con_limpieza.strftime('%d/%m/%Y %H:%M')
+
     return render_template("detalles_evento.html", 
                          evento=evento,
                          start_dt=evento.fecha_inicio,
-                         end_dt=evento.fecha_fin)
+                         end_dt=evento.fecha_fin,
+                         hora_fin_limpieza_str=hora_fin_limpieza_str)
 
 # Listado de eventos Desde: fecha - Hasta: fecha
 @eventos_bp.route("/filtrar", methods=["GET"])

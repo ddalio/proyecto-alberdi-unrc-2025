@@ -96,6 +96,12 @@ block content %}
                         time_src.split(' ')[1][0:5] if ' ' in time_src else
                         time_src[0:5] }}{% else %}{{ time_src.strftime('%H:%M')
                         }}{% endif %}{% else %}—{% endif %}
+                        
+                        {% if hora_fin_limpieza_str %}
+                        <span class="text-danger ms-2" style="font-weight: 600;">
+                            (+1h limpieza: {{ hora_fin_limpieza_str }})
+                        </span>
+                        {% endif %}
                       </small>
                     </div>
                   </div>

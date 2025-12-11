@@ -13,10 +13,35 @@ block content %}
     <h3 class="m-0">Crear Nuevo Evento</h3>
   </div>
 
-  {% with messages = get_flashed_messages(with_categories=true) %} {% if
-  messages %} {% for category, message in messages %}
-  <div class="alert alert-{{ category }} mt-2 py-2">{{ message }}</div>
+  <div
+  class="toast-container position-fixed top-0 end-0 p-3"
+  style="z-index: 1100"
+>
+  {% with mensajes = get_flashed_messages(with_categories=true) %} {% if
+  mensajes %} {% for categoria, mensaje in mensajes %}
+  <div
+    class="toast show align-items-center text-bg-{{ categoria }} border-0 mb-2"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        <i
+          class="bi {% if categoria == 'success' %}bi-check-circle-fill {% elif categoria == 'danger' %}bi-exclamation-triangle-fill {% elif categoria == 'warning' %}bi-exclamation-triangle-fill {% elif categoria == 'info' %}bi-info-circle-fill {% else %}bi-bell-fill{% endif %} me-2"
+        ></i>
+        {{ mensaje }}
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-black me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Cerrar"
+      ></button>
+    </div>
+  </div>
   {% endfor %} {% endif %} {% endwith %}
+</div>
 
   <div class="d-flex justify-content-center">
     <div class="card card-main w-100 mt-2">
