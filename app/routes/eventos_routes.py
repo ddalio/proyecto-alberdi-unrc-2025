@@ -121,6 +121,21 @@ def agregar_evento():
             if float(request.form.get("monto_total")) < 0:
                 raise Exception("El monto inicial NO pude ser negativo")
 
+            # Checkeo de solapamiento
+            una_hora = timedelta(hours=1)
+            rango_inicio_con_buffer = fecha_inicio - una_hora
+            rango_fin_con_buffer = fecha_fin + una_hora
+
+            # 2. Consultar si existe algún evento que se solape con el rango (incluyendo el buffer de 1h)
+            evento_solapado = Evento.query.filter(
+                Evento.fecha_fin > rango_inicio_con_buffer,
+                Evento.fecha_inicio < rango_fin_con_buffer
+            ).first()
+
+            if evento_solapado:
+                flash("El evento se solapa con otro evento existente o no cumple con la separación mínima de 1 hora.")
+                return redirect(url_for('eventos_bp.agregar_evento'))
+
             evento = Evento(
                 descripcion = request.form.get("descripcion"),
                 fecha_inicio = fecha_inicio,
