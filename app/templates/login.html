@@ -8,14 +8,14 @@
     />
     <link
       rel="stylesheet"
-      href=" {{ url_for('static', filename ='css/style.css') }}"
+      href="{{ url_for('static', filename='css/style.css') }}"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <!--fuente-->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap"
       rel="stylesheet"
     />
 
@@ -31,10 +31,16 @@
         </h2>
         <h4 class="text-center mb-5 mt-5 pb-4">Inicia Sesión</h4>
 
-        <!-- Mensaje de error si existe -->
-        {% if error %}
-        <div class="alert alert-danger text-center">{{ error }}</div>
-        {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <div class="mb-3">
+          {% for category, message in messages %}
+          <div class="alert alert-{{ category }} py-2 px-3 small text-center">
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
 
         <form action="{{ url_for('auth.login') }}" method="post">
           <div class="mb-3">

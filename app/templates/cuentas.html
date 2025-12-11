@@ -5,36 +5,42 @@ styles %}
   href="{{ url_for('static', filename='css/cuentas.css') }}"
 />
 {% endblock %} {% block content %}
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 2000">
-  {% with messages = get_flashed_messages(with_categories=true) %} {% if
-  messages %} {% for category, message in messages %} {% if
-  category.startswith("cuentas_") %}
-  <div
-    class="toast show align-items-center text-bg-{{ category.replace('cuentas_', '') }} border-0 mb-2"
-    role="alert"
-    data-bs-autohide="true"
-    data-bs-delay="5000"
-  >
-    <div class="d-flex">
-      <div class="toast-body">
-        <i
-          class="bi {% if category == 'cuentas_success' %}bi-check-circle-fill {% elif category == 'cuentas_danger' %}bi-exclamation-triangle-fill {% elif category == 'cuentas_warning' %}bi-exclamation-triangle-fill {% elif category == 'cuentas_info' %}bi-info-circle-fill {% else %}bi-bell-fill{% endif %} me-2"
-        ></i>
-        {{ message }}
-      </div>
-      <button
-        type="button"
-        class="btn-close btn-close-white me-2 m-auto"
-        data-bs-dismiss="toast"
-        aria-label="Cerrar"
-      ></button>
-    </div>
-  </div>
-  {% endif %} {% endfor %} {% endif %} {% endwith %}
+<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 2000">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        {% if category.startswith("cuentas_") %}
+          <div
+            class="toast show align-items-center text-bg-{{ category.replace('cuentas_', '') }} border-0 mb-2"
+            role="alert"
+            data-bs-autohide="true"
+            data-bs-delay="5000"
+          >
+            <div class="d-flex">
+              <div class="toast-body">
+                <i
+                  class="bi {% if category == 'cuentas_success' %}bi-check-circle-fill {% elif category == 'cuentas_danger' %}bi-exclamation-triangle-fill {% elif category == 'cuentas_warning' %}bi-exclamation-triangle-fill {% elif category == 'cuentas_info' %}bi-info-circle-fill {% else %}bi-bell-fill{% endif %} me-2"
+                ></i>
+                {{ message }}
+              </div>
+              <button
+                type="button"
+                class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast"
+                aria-label="Cerrar"
+              ></button>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 </div>
 
+
 <!-- Modal para Crear Usuario -->
-<div id="modalCrearOverlay" class="modal-overlay d-none">
+<!-- Modal para Crear Usuario -->
+<div id="modalCrearOverlay" class="modal-overlay {% if datos_form %}show{% else %}d-none{% endif %}">
   <div
     class="card shadow p-4"
     style="width: 90vw; max-width: 700px; max-height: 90vh; overflow: auto"
@@ -54,6 +60,12 @@ styles %}
       id="formCrearUsuario"
       onsubmit="return validarYEnviarCreacion(event)"
     >
+
+      <!-- Mensaje general de error -->
+      {% if mensaje_error %}
+        <div class="alert alert-danger">{{ mensaje_error }}</div>
+      {% endif %}
+
       <div class="mb-2">
         <label class="form-label">Nombre de usuario*</label>
         <input
@@ -62,6 +74,7 @@ styles %}
           required
           maxlength="10"
           id="crearUsuario"
+          value="{{ datos_form.usuario | default('') }}"
         />
         <small class="text-muted">Máximo 10 caracteres</small>
       </div>
@@ -70,8 +83,8 @@ styles %}
         <label class="form-label">Rol*</label>
         <select name="rol" class="form-select" required id="crearRol">
           <option value="">Seleccioná un rol</option>
-          <option value="usuario">Usuario</option>
-          <option value="administrador">Administrador</option>
+          <option value="usuario" {% if datos_form.rol == 'usuario' %}selected{% endif %}>Usuario</option>
+          <option value="administrador" {% if datos_form.rol == 'administrador' %}selected{% endif %}>Administrador</option>
         </select>
       </div>
 
@@ -84,6 +97,7 @@ styles %}
             required
             maxlength="20"
             id="crearNombre"
+            value="{{ datos_form.nombre | default('') }}"
           />
           <small class="text-muted">Máximo 20 caracteres</small>
         </div>
@@ -95,6 +109,7 @@ styles %}
             required
             maxlength="20"
             id="crearApellido"
+            value="{{ datos_form.apellido | default('') }}"
           />
           <small class="text-muted">Máximo 20 caracteres</small>
         </div>
@@ -109,10 +124,11 @@ styles %}
           required
           maxlength="50"
           id="crearEmail"
+          value="{{ datos_form.email | default('') }}"
         />
-        <small class="text-muted"
-          >Máximo 50 caracteres. Se enviará un email de verificación.</small
-        >
+        <small class="text-muted">
+          Máximo 50 caracteres. Se enviará un email de verificación.
+        </small>
       </div>
 
       <div class="row">
@@ -135,10 +151,9 @@ styles %}
               <i class="bi bi-eye"></i>
             </button>
           </div>
-          <small class="text-muted"
-            >Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1
-            carácter especial</small
-          >
+          <small class="text-muted">
+            Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 carácter especial
+          </small>
         </div>
         <div class="col mb-2">
           <label class="form-label">Repetir contraseña*</label>
@@ -162,28 +177,6 @@ styles %}
         </div>
       </div>
 
-      <!-- Mensajes de error para creación -->
-      <div
-        id="crearPasswordMismatch"
-        class="alert alert-danger d-none"
-        role="alert"
-      >
-        Las contraseñas no coinciden.
-      </div>
-
-      <div
-        id="crearPasswordRequirements"
-        class="alert alert-danger d-none"
-        role="alert"
-      >
-        La contraseña debe tener al menos 8 caracteres, incluyendo 1 mayúscula,
-        1 minúscula, 1 número y 1 carácter especial.
-      </div>
-
-      <div id="crearEmailError" class="alert alert-danger d-none" role="alert">
-        Error al verificar el email. Por favor, intentá nuevamente.
-      </div>
-
       <div class="d-flex justify-content-end gap-2 mt-3">
         <button
           type="button"
@@ -201,39 +194,27 @@ styles %}
 
 <!-- Modal para Editar Usuario -->
 <div id="modalEditarOverlay" class="modal-overlay d-none">
-  <div
-    class="card shadow p-4"
-    style="width: 90vw; max-width: 700px; max-height: 90vh; overflow: auto"
-  >
+  <div class="card shadow p-4" style="width: 90vw; max-width: 700px; max-height: 90vh; overflow: auto">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h5 class="m-0">Editar Usuario</h5>
-      <button
-        type="button"
-        class="btn btn-close close-editar-modal"
-        aria-label="Cerrar"
-      ></button>
+      <button type="button" class="btn btn-close close-editar-modal" aria-label="Cerrar"></button>
     </div>
 
-    <form
-      id="formEditarUsuario"
-      method="post"
-      onsubmit="return validarCambioPassword(event)"
-    >
-      <input type="hidden" name="usuario" id="editarUsuario" />
-      <input type="hidden" id="passwordAnteriorHash" value="" />
+    <form id="formEditarUsuario" method="post">
+      <input type="hidden" name="usuario" id="editarUsuario" value="" />
+
+      <!-- Mensaje de error -->
+      <div id="editarError" class="alert alert-danger d-none" role="alert"></div>
 
       <div class="mb-2">
         <label class="form-label">Nombre de usuario</label>
-        <input class="form-control" id="editarUsuarioDisplay" readonly />
-        <small class="text-muted"
-          >El nombre de usuario no se puede modificar</small
-        >
+        <input class="form-control" id="editarUsuarioDisplay" readonly value="" />
+        <small class="text-muted">El nombre de usuario no se puede modificar</small>
       </div>
 
       <div class="mb-2">
         <label class="form-label">Rol*</label>
         <select name="rol" class="form-select" required id="editarRol">
-          <option value="">Seleccioná un rol</option>
           <option value="usuario">Usuario</option>
           <option value="administrador">Administrador</option>
         </select>
@@ -242,118 +223,62 @@ styles %}
       <div class="row">
         <div class="col mb-2">
           <label class="form-label">Nombre*</label>
-          <input
-            name="nombre"
-            class="form-control"
-            required
-            maxlength="20"
-            id="editarNombre"
-          />
-          <small class="text-muted">Máximo 20 caracteres</small>
+          <input id="editarNombre" name="nombre" class="form-control" required maxlength="20" value="" />
         </div>
         <div class="col mb-2">
           <label class="form-label">Apellido*</label>
-          <input
-            name="apellido"
-            class="form-control"
-            required
-            maxlength="20"
-            id="editarApellido"
-          />
-          <small class="text-muted">Máximo 20 caracteres</small>
+          <input id="editarApellido" name="apellido" class="form-control" required maxlength="20" value="" />
         </div>
       </div>
 
       <div class="mb-2">
         <label class="form-label">Email*</label>
-        <input
-          name="email"
-          type="email"
-          class="form-control"
-          required
-          maxlength="50"
-          id="editarEmail"
-        />
-        <small class="text-muted">Máximo 50 caracteres</small>
+        <input id="editarEmail" name="email" type="email" class="form-control" required maxlength="50" value="" />
       </div>
 
       <div class="row">
         <div class="col mb-2">
           <label class="form-label">Nueva contraseña</label>
           <div class="input-group">
-            <input
-              name="password"
-              type="password"
-              class="form-control"
-              id="editarPassword"
-              placeholder="Dejar vacío para mantener la actual"
-            />
-            <button
-              type="button"
-              class="btn btn-outline-secondary toggle-password"
-              data-target="editarPassword"
-            >
+            <input name="password" type="password" class="form-control" id="editarPassword" />
+            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="editarPassword">
               <i class="bi bi-eye"></i>
             </button>
+            <small class="text-muted">"Dejar vacío para mantener la actual"</small>
           </div>
-          <small class="text-muted"
-            >Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1
-            carácter especial</small
-          >
         </div>
         <div class="col mb-2">
           <label class="form-label">Repetir contraseña</label>
           <div class="input-group">
-            <input
-              name="password2"
-              type="password"
-              class="form-control"
-              id="editarPassword2"
-              placeholder="Repetir nueva contraseña"
-            />
-            <button
-              type="button"
-              class="btn btn-outline-secondary toggle-password"
-              data-target="editarPassword2"
-            >
+            <input name="password2" type="password" class="form-control" id="editarPassword2" />
+            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="editarPassword2">
               <i class="bi bi-eye"></i>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Mensajes de error para contraseñas -->
-      <div id="passwordError" class="alert alert-danger d-none" role="alert">
-        La nueva contraseña no puede ser igual a la anterior.
+      <div id="passwordMismatch" class="alert alert-danger d-none" role="alert"></div>
+      <div id="passwordRequirements" class="alert alert-warning d-none" role="alert">
+        La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un caracter especial.
       </div>
-
-      <div id="passwordMismatch" class="alert alert-danger d-none" role="alert">
-        Las contraseñas no coinciden.
-      </div>
-
-      <div
-        id="passwordRequirements"
-        class="alert alert-danger d-none"
-        role="alert"
-      >
-        La contraseña debe tener al menos 8 caracteres, incluyendo 1 mayúscula,
-        1 minúscula, 1 número y 1 carácter especial.
-      </div>
+      <div id="passwordError" class="alert alert-danger d-none" role="alert">La nueva contraseña no puede ser igual a la anterior.</div>
 
       <div class="d-flex justify-content-end gap-2 mt-3">
-        <button
-          type="button"
-          class="btn btn-outline-secondary close-editar-modal"
-        >
-          Cancelar
-        </button>
-        <button type="submit" class="btn btn-custom" id="btnActualizar">
-          Actualizar
-        </button>
+        <button type="button" class="btn btn-outline-secondary close-editar-modal">Cancelar</button>
+        <button type="submit" class="btn btn-custom" id="btnActualizar">Actualizar</button>
       </div>
     </form>
   </div>
 </div>
+
+<!-- ===== CONTENEDOR DE TOASTS ===== -->
+<div id="toastContainer" 
+     class="position-fixed top-0 end-0 p-3" 
+     style="z-index: 2000;">
+</div>
+
+
 
 <!-- Modal para Detalles de Usuario -->
 <div id="modalDetallesOverlay" class="modal-overlay d-none">

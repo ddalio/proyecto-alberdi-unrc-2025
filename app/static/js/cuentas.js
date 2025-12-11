@@ -1,400 +1,414 @@
 (function () {
-  // ===== MOSTRAR TOASTS AUTOMÁTICAMENTE =====
-  function mostrarToasts() {
-    const toasts = document.querySelectorAll(".toast");
-    toasts.forEach((toast) => {
-      const bsToast = new bootstrap.Toast(toast);
-      bsToast.show();
-    });
-  }
-  document.addEventListener("DOMContentLoaded", mostrarToasts);
+  // ==================== BOTÓN AÑADIR USUARIO ====================
+  const btnAñadirUsuario = getById("openCrearModalBtn");
 
-  // ===== VALIDACIÓN PARA CREACIÓN DE USUARIO =====
-  function validarYEnviarCreacion(event) {
-    event.preventDefault();
+  safeAddEventListener(btnAñadirUsuario, "click", () => {
+    abrirModal(modales.crear);
 
-    const password = document.getElementById("crearPassword").value;
-    const password2 = document.getElementById("crearPassword2").value;
-    const email = document.getElementById("crearEmail").value;
-    const btnCrear = document.getElementById("btnCrearUsuario");
+    const errorCrear = getById("crearError");
+    if (errorCrear) errorCrear.classList.add("d-none");
+  });
 
-    // Ocultar mensajes de error previos
-    document.getElementById("crearPasswordMismatch").classList.add("d-none");
-    document
-      .getElementById("crearPasswordRequirements")
-      .classList.add("d-none");
-    document.getElementById("crearEmailError").classList.add("d-none");
-
-    // Verificar que las contraseñas coincidan
-    if (password !== password2) {
-      document
-        .getElementById("crearPasswordMismatch")
-        .classList.remove("d-none");
-      return false;
-    }
-
-    // Verificar requisitos de contraseña
-    if (!validarRequisitosPassword(password)) {
-      document
-        .getElementById("crearPasswordRequirements")
-        .classList.remove("d-none");
-      return false;
-    }
-
-    // Deshabilitar botón y mostrar loading
-    btnCrear.disabled = true;
-    btnCrear.innerHTML =
-      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creando y enviando email...';
-
-    // Primero crear el usuario, luego enviar email de verificación
-    crearUsuarioYEnviarVerificacion();
-    return false;
+  // ==================== UTILIDADES ====================
+  function getById(id) {
+    return document.getElementById(id);
   }
 
-  function crearUsuarioYEnviarVerificacion() {
-    const formData = new FormData(document.getElementById("formCrearUsuario"));
-    const btnCrear = document.getElementById("btnCrearUsuario");
-
-    fetch('{{ url_for("cuentas.crear_cuenta") }}', {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          return enviarEmailVerificacion(data.usuario_id);
-        } else {
-          throw new Error(data.error || "Error al crear usuario");
-        }
-      })
-      .then((emailResult) => {
-        if (emailResult.success) {
-          // Todo exitoso, recargar la página
-          mostrarMensajeExito(
-            "Usuario creado y email de verificación enviado exitosamente"
-          );
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
-        } else {
-          throw new Error(
-            emailResult.error || "Error al enviar email de verificación"
-          );
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        document.getElementById("crearEmailError").classList.remove("d-none");
-        btnCrear.disabled = false;
-        btnCrear.innerHTML =
-          '<i class="bi bi-send me-2"></i>Crear y Enviar Verificación';
-      });
+  function safeSetValue(id, value) {
+    const el = getById(id);
+    if (el) el.value = value || "";
   }
 
-  function enviarEmailVerificacion(usuarioId) {
-    return fetch("/cuentas/verificar-email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        usuario: usuarioId,
-      }),
-    }).then((response) => {
-      console.log("Status:", response.status);
-      return response.text().then((text) => {
-        console.log("Raw response:", text);
-        try {
-          return JSON.parse(text);
-        } catch {
-          throw new Error(`Invalid JSON: ${text}`);
-        }
-      });
-    });
+  function safeAddEventListener(el, event, handler) {
+    if (el) el.addEventListener(event, handler);
   }
 
-  function mostrarMensajeExito(mensaje) {
-    // Crear un toast de éxito
+  function mostrarToast(mensaje, tipo = "success") {
     const toastContainer = document.querySelector(".toast-container");
-    const toastHtml = `
-            <div class="toast align-items-center text-white bg-success border-0" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">${mensaje}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            </div>
-        `;
-    toastContainer.insertAdjacentHTML("beforeend", toastHtml);
+    if (!toastContainer) return;
 
-    // Mostrar el toast
-    const toastElement = toastContainer.lastElementChild;
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
+    const toastHtml = `
+      <div class="toast align-items-center text-bg-${tipo} border-0" role="alert">
+        <div class="d-flex">
+          <div class="toast-body">${mensaje}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+      </div>
+    `;
+    toastContainer.insertAdjacentHTML("beforeend", toastHtml);
+    const toastEl = toastContainer.lastElementChild;
+    new bootstrap.Toast(toastEl).show();
   }
 
-  // ===== VALIDACIÓN DE CAMBIO DE CONTRASEÑA =====
-  function validarCambioPassword(event) {
-    event.preventDefault();
+  // ==================== TOASTS AUTOMÁTICOS ====================
+  const toastContainer = document.getElementById("toastContainer");
 
-    const nuevaPassword = document.getElementById("editarPassword").value;
-    const confirmarPassword = document.getElementById("editarPassword2").value;
-    const passwordError = document.getElementById("passwordError");
-    const passwordMismatch = document.getElementById("passwordMismatch");
-    const passwordRequirements = document.getElementById(
-      "passwordRequirements"
-    );
-    const btnActualizar = document.getElementById("btnActualizar");
+  function mostrarToast(mensaje, tipo = "success") {
+    if (!toastContainer) return;
 
-    passwordError.classList.add("d-none");
-    passwordMismatch.classList.add("d-none");
-    passwordRequirements.classList.add("d-none");
+    const toastHtml = `
+        <div class="toast align-items-center text-bg-${tipo} border-0 mb-2" role="alert" data-bs-autohide="true" data-bs-delay="5000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi ${
+                      tipo === "success"
+                        ? "bi-check-circle-fill"
+                        : "bi-bell-fill"
+                    } me-2"></i>${mensaje}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    toastContainer.insertAdjacentHTML("beforeend", toastHtml);
+    const toastEl = toastContainer.lastElementChild;
+    new bootstrap.Toast(toastEl).show();
+  }
 
-    if (!nuevaPassword && !confirmarPassword) {
-      return enviarFormularioEdicion();
+  // ==================== TOGGLE VISIBILIDAD CONTRASEÑA ====================
+  function setupPasswordToggle() {
+    document.querySelectorAll(".toggle-password").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.dataset.target;
+        const input = getById(targetId);
+        if (!input) return;
+
+        const type = input.type === "password" ? "text" : "password";
+        input.type = type;
+
+        const icon = btn.querySelector("i");
+        if (icon)
+          icon.className =
+            type === "password" ? "bi bi-eye" : "bi bi-eye-slash";
+      });
+    });
+  }
+
+  setupPasswordToggle();
+
+  // ==================== MODALES ====================
+  const modales = {
+    crear: getById("modalCrearOverlay"),
+    editar: getById("modalEditarOverlay"),
+    detalles: getById("modalDetallesOverlay"),
+    reenviar: getById("modalReenviarOverlay"),
+  };
+
+  function abrirModal(modal) {
+    if (modal) {
+      modal.classList.remove("d-none");
+      document.body.style.overflow = "hidden";
     }
+  }
 
-    if (
-      (nuevaPassword && !confirmarPassword) ||
-      (!nuevaPassword && confirmarPassword)
-    ) {
-      passwordMismatch.textContent =
-        "Debe completar ambos campos de contraseña";
-      passwordMismatch.classList.remove("d-none");
-      return false;
+  function cerrarModal(modal) {
+    if (modal) {
+      modal.classList.add("d-none");
+      document.body.style.overflow = "";
     }
+  }
 
-    // Verificar que las contraseñas coincidan
-    if (nuevaPassword !== confirmarPassword) {
-      passwordMismatch.textContent = "Las contraseñas no coinciden";
-      passwordMismatch.classList.remove("d-none");
-      return false;
-    }
+  function asignarCierreModales() {
+    document
+      .querySelectorAll(".close-crear-modal")
+      .forEach((btn) =>
+        safeAddEventListener(btn, "click", () => cerrarModal(modales.crear))
+      );
+    document
+      .querySelectorAll(".close-editar-modal")
+      .forEach((btn) =>
+        safeAddEventListener(btn, "click", () => cerrarModal(modales.editar))
+      );
+    document
+      .querySelectorAll(".close-detalles-modal")
+      .forEach((btn) =>
+        safeAddEventListener(btn, "click", () => cerrarModal(modales.detalles))
+      );
+    document
+      .querySelectorAll(".close-reenviar-modal")
+      .forEach((btn) =>
+        safeAddEventListener(btn, "click", () => cerrarModal(modales.reenviar))
+      );
 
-    // Verificar requisitos de contraseña
-    if (!validarRequisitosPassword(nuevaPassword)) {
-      passwordRequirements.classList.remove("d-none");
-      return false;
-    }
+    Object.values(modales).forEach((modal) => {
+      if (!modal) return;
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) cerrarModal(modal);
+      });
+    });
 
-    // Deshabilitar botón para evitar múltiples envíos
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        Object.values(modales).forEach((modal) => {
+          if (modal && !modal.classList.contains("d-none")) cerrarModal(modal);
+        });
+      }
+    });
+  }
+
+  asignarCierreModales();
+
+  // ==================== FORMULARIOS ====================
+  const formEditar = getById("formEditarUsuario");
+  const btnActualizar = getById("btnActualizar");
+  const errorEditar = getById("editarError");
+
+  function enviarEdicion() {
+    if (!formEditar) return;
+
+    const formData = new FormData(formEditar);
     btnActualizar.disabled = true;
     btnActualizar.innerHTML =
-      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Validando...';
+      '<span class="spinner-border spinner-border-sm"></span> Actualizando...';
 
-    // Verificar si la nueva contraseña es igual a la anterior
-    return verificarPasswordAnterior(nuevaPassword);
-  }
-
-  function validarRequisitosPassword(password) {
-    const regex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return regex.test(password);
-  }
-
-  function verificarPasswordAnterior(nuevaPassword) {
-    const usuario = document.getElementById("editarUsuario").value;
-    const btnActualizar = document.getElementById("btnActualizar");
-
-    return fetch('{{ url_for("cuentas.verificar_password") }}', {
+    fetch(formEditar.action, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        usuario: usuario,
-        nueva_password: nuevaPassword,
-      }),
+      body: formData,
+      headers: { "X-Requested-With": "XMLHttpRequest" },
     })
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => {
-        if (data.es_igual) {
-          // Mostrar error y mantener el modal abierto
-          document.getElementById("passwordError").classList.remove("d-none");
+        if (!data.success) {
+          if (errorEditar) {
+            errorEditar.textContent = data.message || "Error al actualizar";
+            errorEditar.classList.remove("d-none");
+          }
+
+          if (data.datos) {
+            Object.keys(data.datos).forEach((key) => {
+              const input = formEditar.querySelector(`[name="${key}"]`);
+              if (input) input.value = data.datos[key];
+            });
+          }
+
+          abrirModal(modales.editar);
           btnActualizar.disabled = false;
           btnActualizar.innerHTML = "Actualizar";
-          return false;
         } else {
-          // Contraseña válida, enviar formulario
-          return enviarFormularioEdicion();
+          if (errorEditar) errorEditar.classList.add("d-none");
+          mostrarToast(data.message || "Usuario actualizado", "success");
+          cerrarModal(modales.editar);
+          btnActualizar.disabled = false;
+          btnActualizar.innerHTML = "Actualizar";
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
         }
       })
-      .catch((error) => {
-        console.error("Error:", error);
+      .catch((err) => {
+        console.error(err);
+        if (errorEditar) {
+          errorEditar.textContent = "Ocurrió un error inesperado";
+          errorEditar.classList.remove("d-none");
+        }
         btnActualizar.disabled = false;
         btnActualizar.innerHTML = "Actualizar";
-        alert("Error de conexión. Intente nuevamente.");
-        return false;
       });
   }
 
-  function enviarFormularioEdicion() {
-    const form = document.getElementById("formEditarUsuario");
-    form.submit();
-    return true;
+  safeAddEventListener(formEditar, "submit", (e) => {
+    e.preventDefault();
+    enviarEdicion();
+  });
+
+  function cargarDatosEdicion(usuario) {
+    fetch(`/cuentas/detalles/${usuario}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success)
+          return console.error("Error cargando datos", data.error);
+
+        safeSetValue("editarUsuario", data.cuenta.nombre_usuario);
+        safeSetValue("editarUsuarioDisplay", data.cuenta.nombre_usuario);
+        safeSetValue("editarNombre", data.cuenta.nombre);
+        safeSetValue("editarApellido", data.cuenta.apellido);
+        safeSetValue("editarEmail", data.cuenta.email);
+        safeSetValue("editarRol", data.cuenta.rol.toLowerCase());
+
+        safeSetValue("editarPassword", "");
+        safeSetValue("editarPassword2", "");
+
+        formEditar.action = `/cuentas/editar/${data.cuenta.nombre_usuario}`;
+        abrirModal(modales.editar);
+      })
+      .catch((err) => console.error("Error cargando datos de edición:", err));
   }
 
+  // ==================== DETALLES ====================
+  window.abrirModalDetalles = function (usuario) {
+    cargarDetallesUsuario(usuario);
+    abrirModal(modales.detalles);
+  };
+
+  function cargarDetallesUsuario(usuario) {
+    const detallesContenido = getById("detallesContenido");
+    detallesContenido.innerHTML = `
+      <div class="text-center">
+        <div class="spinner-border" role="status"></div>
+        <p class="mt-2">Cargando detalles...</p>
+      </div>
+    `;
+
+    fetch(`/cuentas/detalles/${usuario}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success) {
+          detallesContenido.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+          return;
+        }
+
+        detallesContenido.innerHTML = `
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-muted">Información Básica</h6>
+              <table class="table table-borderless table-sm">
+                <tr><td><strong>Usuario:</strong></td><td>${
+                  data.cuenta.nombre_usuario
+                }</td></tr>
+                <tr><td><strong>Nombre:</strong></td><td>${
+                  data.cuenta.nombre
+                }</td></tr>
+                <tr><td><strong>Apellido:</strong></td><td>${
+                  data.cuenta.apellido
+                }</td></tr>
+                <tr><td><strong>Rol:</strong></td>
+                  <td><span class="badge ${
+                    data.cuenta.rol === "Administrador"
+                      ? "bg-danger"
+                      : "bg-secondary"
+                  }">${data.cuenta.rol}</span></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-muted">Información de Contacto</h6>
+              <table class="table table-borderless table-sm">
+                <tr><td><strong>Email:</strong></td><td>${
+                  data.cuenta.email
+                }</td></tr>
+                <tr><td><strong>Fecha Creación:</strong></td><td>${
+                  data.cuenta.fecha_creacion
+                }</td></tr>
+                <tr><td><strong>Último Acceso:</strong></td><td>${
+                  data.cuenta.ultimo_acceso
+                }</td></tr>
+              </table>
+            </div>
+          </div>
+          ${
+            !data.cuenta.email_verificado
+              ? `
+          <div class="mt-3 p-3 bg-light rounded d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-1">Email no verificado</h6>
+              <p class="mb-0 text-muted">El usuario no ha verificado su email aún.</p>
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm reenviar-verificacion-btn"
+              data-usuario="${data.cuenta.nombre_usuario}" data-email="${data.cuenta.email}">
+              <i class="bi bi-send me-1"></i>Reenviar verificación
+            </button>
+          </div>
+          `
+              : ""
+          }
+        `;
+      })
+      .catch((err) => {
+        detallesContenido.innerHTML = `<div class="alert alert-danger">Error al cargar los detalles: ${err}</div>`;
+      });
+  }
+
+  // ==================== REENVIAR VERIFICACIÓN ====================
   function reenviarVerificacionEmail(usuario, email) {
-    const modalReenviar = document.getElementById("modalReenviarOverlay");
-    const reenviarContenido = document.getElementById("reenviarContenido");
-    const btnReenviar = document.getElementById("btnReenviarVerificacion");
+    const modal = modales.reenviar;
+    const contenido = getById("reenviarContenido");
+    const btnReenviar = getById("btnReenviarVerificacion");
 
-    reenviarContenido.innerHTML = `
-    <div class="text-center">
-      <i class="bi bi-envelope-check display-4 text-primary mb-3"></i>
-      <h6>Reenviar email de verificación</h6>
-      <p>¿Estás seguro de que querés reenviar el email de verificación a <strong>${email}</strong>?</p>
-      <small class="text-muted">El usuario recibirá un enlace para verificar su cuenta.</small>
-    </div>
-  `;
+    contenido.innerHTML = `
+      <div class="text-center">
+        <i class="bi bi-envelope-check display-4 text-primary mb-3"></i>
+        <h6>Reenviar email de verificación</h6>
+        <p>¿Estás seguro de que querés reenviar el email de verificación a <strong>${email}</strong>?</p>
+        <small class="text-muted">El usuario recibirá un enlace para verificar su cuenta.</small>
+      </div>
+    `;
 
-    modalReenviar.classList.remove("d-none");
-    document.body.style.overflow = "hidden";
+    abrirModal(modal);
 
-    btnReenviar.onclick = function () {
+    btnReenviar.onclick = () => {
       btnReenviar.disabled = true;
       btnReenviar.innerHTML =
         '<span class="spinner-border spinner-border-sm" role="status"></span> Enviando...';
 
       fetch("/cuentas/verificar-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          usuario: usuario,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuario }),
       })
-        .then((response) => {
-          console.log("Status:", response.status);
-          return response.text().then((text) => {
-            console.log("Raw response:", text);
-            try {
-              return JSON.parse(text);
-            } catch {
-              throw new Error(`Invalid JSON: ${text}`);
-            }
-          });
-        })
+        .then((res) => res.json())
         .then((data) => {
           if (data.success) {
-            reenviarContenido.innerHTML = `
-          <div class="text-center">
-            <i class="bi bi-check-circle display-4 text-success mb-3"></i>
-            <h6>¡Email enviado!</h6>
-            <p>El email de verificación fue enviado exitosamente a <strong>${email}</strong>.</p>
-          </div>
-        `;
+            contenido.innerHTML = `
+              <div class="text-center">
+                <i class="bi bi-check-circle display-4 text-success mb-3"></i>
+                <h6>¡Email enviado!</h6>
+                <p>El email de verificación fue enviado a <strong>${email}</strong>.</p>
+              </div>
+            `;
             btnReenviar.classList.add("d-none");
-            setTimeout(() => {
-              closeReenviarModal();
-              window.location.reload();
-            }, 2000);
+            setTimeout(() => cerrarModal(modal), 2000);
           } else {
             throw new Error(data.error || "Error al enviar email");
           }
         })
-        .catch((error) => {
-          reenviarContenido.innerHTML = `
-        <div class="text-center">
-          <i class="bi bi-exclamation-triangle display-4 text-danger mb-3"></i>
-          <h6>Error</h6>
-          <p>No se pudo enviar el email de verificación: ${error.message}</p>
-        </div>
-      `;
+        .catch((err) => {
+          contenido.innerHTML = `
+            <div class="text-center">
+              <i class="bi bi-exclamation-triangle display-4 text-danger mb-3"></i>
+              <h6>Error</h6>
+              <p>No se pudo enviar el email: ${err.message}</p>
+            </div>
+          `;
           btnReenviar.disabled = false;
           btnReenviar.innerHTML = '<i class="bi bi-send me-2"></i>Reenviar';
         });
     };
   }
 
-  function closeReenviarModal() {
-    document.getElementById("modalReenviarOverlay").classList.add("d-none");
-    document.body.style.overflow = "";
-  }
+  // ==================== TABLA Y BÚSQUEDA ====================
+  const tbodyCuentas = getById("tbodyCuentas");
+  const inputBusqueda = getById("inputBusqueda");
+  const btnBuscar = getById("btnBuscar");
+  const loadingBusqueda = getById("loadingBusqueda");
+  const contadorResultados = getById("contadorResultados");
 
-  // Ejecutar cuando el DOM esté listo
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", mostrarToasts);
-  } else {
-    mostrarToasts();
-  }
-
-  // ===== TOGGLE VISIBILIDAD CONTRASEÑA =====
-  function setupPasswordToggle() {
-    document.querySelectorAll(".toggle-password").forEach((button) => {
-      button.addEventListener("click", function () {
-        const targetId = this.getAttribute("data-target");
-        const passwordInput = document.getElementById(targetId);
-
-        if (passwordInput) {
-          const type =
-            passwordInput.getAttribute("type") === "password"
-              ? "text"
-              : "password";
-          passwordInput.setAttribute("type", type);
-
-          // Cambiar icono
-          const icon = this.querySelector("i");
-          if (type === "password") {
-            icon.className = "bi bi-eye";
-          } else {
-            icon.className = "bi bi-eye-slash";
-          }
-        }
-      });
-    });
-  }
-
-  // Configurar toggles para todas las contraseñas
-  setupPasswordToggle();
-
-  const inputBusqueda = document.getElementById("inputBusqueda");
-  const btnBuscar = document.getElementById("btnBuscar");
-  const loadingBusqueda = document.getElementById("loadingBusqueda");
-  const tbodyCuentas = document.getElementById("tbodyCuentas");
-  const contadorResultados = document.getElementById("contadorResultados");
-
-  let timeoutBusqueda = null;
+  let timeoutBusqueda;
 
   function realizarBusqueda(termino) {
     loadingBusqueda.classList.remove("d-none");
     btnBuscar.classList.add("d-none");
 
     fetch("/cuentas/buscar", {
-      // ← Esta línea
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        busqueda: termino,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ busqueda: termino }),
     })
-      .then((response) => {
-        console.log("Status buscar:", response.status);
-        return response.text().then((text) => {
-          console.log("Respuesta buscar:", text);
-          try {
-            return JSON.parse(text);
-          } catch {
-            throw new Error("Invalid JSON: " + text.substring(0, 100));
-          }
-        });
-      })
+      .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          actualizarTabla(data.resultados);
-          contadorResultados.textContent = `Mostrando ${data.total} cuenta${
-            data.total !== 1 ? "s" : ""
-          }`;
-        } else {
-          console.error("Error:", data.error);
+        if (!data.success) {
           contadorResultados.textContent = "Error en la búsqueda";
+          return;
         }
+
+        actualizarTabla(data.resultados);
+        contadorResultados.textContent = `Mostrando ${data.total} cuenta${
+          data.total !== 1 ? "s" : ""
+        }`;
       })
-      .catch((error) => {
-        console.error("Error completo:", error);
-        contadorResultados.textContent = "Error de conexión: " + error.message;
+      .catch((err) => {
+        console.error(err);
+        contadorResultados.textContent = "Error de conexión";
       })
       .finally(() => {
         loadingBusqueda.classList.add("d-none");
@@ -404,351 +418,85 @@
 
   function actualizarTabla(resultados) {
     if (resultados.length === 0) {
-      tbodyCuentas.innerHTML = `
-          <tr>
-            <td colspan="7" class="text-center text-muted">
-              No se encontraron cuentas
-            </td>
-          </tr>
-        `;
+      tbodyCuentas.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No se encontraron cuentas</td></tr>`;
       return;
     }
 
-    let html = "";
-    resultados.forEach((cuenta) => {
-      html += `
-          <tr>
-            <td>${cuenta.nombre_usuario}</td>
-            <td>${cuenta.nombre}</td>
-            <td>${cuenta.apellido}</td>
-            <td>${cuenta.email}</td>
-            <td>${cuenta.rol}</td>
-            <td class="acciones">
-              <button type="button" 
-                      class="btn btn-link p-0 text-decoration-none ver-detalles-btn"
-                      data-usuario="${cuenta.nombre_usuario}"
-                      title="Ver detalles">
-                <i class="bi bi-eye"></i>
-              </button>
-              <button type="button" 
-                      class="btn btn-link p-0 text-decoration-none ms-2 editar-cuenta-btn"
-                      data-usuario="${cuenta.nombre_usuario}"
-                      title="Editar">
-                <i class="bi bi-pencil"></i>
-              </button>
-              ${
-                !cuenta.email_verificado
-                  ? `
-              <button type="button" 
-                      class="btn btn-link p-0 text-decoration-none ms-2 reenviar-verificacion-btn"
-                      data-usuario="${cuenta.nombre_usuario}"
-                      data-email="${cuenta.email}"
-                      title="Reenviar verificación">
-                <i class="bi bi-send"></i>
-              </button>
-              `
-                  : ""
-              }
-              <form action="/cuentas/eliminar/${cuenta.nombre_usuario}" 
-                    method="POST" 
-                    style="display: inline"
-                    class="ms-2"
-                    onsubmit="return confirm('¿Estás seguro de eliminar la cuenta de ${
-                      cuenta.nombre_usuario
-                    }?');">
-                <button type="submit" class="btn btn-link p-0 text-decoration-none" title="Eliminar">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-            </td>
-          </tr>
-        `;
-    });
-
-    tbodyCuentas.innerHTML = html;
-
-    // Re-asignar event listeners
-    reassignEventListeners();
-  }
-
-  const modalCrear = document.getElementById("modalCrearOverlay");
-  const modalEditar = document.getElementById("modalEditarOverlay");
-  const modalDetalles = document.getElementById("modalDetallesOverlay");
-  const modalReenviar = document.getElementById("modalReenviarOverlay");
-  const detallesContenido = document.getElementById("detallesContenido");
-  const formEditarUsuario = document.getElementById("formEditarUsuario");
-
-  // Botones modales
-  const openCrearBtn = document.getElementById("openCrearModalBtn");
-  const closeCrearBtns = document.querySelectorAll(".close-crear-modal");
-  const closeEditarBtns = document.querySelectorAll(".close-editar-modal");
-  const closeDetallesBtns = document.querySelectorAll(".close-detalles-modal");
-  const closeReenviarBtns = document.querySelectorAll(".close-reenviar-modal");
-
-  // Funciones modales
-  function openCrearModal() {
-    modalCrear.classList.remove("d-none");
-    document.body.style.overflow = "hidden";
-    document.getElementById("formCrearUsuario")?.reset();
-    // Limpiar mensajes de error
-    document.querySelectorAll("#formCrearUsuario .alert").forEach((alert) => {
-      alert.classList.add("d-none");
-    });
-  }
-
-  function closeCrearModal() {
-    modalCrear.classList.add("d-none");
-    document.body.style.overflow = "";
-  }
-
-  function openEditarModal() {
-    modalEditar.classList.remove("d-none");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeEditarModal() {
-    modalEditar.classList.add("d-none");
-    document.body.style.overflow = "";
-  }
-
-  function openDetallesModal() {
-    modalDetalles.classList.remove("d-none");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeDetallesModal() {
-    modalDetalles.classList.add("d-none");
-    document.body.style.overflow = "";
-    detallesContenido.innerHTML = `
-        <div class="text-center">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-2">Cargando detalles...</p>
-        </div>
-      `;
-  }
-
-  // Cargar datos en el modal de edición
-  function cargarDatosEdicion(nombreUsuario) {
-    fetch(`/cuentas/detalles/${nombreUsuario}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          // Llenar el formulario con los datos
-          document.getElementById("editarUsuario").value =
-            data.cuenta.nombre_usuario;
-          document.getElementById("editarUsuarioDisplay").value =
-            data.cuenta.nombre_usuario;
-          document.getElementById("editarNombre").value = data.cuenta.nombre;
-          document.getElementById("editarApellido").value =
-            data.cuenta.apellido;
-          document.getElementById("editarEmail").value = data.cuenta.email;
-          document.getElementById("editarRol").value =
-            data.cuenta.rol.toLowerCase();
-
-          // Guardar hash de contraseña anterior si está disponible
-          if (data.cuenta.password_hash) {
-            document.getElementById("passwordAnteriorHash").value =
-              data.cuenta.password_hash;
+    tbodyCuentas.innerHTML = resultados
+      .map(
+        (c) => `
+      <tr>
+        <td>${c.nombre_usuario}</td>
+        <td>${c.nombre}</td>
+        <td>${c.apellido}</td>
+        <td>${c.email}</td>
+        <td>${c.rol}</td>
+        <td class="acciones">
+          <button type="button" class="btn btn-link p-0 text-decoration-none ver-detalles-btn" data-usuario="${
+            c.nombre_usuario
+          }" title="Ver detalles">
+            <i class="bi bi-eye"></i>
+          </button>
+          <button type="button" class="btn btn-link p-0 text-decoration-none ms-2 editar-cuenta-btn" data-usuario="${
+            c.nombre_usuario
+          }" title="Editar">
+            <i class="bi bi-pencil"></i>
+          </button>
+          ${
+            !c.email_verificado
+              ? `
+          <button type="button" class="btn btn-link p-0 text-decoration-none ms-2 reenviar-verificacion-btn" data-usuario="${c.nombre_usuario}" data-email="${c.email}" title="Reenviar verificación">
+            <i class="bi bi-send"></i>
+          </button>`
+              : ""
           }
-
-          // Limpiar campos de contraseña y mensajes de error
-          document.getElementById("editarPassword").value = "";
-          document.getElementById("editarPassword2").value = "";
-          document.querySelectorAll(".alert").forEach((alert) => {
-            alert.classList.add("d-none");
-          });
-
-          // Configurar el action del formulario
-          formEditarUsuario.action = `/cuentas/editar/${data.cuenta.nombre_usuario}`;
-
-          openEditarModal();
-        }
-      })
-      .catch((error) => {
-        console.error("Error cargando datos para edición:", error);
-      });
+          <form action="/cuentas/eliminar/${
+            c.nombre_usuario
+          }" method="POST" style="display:inline" class="ms-2" onsubmit="return confirm('¿Estás seguro de eliminar ${
+          c.nombre_usuario
+        }?');">
+            <button type="submit" class="btn btn-link p-0 text-decoration-none" title="Eliminar">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+    `
+      )
+      .join("");
   }
 
-  window.abrirModalDetalles = function (nombreUsuario) {
-    cargarDetallesUsuario(nombreUsuario);
-    openDetallesModal();
-  };
+  // ==================== DELEGACIÓN DE EVENTOS ====================
+  tbodyCuentas.addEventListener("click", (e) => {
+    const btnDetalles = e.target.closest(".ver-detalles-btn");
+    const btnEditar = e.target.closest(".editar-cuenta-btn");
+    const btnReenviar = e.target.closest(".reenviar-verificacion-btn");
 
-  function cargarDetallesUsuario(nombreUsuario) {
-    fetch(`/cuentas/detalles/${nombreUsuario}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          detallesContenido.innerHTML = `
-              <div class="row">
-                <div class="col-md-6">
-                  <h6 class="text-muted">Información Básica</h6>
-                  <table class="table table-borderless table-sm">
-                    <tr><td><strong>Usuario:</strong></td><td>${
-                      data.cuenta.nombre_usuario
-                    }</td></tr>
-                    <tr><td><strong>Nombre:</strong></td><td>${
-                      data.cuenta.nombre
-                    }</td></tr>
-                    <tr><td><strong>Apellido:</strong></td><td>${
-                      data.cuenta.apellido
-                    }</td></tr>
-                    <tr>
-                      <td><strong>Rol:</strong></td>
-                      <td>
-                        <span class="badge ${
-                          data.cuenta.rol === "Administrador"
-                            ? "bg-danger"
-                            : "bg-secondary"
-                        }">
-                          ${data.cuenta.rol}
-                        </span>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-                <div class="col-md-6">
-                  <h6 class="text-muted">Información de Contacto</h6>
-                  <table class="table table-borderless table-sm">
-                    <tr><td><strong>Email:</strong></td><td>${
-                      data.cuenta.email
-                    }</td></tr>
-                    <tr><td><strong>Fecha Creación:</strong></td><td>${
-                      data.cuenta.fecha_creacion
-                    }</td></tr>
-                    <tr><td><strong>Último Acceso:</strong></td><td>${
-                      data.cuenta.ultimo_acceso
-                    }</td></tr>
-                  </table>
-                </div>
-              </div>
-              ${
-                !data.cuenta.email_verificado
-                  ? `
-              <div class="mt-3 p-3 bg-light rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 class="mb-1">Email no verificado</h6>
-                    <p class="mb-0 text-muted">El usuario no ha verificado su email aún.</p>
-                  </div>
-                  <button type="button" class="btn btn-outline-primary btn-sm" 
-                          onclick="reenviarVerificacionEmail('${data.cuenta.nombre_usuario}', '${data.cuenta.email}')">
-                    <i class="bi bi-send me-1"></i>Reenviar verificación
-                  </button>
-                </div>
-              </div>
-              `
-                  : ""
-              }
-            `;
-        } else {
-          detallesContenido.innerHTML = `
-              <div class="alert alert-danger">
-                Error: ${data.error}
-              </div>
-            `;
-        }
-      })
-      .catch((error) => {
-        detallesContenido.innerHTML = `
-            <div class="alert alert-danger">
-              Error al cargar los detalles: ${error}
-            </div>
-          `;
-      });
-  }
-
-  // Re-asignar event listeners
-  function reassignEventListeners() {
-    // Detalles
-    document.querySelectorAll(".ver-detalles-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const usuario = this.getAttribute("data-usuario");
-        abrirModalDetalles(usuario);
-      });
-    });
-
-    // Editar
-    document.querySelectorAll(".editar-cuenta-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const usuario = this.getAttribute("data-usuario");
-        cargarDatosEdicion(usuario);
-      });
-    });
-
-    // Reenviar verificación
-    document.querySelectorAll(".reenviar-verificacion-btn").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const usuario = this.getAttribute("data-usuario");
-        const email = this.getAttribute("data-email");
-        reenviarVerificacionEmail(usuario, email);
-      });
-    });
-  }
-
-  // Event listeners iniciales
-  openCrearBtn && openCrearBtn.addEventListener("click", openCrearModal);
-  closeCrearBtns.forEach((btn) =>
-    btn.addEventListener("click", closeCrearModal)
-  );
-  closeEditarBtns.forEach((btn) =>
-    btn.addEventListener("click", closeEditarModal)
-  );
-  closeDetallesBtns.forEach((btn) =>
-    btn.addEventListener("click", closeDetallesModal)
-  );
-  closeReenviarBtns.forEach((btn) =>
-    btn.addEventListener("click", closeReenviarModal)
-  );
-
-  // Event listeners para botones iniciales
-  reassignEventListeners();
-
-  // Cerrar modales al hacer click fuera
-  [modalCrear, modalEditar, modalDetalles, modalReenviar].forEach((modal) => {
-    modal &&
-      modal.addEventListener("click", function (e) {
-        if (e.target === modal) {
-          if (modal === modalCrear) closeCrearModal();
-          if (modal === modalEditar) closeEditarModal();
-          if (modal === modalDetalles) closeDetallesModal();
-          if (modal === modalReenviar) closeReenviarModal();
-        }
-      });
+    if (btnDetalles) abrirModalDetalles(btnDetalles.dataset.usuario);
+    if (btnEditar) cargarDatosEdicion(btnEditar.dataset.usuario);
+    if (btnReenviar)
+      reenviarVerificacionEmail(
+        btnReenviar.dataset.usuario,
+        btnReenviar.dataset.email
+      );
   });
 
-  // Cerrar con Esc
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") {
-      if (!modalCrear.classList.contains("d-none")) closeCrearModal();
-      if (!modalEditar.classList.contains("d-none")) closeEditarModal();
-      if (!modalDetalles.classList.contains("d-none")) closeDetallesModal();
-      if (!modalReenviar.classList.contains("d-none")) closeReenviarModal();
-    }
-  });
-
-  // Event listeners para búsqueda
   inputBusqueda.addEventListener("input", function () {
-    const termino = this.value.trim();
     clearTimeout(timeoutBusqueda);
-
+    const termino = this.value.trim();
     timeoutBusqueda = setTimeout(() => {
-      if (termino.length >= 2 || termino.length === 0) {
+      if (termino.length >= 2 || termino.length === 0)
         realizarBusqueda(termino);
-      }
     }, 300);
   });
 
-  btnBuscar.addEventListener("click", function () {
-    realizarBusqueda(inputBusqueda.value.trim());
-  });
-
-  inputBusqueda.addEventListener("keypress", function (e) {
+  btnBuscar.addEventListener("click", () =>
+    realizarBusqueda(inputBusqueda.value.trim())
+  );
+  inputBusqueda.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      realizarBusqueda(this.value.trim());
+      realizarBusqueda(inputBusqueda.value.trim());
     }
   });
 })();

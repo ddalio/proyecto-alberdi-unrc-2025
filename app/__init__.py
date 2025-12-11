@@ -7,6 +7,8 @@ from datetime import datetime
 from flask import make_response
 from reportlab.pdfgen import canvas
 from io import BytesIO
+import os
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -18,16 +20,15 @@ def create_app():
     # Configuración general
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///alberdi.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.secret_key = "clave-secreta"
+    app.secret_key = os.getenv("SECRET_KEY")
     
     # Config de mail
     app.config["MAIL_SERVER"] = "smtp.gmail.com"
     app.config["MAIL_PORT"] = 587
     app.config["MAIL_USE_TLS"] = True
-    app.config["MAIL_USERNAME"] = "ago.chazon@gmail.com"
-    app.config["MAIL_PASSWORD"] = "auax bssu wzjl xolx"
+    app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 
-    # Inicializar extensiones y vincularlas a la app (Patrón Factory)
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
@@ -55,6 +56,9 @@ def create_app():
         from app.models import Cuenta, Administrador
 
         cuenta = Cuenta.query.filter_by(nombre_usuario='admin1').first()
+        admin_password ='Admin1231!'
+
+        
         if not cuenta:
             try:
                 cuenta_admin = Cuenta(
@@ -62,21 +66,21 @@ def create_app():
                     email='admin1@alberdi.com',
                     nombre='Administrador',
                     apellido='Sistema',
-                    password_hash=generate_password_hash('Admin1231!'),
+                    password_hash=generate_password_hash(admin_password),
                     fecha_creacion=datetime.utcnow(),
                     email_verificado=True
                 )
                 db.session.add(cuenta_admin)
 
-                admin = Administrador(nombre_usuario='admin1')
+                admin = Administrador(nombre_usuario='admin')
                 db.session.add(admin)
 
                 db.session.commit()
             except Exception:
                 db.session.rollback()
+                
     @app.errorhandler(404)
     def page_not_found(e):
-        # Ahora 'app' está definido, y render_template está importado
         return render_template('404.html'), 404
-
+    
     return app
