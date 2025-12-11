@@ -461,21 +461,23 @@ styles %}
                 {% endif %}
 
                 <!-- Botón Eliminar -->
+                {% if cuenta.nombre_usuario != current_user.nombre_usuario %}
                 <form
                   action="{{ url_for('cuentas.eliminar_cuenta', nombre_usuario=cuenta.nombre_usuario) }}"
                   method="POST"
                   style="display: inline"
                   class="ms-2"
                   onsubmit="return confirm('¿Estás seguro de eliminar la cuenta de {{ cuenta.nombre_usuario }}?');"
-                >
+                  >
                   <button
                     type="submit"
                     class="btn btn-link p-0 text-decoration-none"
                     title="Eliminar"
-                  >
-                    <i class="bi bi-trash"></i>
-                  </button>
+                    >
+                  <i class="bi bi-trash"></i>
+                </button>
                 </form>
+                {% endif %}
               </td>
             </tr>
             {% endfor %} {% else %}

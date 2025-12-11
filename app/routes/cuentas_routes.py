@@ -1,5 +1,5 @@
 import re
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, session, url_for, flash, jsonify
 from app.models import Cuenta, Administrador
 from app.utils.def_cuentas import *
 from werkzeug.security import generate_password_hash
@@ -217,6 +217,11 @@ def eliminar_cuenta(nombre_usuario):
     if not cuenta:
             flash("La cuenta no existe", "error")
             return redirect(url_for('cuentas.cuentas'))
+    
+    actual_nombre_usuario = session.get("username")
+    if actual_nombre_usuario == nombre_usuario:
+        flash("No podes eliminar tu propia cuenta de administrador.", "error")
+        return redirect(url_for('cuentas.cuentas')) 
 
     admin = Administrador.query.filter_by(nombre_usuario=nombre_usuario).first()
     if admin:
