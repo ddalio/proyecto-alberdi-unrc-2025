@@ -33,7 +33,7 @@ block content %}
 <div class="container py-3">
   <div class="d-flex align-items-center mb-3">
     <a
-      href="{{ url_for('eventos_bp.eventos') }}"
+      href="{{ url_for('ingresos.ingresos') }}"
       class="text-muted me-3"
       aria-label="Volver"
     >
@@ -50,6 +50,7 @@ block content %}
     </div>
   </div>
 
+  {% if current_user.es_administrador() %}
   <div class="d-flex justify-content-center">
     <div class="card w-100" style="max-width: 1100px">
       <div class="card-body d-flex flex-column" style="min-height: 50vh">
@@ -67,6 +68,7 @@ block content %}
             </div>
           </div>
         </div>
+        {% endif %}
 
         <!-- tabla de pagos con scroll -->
         <div class="row flex-grow-1 mb-3">
@@ -99,8 +101,9 @@ block content %}
                       {{ pago.observaciones if pago.observaciones is defined
                       else '' }}
                     </td>
+                    {% if current_user.es_administrador() %}
                     <td style="padding: 12px 20px">
-                       <form
+                      <form
                         action="{{ url_for('ingresos.eliminar_pago', id_pago=pago.id_pago) }}"
                         method="POST"
                         style="display: inline"
@@ -115,6 +118,7 @@ block content %}
                         </button>
                       </form>
                     </td>
+                    {% endif %}
                   </tr>
                   {% endfor %} {% else %}
                   <tr>
