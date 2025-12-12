@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from datetime import datetime, timedelta
+from app.decorators import admin_required, login_required
 from app.models import db, Evento, Cliente, ResponsableLlave, Pago, Cuenta
 from flask import Blueprint, make_response
 from reportlab.pdfgen import canvas
@@ -99,6 +100,7 @@ def eventos():
 
 # Crear un nuevo evento
 @eventos_bp.route("/agregar_evento", methods =["GET","POST"])
+@admin_required
 def agregar_evento():
     if request.method == "POST":
         try:
@@ -256,6 +258,7 @@ def combinar_fecha_hora(request, campo_fecha: str, campo_hora: str = None) -> da
         raise ValueError(f"La fecha u hora ingresada en '{campo_fecha}' no tiene el formato correcto.")
 
 @eventos_bp.route("/editar_evento/<int:id_evento>", methods=["GET", "POST"])
+@admin_required
 def editar_evento(id_evento):
     evento = Evento.query.get_or_404(id_evento)
 

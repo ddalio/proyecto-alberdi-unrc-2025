@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 from app.models import Evento, Cliente, ResponsableLlave, Pago, Cuenta, db
+from app.decorators import admin_required, login_required
 from app.routes import eventos_routes
 
 ingresos_bp = Blueprint('ingresos', __name__, url_prefix='/ingresos')
@@ -56,6 +57,7 @@ def rango_eventos_por_fecha():
         return redirect(url_for("ingresos.ingresos"))
 
 @ingresos_bp.route("/agregar_pago/<int:id_evento>", methods =["GET","POST"])
+@admin_required
 def agregar_pago(id_evento):
     evento = Evento.query.get_or_404(id_evento)
     if request.method == "POST":
@@ -107,6 +109,7 @@ def pagos(id_evento):
 
 
 @ingresos_bp.route("/pagos/eliminar/<int:id_pago>", methods=["GET","POST"])
+@admin_required
 def eliminar_pago(id_pago):
     try:
         pago = Pago.query.get(id_pago)
