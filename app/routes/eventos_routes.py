@@ -14,11 +14,14 @@ def eventos_pdf():
     campo = request.args.get("campo")
     valor = request.args.get("valor")
 
-    try:
-        eventos = busqueda_por_campo(campo, valor)
-    except Exception as e:
-        flash(f"Error al descargar eventos: {str(e)}")
-        return render_template("eventos.html", mensaje="Error al descargar eventos")
+    if campo and valor:
+        try:
+            eventos = busqueda_por_campo(campo, valor)
+        except Exception as e:
+            flash(f"Error al descargar eventos: {str(e)}")
+            return render_template("eventos.html", mensaje="Error al descargar eventos")
+    else: 
+        eventos = Evento.query.all()
 
     buffer = BytesIO()
     p = canvas.Canvas(buffer)
@@ -78,7 +81,7 @@ def eventos_pdf():
     buffer.seek(0)
     response = make_response(buffer.read())
     response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = "attachment; filename=eventos.pdf"
+    response.headers["Content-Disposition"] = "attachment; filename=listadoEventos.pdf"
 
     return response
 
@@ -405,12 +408,6 @@ def busqueda_por_campo(campo, valor):
     elif campo == "descripcion":
         query = query.filter(Evento.descripcion.ilike(f"%{valor}%"))
 
-    elif campo == "nombre":
-        query = query.filter(Cliente.nombre.ilike(f"%{valor}%"))
-
-    elif campo == "id_evento":
-        # Si se ingresa un ID, buscamos por coincidencia exacta
-        query = query.filter(Evento.id_evento == valor)
     elif not campo:
         query = query
     else:
