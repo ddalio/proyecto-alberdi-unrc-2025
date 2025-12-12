@@ -407,6 +407,7 @@ content %}
             class="col-md-4 d-flex justify-content-end align-items-center gap-2"
           >
             <!-- Botón Agregar con color personalizado -->
+              {% if current_user.es_administrador() %}
             <a
               href="{{ url_for('eventos_bp.agregar_evento') }}"
               class="btn px-4"
@@ -414,6 +415,7 @@ content %}
             >
               Agregar
             </a>
+             {% endif %}
 
             <!-- Botón Volver -->
             <a
