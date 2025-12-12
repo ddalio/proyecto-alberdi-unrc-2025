@@ -37,8 +37,6 @@ styles %}
   {% endwith %}
 </div>
 
-
-<!-- Modal para Crear Usuario -->
 <!-- Modal para Crear Usuario -->
 <div id="modalCrearOverlay" class="modal-overlay {% if datos_form %}show{% else %}d-none{% endif %}">
   <div
@@ -272,7 +270,6 @@ styles %}
   </div>
 </div>
 
-<!-- ===== CONTENEDOR DE TOASTS ===== -->
 <div id="toastContainer" 
      class="position-fixed top-0 end-0 p-3" 
      style="z-index: 2000;">
@@ -438,6 +435,7 @@ styles %}
                 </button>
 
                 <!-- Botón Editar -->
+                {% if cuenta.nombre_usuario != current_user.nombre_usuario %}
                 <button
                   type="button"
                   class="btn btn-link p-0 text-decoration-none ms-2 editar-cuenta-btn"
@@ -446,9 +444,10 @@ styles %}
                 >
                   <i class="bi bi-pencil"></i>
                 </button>
+                {% endif %}
 
                 <!-- Botón Reenviar Verificación -->
-                {% if not cuenta.email_verificado %}
+                {% if not cuenta.email_verificado and cuenta.nombre_usuario != current_user.nombre_usuario %}
                 <button
                   type="button"
                   class="btn btn-link p-0 text-decoration-none ms-2 reenviar-verificacion-btn"
@@ -499,14 +498,8 @@ styles %}
             id="openCrearModalBtn"
             class="btn btn-custom px-4 py-2"
           >
-            <i class="bi bi-plus-circle me-2"></i>Añadir Usuario
+            <i class="bi bi-plus-circle me-2"></i>Añadir cuenta
           </button>
-          <a
-            href="{{url_for('cuentas.cuentas') }}"
-            class="btn btn-outline-secondary px-4 py-2"
-          >
-            <i class="bi bi-arrow-left me-2"></i>Volver
-          </a>
         </div>
       </div>
     </div>
