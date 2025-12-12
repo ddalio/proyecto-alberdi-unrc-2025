@@ -4,6 +4,7 @@ from itsdangerous import URLSafeTimedSerializer
 from flask import jsonify, flash, redirect, url_for,render_template
 from flask import current_app
 from app.models import Cuenta
+from zoneinfo import ZoneInfo
 
 def responder_error(mensaje, es_ajax, datos_form):
     if es_ajax:
@@ -20,7 +21,8 @@ def responder_error(mensaje, es_ajax, datos_form):
 
 def formatear_fecha(fecha):
     if fecha:
-        return fecha.strftime("%d/%m/%Y %H:%M")
+        fecha_local = fecha.replace(tzinfo=ZoneInfo("UTC")).astimezone(ZoneInfo("America/Argentina/Buenos_Aires"))
+        return fecha_local.strftime("%d/%m/%Y %H:%M")
     return "No disponible"
 
 def generar_token_verificacion(nombre_usuario):
