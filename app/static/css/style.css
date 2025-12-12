@@ -203,6 +203,46 @@ body {
     border-top: 3px solid var(--color-btn);
     padding: 8px 8px 5px 8px;
   }
+  .sidebar .nav-text {
+        /* Fuerza la ocultación del texto en mobile */
+        display: none !important; 
+        opacity: 0 !important; 
+    }
+
+    /* Ajustar el padding del nav-link para que solo se vea el ícono */
+    .sidebar .nav-link {
+        /* Reduce el padding para que solo el ícono sea el centro de atención */
+        padding: 0.5rem 0.5rem; 
+        /* En mobile, los iconos deben estar centrados si el texto no está */
+        justify-content: center !important; 
+    }
+
+    /* Asegurar que el ícono esté centrado en el item */
+    .sidebar .nav-item {
+        /* Ya tienes esto, pero es crucial que el item use flex */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    /* Reajustar el active-nav para que se vea mejor sin texto */
+     .active-nav {
+         /* Asegurarse que el padding no cause un estiramiento vertical innecesario */
+         padding: 8px 8px 5px 8px; /* Podrías probar con 0.5rem 0 si lo anterior falla */
+     }
+
+    /* Asegúrate de que los enlaces sean flexibles para alinear el ícono */
+    .sidebar .nav-link {
+        display: flex;
+        flex-direction: column; /* Para que el ícono y el (futuro) texto vayan en columna si se decidiera ponerlo centrado */
+        align-items: center; /* Centra el contenido (el ícono) */
+    }
+    
+    /* El ícono de Bootstrap o el que uses, necesita un ajuste si su contenedor es flex */
+    .sidebar .nav-link i { 
+        /* Asegura que el ícono tenga su propio espacio si es necesario */
+        margin-right: 0 !important;
+    }
 }
 
 /* Tablas responsive */

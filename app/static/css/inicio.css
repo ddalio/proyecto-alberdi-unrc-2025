@@ -15,16 +15,53 @@
 .top-buttons,
 .bottom-buttons {
   flex-shrink: 0;
-  padding: 0.25rem 0.5rem; /* reducimos padding para evitar que ocupen demasiado */
+  padding: 0.25rem 0.5rem;
 }
 
 #calendar {
   flex: 1;
-  min-height: 0; /* permite que flex haga su trabajo */
+  min-height: 0;
   overflow: hidden;
 }
+
 .btn-custom {
   background-color: #b90603;
   color: white;
   border-radius: 6px;
+}
+
+/* Mobile optimizations for compact buttons */
+@media (max-width: 768px) {
+  .top-buttons,
+  .bottom-buttons {
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* Make buttons smaller and inline */
+  .top-buttons .d-flex {
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    justify-content: space-between;
+  }
+
+  .top-buttons .btn {
+    width: auto !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.75rem !important;
+    white-space: nowrap;
+  }
+
+  .top-buttons .btn span {
+    display: none;
+  }
+
+  .top-buttons .btn i {
+    margin-right: 0 !important;
+  }
+
+  /* Keep bottom buttons small but full width */
+  .bottom-buttons .btn {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+  }
 }
