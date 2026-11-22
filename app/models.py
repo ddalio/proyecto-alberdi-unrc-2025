@@ -210,7 +210,11 @@ class Libro(db.Model):
 
     #Restricciones para la tabla libro
     __table_args__ = (
-        db.UniqueConstraint("isbn", name="uq_libro_isbn"), db.CheckConstraint("length(trim(titulo)) > 0", name="ck_libro_titulo"), db.CheckConstraint("length(trim(autor)) > 0", name="ck_libro_autor"), db.CheckConstraint("cantidad_paginas IS NULL OR cantidad_paginas > 0", name="ck_libro_paginas", ), db.CheckConstraint("cantidad_copias >= 0", name="ck_libro_copias"), {"mysql_engine": "InnoDB"},
+        db.UniqueConstraint("isbn", name="uq_isbn_libro"), 
+        db.CheckConstraint("length(trim(titulo)) > 0", name="ck_libro_titulo"), 
+        db.CheckConstraint("length(trim(autor)) > 0", name="ck_libro_autor"), 
+        db.CheckConstraint("cantidad_paginas IS NULL OR cantidad_paginas > 0", name="libro_paginas", ), 
+        db.CheckConstraint("cantidad_copias >= 0", name="ck_libro_copias"), {"mysql_engine": "InnoDB"},
     )
 
     id_libro = db.Column( db.Integer, primary_key=True, autoincrement=True)
@@ -222,7 +226,31 @@ class Libro(db.Model):
     idioma = db.Column(db.String(50), nullable=True)
     cantidad_paginas = db.Column(db.Integer, nullable=True)
     cantidad_copias = db.Column(db.Integer, nullable=False)
-    estado = db.Column(db.String(30), nullable=False, server_default="pendiente_integracion", ) # Queda pendiente para conectar con la tabla de prestamo
+
+    prestamos = db.relationship( "Prestamo", back_populates="libro_prestado", )
+
+    #Obtenemos si un libro en especifico figura xomo prestado; si no posee pecha de devolucion significa que se encuentra en prestamo
+    @property
+    def cantidad_prestamos_activos(self):
+        return sum(
+            1
+            for prestamo in self.prestamos
+            if prestamo.fecha_devolucion is None
+        )
+    #Consulta si hay copias disponibles para prestar.
+    @property
+    def cantidad_disponible(self):
+        return self.cantidad_copias - self.cantidad_prestamos_activos
+    #Calcula el estado de prestamo de un libro.
+    @property
+    def estado(self):
+        if self.cantidad_copias == 0:
+            return "sin_existencias"
+
+        if self.cantidad_disponible > 0:
+            return "disponible"
+
+        return "sin_disponibilidad"
 
 # ==============================
 # 10. BIBLIOTECARIO
@@ -233,6 +261,27 @@ class Bibliotecario(db.Model):
 
     nombre_usuario = db.Column( db.String(10), db.ForeignKey( "administrador.nombre_usuario", name="fk_bibliotecario_administrador", ondelete="RESTRICT",), primary_key=True,)
     nombre = db.Column(db.String(20), nullable=False)
+
+
+# ==============================
+# 11. PRESTAMO
+# ==============================
+class Prestamo(db.Model):
+    __tablename__ = 'prestamo'
+    id_prestamo = db.Column(db.Integer, primary_key=True)
+    fecha_prestamo = db.Column(db.Date, nullable=False)
+    fecha_devolucion = db.Column(db.Date, nullable=True) 
+    tiempo_prestamo = db.Column(db.Integer, nullable=False) #corroborar si no va Date
+    dni = db.Column(db.String(20), db.ForeignKey('cliente.dni'))
+    id_libro = db.Column(db.Integer, db.ForeignKey('libro.id_libro')) 
+    nombre_usuario = db.Column(db.String(20), db.ForeignKey('bibliotecario.nombre_usuario'))
+
+    #Relaciones entre las tablas, es para facilitar la navegación
+    deudor = db.relationship('Cliente', backref='prestamos')
+    libro_prestado = db.relationship('Libro', backref='prestamo')
+    # como es una relación N a 1, no hace falta nueva tabla
+    # en compensación se registra esto para facilitar la navegación 
+    gestor_prestamo = db.relationship('Bibliotecario', backref='gestor')
 
 #### ###
 
